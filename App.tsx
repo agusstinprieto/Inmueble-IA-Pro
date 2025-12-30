@@ -170,7 +170,12 @@ const App: React.FC = () => {
   }, [fetchCloudData, activeClient]);
 
   useEffect(() => {
-    if (activeClient) syncAll(true);
+    if (activeClient) {
+      syncAll(true);
+      document.title = `${activeClient.name} OS`;
+    } else {
+      document.title = 'Autopartenon OS';
+    }
   }, [syncAll, activeClient]);
 
   const sendActionToCloud = async (payload: any) => {
