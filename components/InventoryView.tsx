@@ -157,9 +157,9 @@ const InventoryView: React.FC<InventoryViewProps> = ({ inventory, onSellPart, on
       )}
 
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
-        <div className="max-w-full overflow-hidden text-white">
-          <h2 className="text-3xl font-black tracking-tighter uppercase italic truncate">INVENTARIO: {businessName}</h2>
-          <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.2em] mt-1 truncate">Sincronizado con la nube de {location}</p>
+        <div className="max-w-full text-white">
+          <h2 className="text-xl md:text-3xl font-black tracking-tighter uppercase italic leading-tight">INVENTARIO: {businessName}</h2>
+          <p className="text-zinc-500 text-[9px] md:text-[10px] font-bold uppercase tracking-[0.2em] mt-1">Sincronizado con la nube de {location}</p>
         </div>
 
         <div className="flex flex-wrap gap-4 w-full md:w-auto">
