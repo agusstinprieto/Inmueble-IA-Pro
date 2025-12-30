@@ -81,7 +81,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
 
         <div className="text-center mb-10">
           <h1 className="text-2xl font-black text-white italic tracking-tighter uppercase">
-            AUTOPARTENON <span className="text-amber-500">OS</span>
+            GESTIÓN DE STOCK <span className="text-amber-500">OS</span>
           </h1>
           <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em] mt-2">Terminal Multi-Cliente</p>
         </div>
