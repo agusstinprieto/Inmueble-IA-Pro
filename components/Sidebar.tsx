@@ -18,10 +18,20 @@ interface SidebarProps {
   onClose?: () => void;
   businessName: string;
   location: string;
+  lang: 'es' | 'en';
+  onToggleLang: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onClose, businessName, location }) => {
-  const t = translations.es;
+const Sidebar: React.FC<SidebarProps> = ({
+  activeView,
+  onNavigate,
+  onClose,
+  businessName,
+  location,
+  lang,
+  onToggleLang
+}) => {
+  const t = translations[lang] || translations.es;
 
   const navItems = [
     { id: 'dashboard', label: t.dashboard, icon: <LayoutDashboard className="w-4 h-4" /> },
@@ -75,10 +85,26 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onClose, busi
         ))}
       </nav>
 
-      <div className="p-6 border-t border-white/5 shrink-0 bg-black/20 space-y-3">
+      <div className="p-6 border-t border-white/5 shrink-0 bg-black/20 space-y-4">
+        <button
+          onClick={onToggleLang}
+          className="w-full flex items-center justify-between px-4 py-3 bg-white/5 border border-white/5 rounded-xl hover:bg-white/10 transition-all group"
+        >
+          <div className="flex items-center gap-3">
+            <Globe className="w-3.5 h-3.5 text-zinc-500 group-hover:text-amber-500 transition-colors" />
+            <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">
+              {lang === 'es' ? 'Español' : 'English'}
+            </span>
+          </div>
+          <span className="text-[8px] font-black text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-md uppercase tracking-tighter">
+            {lang === 'es' ? 'Switch' : 'Cambiar'}
+          </span>
+        </button>
+
         <div className="flex items-center gap-3 text-zinc-600 text-[9px] font-black uppercase tracking-widest truncate">
           <Globe className="w-3 h-3 shrink-0" /> {location}
         </div>
+
         <div className="pt-2 border-t border-white/5">
           <p className="text-[7px] font-black text-amber-500/50 uppercase tracking-widest leading-relaxed">
             POWERED BY IA.AGUS<br />

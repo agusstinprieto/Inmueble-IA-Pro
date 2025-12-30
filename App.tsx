@@ -22,8 +22,16 @@ const hexToRgb = (hex: string) => {
 const App: React.FC = () => {
   const [activeClient, setActiveClient] = useState<ClientConfig | null>(null);
   const [activeView, setActiveView] = useState<string>('dashboard');
-  const [lang, setLang] = useState<'es' | 'en'>('es');
+  const [lang, setLang] = useState<'es' | 'en'>(() => {
+    return (localStorage.getItem('app_lang') as 'es' | 'en') || 'en';
+  });
   const [inventory, setInventory] = useState<Part[]>([]);
+
+  const toggleLang = () => {
+    const newLang = lang === 'es' ? 'en' : 'es';
+    setLang(newLang);
+    localStorage.setItem('app_lang', newLang);
+  };
   const [salesRecords, setSalesRecords] = useState<Part[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [cloudStatus, setCloudStatus] = useState<'connected' | 'error' | 'offline'>('offline');
@@ -404,10 +412,12 @@ const App: React.FC = () => {
       <div className={`fixed inset-y-0 left-0 z-[70] transition-transform duration-300 transform md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <Sidebar
           activeView={activeView}
-          onNavigate={handleNavigate}
+          onNavigate={(v) => { setActiveView(v); setIsSidebarOpen(false); }}
           onClose={() => setIsSidebarOpen(false)}
           businessName={activeClient.name}
           location={activeClient.location}
+          lang={lang}
+          onToggleLang={toggleLang}
         />
       </div>
 
