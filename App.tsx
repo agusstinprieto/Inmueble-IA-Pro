@@ -102,7 +102,7 @@ const App: React.FC = () => {
 
   const normalizeCloudData = (data: any[]): Part[] => {
     if (!Array.isArray(data)) return [];
-    return data.map((item: any) => {
+    const normalized = data.map((item: any) => {
       const parsePrice = (val: any) => {
         if (typeof val === 'number') return val;
         if (!val) return 0;
@@ -138,6 +138,8 @@ const App: React.FC = () => {
         }
       };
     });
+    console.log('DEBUG: Normalized parts:', normalized);
+    return normalized;
   };
 
   const fetchCloudData = useCallback(async (sheet: string = "INVENTARIO") => {
@@ -211,6 +213,8 @@ const App: React.FC = () => {
         fecha: payload.fecha || new Date().toISOString(),
         timestamp: new Date().toISOString()
       };
+
+      console.log('DEBUG: Final payload to cloud:', finalPayload);
 
       await fetch(activeClient.scriptUrl, {
         method: "POST",

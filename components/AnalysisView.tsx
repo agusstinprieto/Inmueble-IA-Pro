@@ -222,6 +222,7 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ onAddParts, lang, businessN
 
           const fileName = `part_${Date.now()}_${businessName.replace(/\s+/g, '_')}.jpg`;
           const uploadedUrl = await uploadPartImage(blob, fileName);
+          console.log('DEBUG: Uploaded Image URL:', uploadedUrl);
           if (uploadedUrl) imageUrl = uploadedUrl;
         }
 
