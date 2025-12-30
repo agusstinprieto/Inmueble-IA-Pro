@@ -22,7 +22,7 @@ const SalesView: React.FC<SalesViewProps> = ({ salesHistory, onRefresh, lang, bu
   const getDisplayPrice = (part: Part) => part.finalPrice || part.suggestedPrice || 0;
 
   const invoiceContent = selectedPart ? `
-${businessName.toUpperCase()} - INVOICE #${Math.floor(Math.random()*10000)}
+${businessName.toUpperCase()} - INVOICE #${Math.floor(Math.random() * 10000)}
 ${t.date} ${new Date().toLocaleDateString()}
 ${t.location} ${location}
 
@@ -52,7 +52,7 @@ ${t.no_returns}
 
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-6 text-white">
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <header>
         <div>
           <h2 className="text-2xl md:text-3xl font-black italic uppercase tracking-tighter flex items-center gap-3">
             <ReceiptText className="text-amber-500 w-6 h-6 md:w-8 md:h-8" />
@@ -60,9 +60,6 @@ ${t.no_returns}
           </h2>
           <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">Terminal: {businessName}</p>
         </div>
-        <button onClick={onRefresh} className="bg-zinc-900 border border-white/10 px-4 py-2 rounded-xl text-white hover:bg-zinc-800 transition-all flex items-center gap-2 text-xs font-black uppercase tracking-widest">
-          <RefreshCw className="w-3.5 h-3.5" /> {lang === 'es' ? 'Sincronizar' : 'Sync'}
-        </button>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
