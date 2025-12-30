@@ -55,7 +55,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
       <div className="p-8 shrink-0">
         <h1 className="text-lg md:text-xl font-black italic tracking-tighter text-white uppercase leading-none">
-          {businessName} <span className="text-amber-500">OS</span>
+          {businessName} <span style={{ color: 'var(--brand-color)' }}>OS</span>
         </h1>
         <p className="text-[8px] text-white/30 uppercase tracking-[0.4em] font-black mt-2 truncate">
           Terminal v1.9 Multi-Tenant
@@ -68,14 +68,15 @@ const Sidebar: React.FC<SidebarProps> = ({
             key={item.id}
             onClick={() => onNavigate(item.id)}
             className={`w-full text-left px-5 py-4 rounded-2xl flex items-center gap-4 transition-all relative group overflow-hidden ${activeView === item.id
-              ? 'bg-amber-500/10 text-amber-500 font-black'
+              ? 'text-white font-black'
               : 'text-zinc-500 hover:text-white hover:bg-white/5'
               }`}
+            style={activeView === item.id ? { backgroundColor: 'rgba(var(--brand-color-rgb), 0.1)', color: 'var(--brand-color)' } : {}}
           >
             {activeView === item.id && (
-              <span className="absolute left-2 w-1 h-4 bg-amber-500 rounded-full" />
+              <span className="absolute left-2 w-1 h-4 rounded-full" style={{ backgroundColor: 'var(--brand-color)' }} />
             )}
-            <span className={`shrink-0 ${activeView === item.id ? 'text-amber-500' : 'text-zinc-600 group-hover:text-zinc-300'}`}>
+            <span className="shrink-0 transition-colors" style={{ color: activeView === item.id ? 'var(--brand-color)' : 'rgb(82 82 91)' }}>
               {item.icon}
             </span>
             <span className="text-[10px] uppercase tracking-widest font-bold truncate whitespace-nowrap">
@@ -91,12 +92,18 @@ const Sidebar: React.FC<SidebarProps> = ({
           className="w-full flex items-center justify-between px-4 py-3 bg-white/5 border border-white/5 rounded-xl hover:bg-white/10 transition-all group"
         >
           <div className="flex items-center gap-3">
-            <Globe className="w-3.5 h-3.5 text-zinc-500 group-hover:text-amber-500 transition-colors" />
+            <Globe className="w-3.5 h-3.5 text-zinc-500 group-hover:text-[var(--brand-color)] transition-colors" />
             <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">
               {lang === 'es' ? 'Español' : 'English'}
             </span>
           </div>
-          <span className="text-[8px] font-black text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-md uppercase tracking-tighter">
+          <span
+            className="text-[8px] font-black px-2 py-0.5 rounded-md uppercase tracking-tighter"
+            style={{
+              color: 'var(--brand-color)',
+              backgroundColor: 'rgba(var(--brand-color-rgb), 0.1)'
+            }}
+          >
             {lang === 'es' ? 'Switch' : 'Cambiar'}
           </span>
         </button>
