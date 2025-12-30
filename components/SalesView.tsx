@@ -58,7 +58,7 @@ ${t.no_returns}
             <ReceiptText className="text-amber-500 w-6 h-6 md:w-8 md:h-8" />
             Ventas & Facturas
           </h2>
-          <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">Terminal: {businessName}</p>
+          <p className="text-zinc-500 text-[11px] font-black uppercase tracking-[0.2em] mt-1 italic opacity-60">Terminal: {businessName}</p>
         </div>
       </header>
 
@@ -72,7 +72,7 @@ ${t.no_returns}
               <div key={part.id} className={`p-4 md:p-5 rounded-2xl border transition-all cursor-pointer flex justify-between items-center group relative overflow-hidden ${selectedPart?.id === part.id ? 'bg-amber-500/10 border-amber-500/50' : 'bg-zinc-900/40 border-white/5 hover:border-white/10'}`} onClick={() => setSelectedPart(part)}>
                 <div className="space-y-1 pr-4">
                   <h4 className="text-white font-black text-sm uppercase tracking-tight group-hover:text-amber-500 transition-colors">{part.name}</h4>
-                  <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-wider">{part.vehicleInfo.year} {part.vehicleInfo.make} {part.vehicleInfo.model}</p>
+                  <p className="text-zinc-500 text-[11px] font-black uppercase tracking-wider opacity-60">{part.vehicleInfo.year} {part.vehicleInfo.make} {part.vehicleInfo.model}</p>
                 </div>
                 <div className="text-right flex flex-col items-end gap-2 shrink-0">
                   <p className="text-xl text-green-500 font-mono font-black">${getDisplayPrice(part).toLocaleString()}</p>
@@ -87,9 +87,12 @@ ${t.no_returns}
           {selectedPart ? (
             <div className="bg-zinc-900/60 border border-zinc-800 rounded-[2.5rem] p-6 md:p-8 space-y-6 animate-in fade-in zoom-in-95 duration-300">
               <div className="flex justify-between items-center">
-                <div className="bg-amber-500/10 text-amber-500 px-3 py-1 rounded-lg border border-amber-500/20 text-[10px] font-black uppercase tracking-widest">Configurador</div>
-                <button onClick={handleCopy} className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${isCopying ? 'bg-green-600' : 'bg-amber-500 text-black hover:bg-amber-400'}`}>
-                  {isCopying ? <FileText className="w-3.5 h-3.5 animate-bounce" /> : <Copy className="w-3.5 h-3.5" />}
+                <div className="bg-amber-500/10 text-amber-500 px-4 py-1.5 rounded-lg border border-amber-500/20 text-[11px] font-black uppercase tracking-widest">Configurador</div>
+                <button
+                  onClick={handleCopy}
+                  className={`px-8 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all flex items-center gap-3 shadow-lg ${isCopying ? 'bg-green-600 text-white' : 'bg-amber-500 text-[var(--brand-text-color)] hover:brightness-110'}`}
+                >
+                  {isCopying ? <FileText className="w-4 h-4 animate-bounce" /> : <Copy className="w-4 h-4" />}
                   {isCopying ? '¡COPIADO!' : t.copy_docs}
                 </button>
               </div>
@@ -104,7 +107,7 @@ ${t.no_returns}
           ) : (
             <div className="bg-zinc-900/10 border border-dashed border-zinc-800 h-64 md:h-[500px] rounded-[3rem] flex flex-col items-center justify-center p-8 text-center text-zinc-600">
               <Share2 className="w-6 h-6 opacity-20 mb-4" />
-              <p className="text-[10px] font-black uppercase tracking-[0.3em]">Selecciona una venta de {businessName} para facturar.</p>
+              <p className="text-[11px] font-black uppercase tracking-[0.3em]">Selecciona una venta de {businessName} para facturar.</p>
             </div>
           )}
         </div>

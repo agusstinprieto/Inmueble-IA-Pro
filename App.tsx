@@ -12,6 +12,17 @@ import { translations } from './translations';
 import { supabase, getBusinessProfile, signOut } from './services/supabase';
 import { Loader2, RefreshCw, Wifi, CloudFog, Menu as MenuIcon, X, LogOut } from 'lucide-react';
 
+const getContrastColor = (hex: string) => {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  if (!result) return 'black';
+  const r = parseInt(result[1], 16);
+  const g = parseInt(result[2], 16);
+  const b = parseInt(result[3], 16);
+  // Calculate relative luminance
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance > 0.6 ? 'black' : 'white';
+};
+
 const hexToRgb = (hex: string) => {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result ?
@@ -388,6 +399,7 @@ const App: React.FC = () => {
         :root {
           --brand-color: ${brandColor};
           --brand-color-rgb: ${brandColor.startsWith('#') ? hexToRgb(brandColor) : '245, 158, 11'};
+          --brand-text-color: ${brandColor.startsWith('#') ? getContrastColor(brandColor) : 'black'};
         }
         .text-amber-500 { color: var(--brand-color) !important; }
         .bg-amber-500 { background-color: var(--brand-color) !important; }
@@ -437,8 +449,8 @@ const App: React.FC = () => {
               <LogOut className="w-5 h-5" />
             </button>
           </div>
-          <h1 className="text-xs font-black italic tracking-tighter text-white uppercase truncate px-2">
-            {activeClient.name} <span className="text-amber-500">OS</span>
+          <h1 className="text-sm font-black italic tracking-tighter text-white uppercase truncate px-2">
+            {activeClient.name} <span style={{ color: 'var(--brand-color)' }}>OS</span>
           </h1>
           <button onClick={() => syncAll(true)} className="p-2 text-zinc-500 bg-white/5 rounded-xl">
             <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin text-amber-500' : ''}`} />
@@ -447,12 +459,12 @@ const App: React.FC = () => {
 
         <div className="hidden md:flex absolute top-4 right-8 items-center gap-3 z-50">
           {isSyncing && (
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[9px] font-black uppercase tracking-widest animate-pulse shrink-0">
-              <CloudFog className="w-3 h-3" /> Escribiendo...
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[10px] font-black uppercase tracking-widest animate-pulse shrink-0">
+              <CloudFog className="w-3.5 h-3.5" /> Escribiendo...
             </div>
           )}
-          <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-[9px] font-black uppercase tracking-widest shrink-0 ${cloudStatus === 'connected' ? 'bg-green-500/10 border-green-500/20 text-green-500' : 'bg-red-500/10 border-red-500/20 text-red-500'}`}>
-            <Wifi className="w-3 h-3" /> {cloudStatus === 'connected' ? 'ONLINE' : 'OFFLINE'}
+          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[10px] font-black uppercase tracking-widest shrink-0 ${cloudStatus === 'connected' ? 'bg-green-500/10 border-green-500/20 text-green-500' : 'bg-red-500/10 border-red-500/20 text-red-500'}`}>
+            <Wifi className="w-3.5 h-3.5" /> {cloudStatus === 'connected' ? 'ONLINE' : 'OFFLINE'}
           </div>
           <button onClick={() => syncAll(true)} className="p-2 bg-zinc-900 border border-white/5 rounded-lg hover:bg-zinc-800 transition-colors shrink-0">
             <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin text-amber-500' : 'text-zinc-400'}`} />
@@ -467,20 +479,20 @@ const App: React.FC = () => {
             <div className="p-4 md:p-8 max-w-7xl mx-auto w-full space-y-6 md:space-y-8 animate-in fade-in duration-500 overflow-x-hidden pt-6 md:pt-8">
               <header className="overflow-hidden">
                 <h2 className="text-2xl md:text-3xl font-black italic tracking-tighter uppercase truncate">{t.operational_dashboard}</h2>
-                <p className="text-zinc-500 text-[10px] md:text-xs font-bold uppercase mt-1 truncate">Terminal de Control • {activeClient.location}</p>
+                <p className="text-zinc-500 text-[11px] font-black uppercase mt-1 tracking-[0.2em] opacity-60 truncate">Terminal de Control • {activeClient.location}</p>
               </header>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-                <div className="bg-zinc-900/50 border border-white/5 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden">
-                  <p className="text-[9px] md:text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 truncate">{t.available_stock}</p>
+                <div className="bg-zinc-900/50 border border-white/5 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden group hover:border-white/10 transition-colors">
+                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-3 truncate group-hover:text-zinc-300 transition-colors">{t.available_stock}</p>
                   <p className="text-3xl md:text-4xl lg:text-5xl font-black text-white italic truncate">{inventory.length}</p>
                 </div>
-                <div className="bg-zinc-900/50 border border-white/5 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden">
-                  <p className="text-[9px] md:text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 truncate">{t.total_revenue}</p>
+                <div className="bg-zinc-900/50 border border-white/5 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden group hover:border-white/10 transition-colors">
+                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-3 truncate group-hover:text-zinc-300 transition-colors">{t.total_revenue}</p>
                   <p className="text-3xl md:text-4xl lg:text-5xl font-black text-green-500 italic truncate">${salesRecords.reduce((acc, p) => acc + (p.finalPrice || 0), 0).toLocaleString()}</p>
                 </div>
-                <div className="bg-zinc-900/50 border border-white/5 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden">
-                  <p className="text-[9px] md:text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 truncate">Valor Inventario</p>
+                <div className="bg-zinc-900/50 border border-white/5 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden group hover:border-white/10 transition-colors">
+                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-3 truncate group-hover:text-zinc-300 transition-colors">Valor Inventario</p>
                   <p className="text-3xl md:text-4xl lg:text-5xl font-black text-blue-400 italic truncate">${inventory.reduce((acc, p) => acc + (p.suggestedPrice || 0), 0).toLocaleString()}</p>
                 </div>
               </div>

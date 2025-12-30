@@ -190,10 +190,10 @@ const InventoryView: React.FC<InventoryViewProps> = ({
               <div className="flex gap-4 shrink-0">
                 <button
                   onClick={handleCopyAd}
-                  className={`flex-1 py-4 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest transition-all ${isCopied ? 'bg-green-600 text-white' : 'bg-amber-500 text-black hover:bg-amber-400'
+                  className={`flex-1 py-5 rounded-2xl flex items-center justify-center gap-3 text-[11px] font-black uppercase tracking-widest transition-all ${isCopied ? 'bg-green-600 text-white' : 'bg-amber-500 text-[var(--brand-text-color)] hover:brightness-110'
                     }`}
                 >
-                  {isCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                  {isCopied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
                   {isCopied ? (lang === 'es' ? 'COPIADO' : 'COPIED') : t.copy_ad}
                 </button>
               </div>
@@ -211,9 +211,9 @@ const InventoryView: React.FC<InventoryViewProps> = ({
 
           <button
             onClick={() => setIsBatchModalOpen(true)}
-            className="flex items-center gap-2 px-6 py-4 bg-zinc-900 border border-white/5 rounded-2xl text-[10px] font-black text-amber-500 uppercase tracking-widest hover:bg-zinc-800 transition-all active:scale-95 shadow-lg shadow-black/20"
+            className="flex items-center gap-3 px-8 py-5 bg-zinc-900 border border-white/5 rounded-2xl text-[11px] font-black text-amber-500 uppercase tracking-widest hover:bg-zinc-800 transition-all active:scale-95 shadow-lg shadow-black/20"
           >
-            <CheckCircle2 className="w-4 h-4" /> Administrar por Lote
+            <CheckCircle2 className="w-5 h-5" /> Administrar por Lote
           </button>
         </div>
 
@@ -280,11 +280,11 @@ const InventoryView: React.FC<InventoryViewProps> = ({
                   </div>
                 </div>
                 <div className="flex items-baseline gap-1.5 pt-4 border-t border-white/5 overflow-hidden">
-                  <p className="text-amber-500 font-mono text-2xl md:text-3xl font-black truncate">${part.suggestedPrice.toLocaleString()}</p>
+                  <p className="text-amber-500 font-mono text-3xl font-black truncate">${part.suggestedPrice.toLocaleString()}</p>
                 </div>
               </div>
-              <div className="px-6 pb-6">
-                <button onClick={() => setPartToSell(part)} className="w-full py-4 bg-amber-500 hover:bg-amber-400 text-black text-[10px] font-black rounded-2xl transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-amber-500/10 shrink-0">
+              <div className="px-6 pb-6 mt-auto">
+                <button onClick={() => setPartToSell(part)} className="w-full py-5 bg-amber-500 hover:brightness-110 text-[var(--brand-text-color)] text-[11px] font-black rounded-2xl transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-amber-500/10 shrink-0">
                   <DollarSign className="w-4 h-4 shrink-0" /> {t.register_sale}
                 </button>
               </div>

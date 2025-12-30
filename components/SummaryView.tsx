@@ -94,7 +94,7 @@ const SummaryView: React.FC<SummaryViewProps> = ({ inventory, lang, location }) 
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,_rgba(245,158,11,0.05),_transparent_70%)] pointer-events-none"></div>
         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
           <div>
-            <p className="text-[10px] font-black text-amber-500/60 uppercase tracking-[0.4em] mb-3">{t.inventory_value} (TOTAL)</p>
+            <p className="text-[11px] font-black text-amber-500/60 uppercase tracking-[0.4em] mb-3">{t.inventory_value} (TOTAL)</p>
             <p className="text-5xl md:text-7xl font-black text-white italic tracking-tighter">
               ${totalValue.toLocaleString()}
               <span className="text-zinc-700 text-2xl md:text-3xl ml-4 not-italic">USD</span>
@@ -102,12 +102,12 @@ const SummaryView: React.FC<SummaryViewProps> = ({ inventory, lang, location }) 
           </div>
           <div className="flex gap-4">
             <div className="bg-black/40 border border-white/5 p-6 rounded-3xl text-center min-w-[120px]">
-              <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-1">{t.available_stock}</p>
-              <p className="text-2xl font-black text-white">{availableParts.length}</p>
+              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2">{t.available_stock}</p>
+              <p className="text-3xl font-black text-white">{availableParts.length}</p>
             </div>
             <div className="bg-black/40 border border-white/5 p-6 rounded-3xl text-center min-w-[120px]">
-              <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-1">PROM. PIEZA</p>
-              <p className="text-2xl font-black text-green-500">
+              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2">PROM. PIEZA</p>
+              <p className="text-3xl font-black text-green-500">
                 ${availableParts.length > 0 ? Math.round(totalValue / availableParts.length).toLocaleString() : 0}
               </p>
             </div>
@@ -128,25 +128,25 @@ const SummaryView: React.FC<SummaryViewProps> = ({ inventory, lang, location }) 
             <table className="w-full text-left">
               <thead>
                 <tr className="bg-black/20">
-                  <th className="px-8 py-4 text-[9px] font-black text-zinc-600 uppercase tracking-widest">CATEGORÍA</th>
-                  <th className="px-8 py-4 text-[9px] font-black text-zinc-600 uppercase tracking-widest text-right">PIEZAS</th>
-                  <th className="px-8 py-4 text-[9px] font-black text-zinc-600 uppercase tracking-widest text-right">VALOR ($)</th>
-                  <th className="px-8 py-4 text-[9px] font-black text-zinc-600 uppercase tracking-widest text-right">%</th>
+                  <th className="px-8 py-5 text-[10px] font-black text-zinc-600 uppercase tracking-widest">CATEGORÍA</th>
+                  <th className="px-8 py-5 text-[10px] font-black text-zinc-600 uppercase tracking-widest text-right">PIEZAS</th>
+                  <th className="px-8 py-5 text-[10px] font-black text-zinc-600 uppercase tracking-widest text-right">VALOR ($)</th>
+                  <th className="px-8 py-5 text-[10px] font-black text-zinc-600 uppercase tracking-widest text-right">%</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
                 {categorySummary.map((item, index) => (
                   <tr key={item.category} className="hover:bg-white/5 transition-colors group">
-                    <td className="px-8 py-5">
+                    <td className="px-8 py-6">
                       <div className="flex items-center gap-3">
-                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: colors[index % colors.length] }}></div>
-                        <span className="text-[11px] font-black text-white uppercase truncate">{item.label}</span>
+                        <div className="w-2.5 h-2.5 rounded-full shadow-[0_0_10px_rgba(0,0,0,0.5)]" style={{ backgroundColor: colors[index % colors.length] }}></div>
+                        <span className="text-[12px] font-black text-white uppercase truncate">{item.label}</span>
                       </div>
                     </td>
-                    <td className="px-8 py-5 text-right font-mono text-zinc-500 text-[11px]">{item.count}</td>
-                    <td className="px-8 py-5 text-right font-mono text-amber-500 font-bold text-[11px]">${item.value.toLocaleString()}</td>
-                    <td className="px-8 py-5 text-right">
-                      <span className="bg-zinc-800 text-zinc-400 text-[9px] font-black px-2 py-1 rounded-md">
+                    <td className="px-8 py-6 text-right font-mono text-zinc-500 text-[12px]">{item.count}</td>
+                    <td className="px-8 py-6 text-right font-mono text-amber-500 font-bold text-[12px]">${item.value.toLocaleString()}</td>
+                    <td className="px-8 py-6 text-right">
+                      <span className="bg-zinc-800 text-zinc-300 text-[10px] font-black px-3 py-1.5 rounded-lg border border-white/5">
                         {item.percentage.toFixed(1)}%
                       </span>
                     </td>

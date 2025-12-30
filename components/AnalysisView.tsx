@@ -296,16 +296,20 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ onAddParts, lang, businessN
                 <div className="p-4 flex flex-col items-center text-center">
                   <Upload className="w-12 h-12 text-zinc-700 mb-4" />
                   <p className="text-xs font-black uppercase text-zinc-500 tracking-widest mb-6">{t.click_upload}</p>
-                  <div className="flex flex-col sm:flex-row gap-3 md:gap-4 w-full px-6 sm:px-0 sm:w-auto">
-                    <button onClick={startCamera} className="w-full sm:w-auto flex items-center justify-center gap-3 px-6 py-4 bg-amber-500 text-black rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-400 active:scale-95 transition-all"><Camera className="w-4 h-4" />{t.take_photo}</button>
-                    <button onClick={() => fileInputRef.current?.click()} className="w-full sm:w-auto flex items-center justify-center gap-3 px-6 py-4 bg-zinc-800 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-zinc-700 active:scale-95 transition-all"><ImageIcon className="w-4 h-4" />Archivos</button>
+                  <div className="flex flex-col sm:flex-row gap-3 md:gap-4 w-full px-6 sm:px-0 sm:w-auto mt-4">
+                    <button onClick={startCamera} className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-5 bg-amber-500 text-[var(--brand-text-color)] rounded-2xl text-[11px] font-black uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-amber-500/10"><Camera className="w-4 h-4" />{t.take_photo}</button>
+                    <button onClick={() => fileInputRef.current?.click()} className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-5 bg-zinc-800 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-zinc-700 active:scale-95 transition-all outline outline-1 outline-white/5 shadow-xl"><ImageIcon className="w-4 h-4" />Archivos</button>
                   </div>
                 </div>
               )}
             </div>
             <input ref={fileInputRef} type="file" accept="image/*,video/*" multiple className="hidden" onChange={handleFileUpload} />
-            <button onClick={startMediaAnalysis} disabled={analyzing || mediaItems.length === 0} className="mt-8 w-full bg-amber-500 hover:bg-amber-400 disabled:bg-zinc-800 disabled:text-zinc-600 text-black font-black py-5 rounded-2xl flex justify-center items-center gap-4 transition-all uppercase tracking-[0.3em] text-[10px]">
-              {analyzing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+            <button
+              onClick={startMediaAnalysis}
+              disabled={analyzing || mediaItems.length === 0}
+              className="mt-8 w-full bg-amber-500 hover:brightness-110 disabled:bg-zinc-800 disabled:text-zinc-600 text-[var(--brand-text-color)] font-black py-6 rounded-3xl flex justify-center items-center gap-4 transition-all uppercase tracking-[0.3em] text-[12px] shadow-2xl shadow-amber-500/20"
+            >
+              {analyzing ? <Loader2 className="w-5 h-5 animate-spin" /> : <RefreshCw className="w-5 h-5" />}
               {lang === 'es' ? 'ANALIZAR TODO EL LOTE' : 'ANALYZE ALL MEDIA'}
             </button>
           </div>
@@ -318,9 +322,14 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ onAddParts, lang, businessN
               <h3 className="text-white font-black text-xl uppercase tracking-tight italic">RESULTADOS MULTI-VEHÍCULO</h3>
               <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mt-1">Se detectaron {Array.from(new Set(pendingParts.map(p => `${p.vehicleInfo.make} ${p.vehicleInfo.model}`))).length} modelos distintos</p>
             </div>
-            <div className="flex gap-4">
-              <button onClick={() => setPendingParts(null)} className="px-8 py-4 bg-zinc-800 text-zinc-400 rounded-2xl text-[10px] font-black uppercase tracking-widest">DESCARTAR</button>
-              <button onClick={handleConfirmSave} className="px-8 py-4 bg-amber-500 hover:bg-amber-400 text-black rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg flex items-center gap-3"><Save className="w-4 h-4" />CONFIRMAR TODO</button>
+            <div className="flex gap-4 w-full md:w-auto">
+              <button onClick={() => setPendingParts(null)} className="flex-1 md:flex-none px-8 py-5 bg-zinc-800 text-zinc-400 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-zinc-700 transition-all">DESCARTAR</button>
+              <button
+                onClick={handleConfirmSave}
+                className="flex-1 md:flex-none px-8 py-5 bg-amber-500 hover:brightness-110 text-[var(--brand-text-color)] rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-xl shadow-amber-500/10 flex items-center justify-center gap-3 active:scale-95 transition-all"
+              >
+                <Save className="w-4 h-4" />CONFIRMAR TODO
+              </button>
             </div>
           </div>
 
