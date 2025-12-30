@@ -328,6 +328,7 @@ const App: React.FC = () => {
         .border-amber-500\\/20 { border-color: rgba(var(--brand-color-rgb), 0.2) !important; }
         .border-amber-500\\/30 { border-color: rgba(var(--brand-color-rgb), 0.3) !important; }
         .border-amber-500\\/50 { border-color: rgba(var(--brand-color-rgb), 0.5) !important; }
+        .text-amber-500\\/50 { color: rgba(var(--brand-color-rgb), 0.5) !important; }
         .text-amber-500\\/60 { color: rgba(var(--brand-color-rgb), 0.6) !important; }
         .shadow-amber-500\\/10 { --tw-shadow-color: rgba(var(--brand-color-rgb), 0.1); --tw-shadow: var(--tw-shadow-colored); }
         .shadow-amber-500\\/20 { --tw-shadow-color: rgba(var(--brand-color-rgb), 0.2); --tw-shadow: var(--tw-shadow-colored); }
