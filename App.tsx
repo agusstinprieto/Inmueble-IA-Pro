@@ -128,6 +128,7 @@ const App: React.FC = () => {
         minPrice: parsePrice(item.minPrice || 0),
         finalPrice: rawFinalPrice ? parsePrice(rawFinalPrice) : (isSold ? parsePrice(rawPrice) : undefined),
         dateAdded: String(item.fecha || item.dateAdded || item.fechaVenta || new Date().toISOString()),
+        imageUrl: item.imagen || item.imageUrl || item.Imagen || undefined,
         vehicleInfo: {
           year: Number(item.anio || item.year || 0),
           make: String(item.marca || item.make || "N/A"),
@@ -206,6 +207,7 @@ const App: React.FC = () => {
         finalPrice: payload.finalPrice || payload.precioVenta || 0,
         status: payload.status || 'AVAILABLE',
         vin: payload.vin || payload.vehicleInfo?.vin || '',
+        imagen: payload.imageUrl || '',
         fecha: payload.fecha || new Date().toISOString(),
         timestamp: new Date().toISOString()
       };

@@ -61,3 +61,25 @@ export const getBusinessProfile = async (userId: string): Promise<BusinessProfil
 
     return data;
 };
+
+export const uploadPartImage = async (file: Blob | File, fileName: string): Promise<string | null> => {
+    try {
+        const { data, error } = await supabase.storage
+            .from('inventory')
+            .upload(fileName, file, {
+                cacheControl: '3600',
+                upsert: true
+            });
+
+        if (error) throw error;
+
+        const { data: { publicUrl } } = supabase.storage
+            .from('inventory')
+            .getPublicUrl(data.path);
+
+        return publicUrl;
+    } catch (err) {
+        console.error('Upload error:', err);
+        return null;
+    }
+};

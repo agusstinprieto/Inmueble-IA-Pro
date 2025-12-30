@@ -2,6 +2,7 @@
 import { AlertCircle, Camera, Car, Disc, Film, Fingerprint, Image as ImageIcon, Loader2, Plus, RefreshCw, Save, Trash2, Upload, X } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { analyzeVehicleMedia } from '../services/gemini';
+import { uploadPartImage } from '../services/supabase';
 import { translations } from '../translations';
 import { AnalysisResult, Part, PartCategory, PartStatus } from '../types';
 
@@ -203,8 +204,42 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ onAddParts, lang, businessN
     }
   };
 
-  const handleConfirmSave = () => {
-    if (pendingParts) {
+  const handleConfirmSave = async () => {
+    if (pendingParts && mediaItems.length > 0) {
+      setAnalyzing(true);
+      try {
+        let imageUrl: string | undefined;
+        const firstItem = mediaItems.find(i => i.type === 'image' && i.b64);
+
+        if (firstItem && firstItem.b64) {
+          const byteCharacters = atob(firstItem.b64);
+          const byteNumbers = new Array(byteCharacters.length);
+          for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+          }
+          const byteArray = new Uint8Array(byteNumbers);
+          const blob = new Blob([byteArray], { type: 'image/jpeg' });
+
+          const fileName = `part_${Date.now()}_${businessName.replace(/\s+/g, '_')}.jpg`;
+          const uploadedUrl = await uploadPartImage(blob, fileName);
+          if (uploadedUrl) imageUrl = uploadedUrl;
+        }
+
+        const partsWithImages = pendingParts.map(p => ({
+          ...p,
+          imageUrl: imageUrl || p.imageUrl
+        }));
+
+        onAddParts(partsWithImages);
+        setPendingParts(null);
+        setMediaItems([]);
+      } catch (err) {
+        console.error('Error saving with images:', err);
+        setErrorMessage('Error al subir imágenes');
+      } finally {
+        setAnalyzing(false);
+      }
+    } else if (pendingParts) {
       onAddParts(pendingParts);
       setPendingParts(null);
       setMediaItems([]);

@@ -243,13 +243,30 @@ const InventoryView: React.FC<InventoryViewProps> = ({
       {viewMode === 'grid' ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-in slide-in-from-bottom-4 duration-500">
           {sortedInventory.map(part => (
-            <div key={part.id} className="bg-zinc-900/60 border border-white/5 rounded-[2.5rem] p-6 relative flex flex-col justify-between shadow-xl hover:border-amber-500/20 transition-all group overflow-hidden h-full">
-              <div className="absolute top-5 right-5 flex gap-2 z-20">
-                <button onClick={() => handleCreateAd(part)} className="text-zinc-600 hover:text-amber-500 p-2.5 bg-black/40 rounded-xl transition-all active:scale-90" title={t.create_ad}><Megaphone className="w-4 h-4" /></button>
-                <button onClick={() => setPartToDelete(part)} className="text-zinc-600 hover:text-red-500 p-2.5 bg-black/40 rounded-xl transition-all active:scale-90"><Trash2 className="w-4 h-4" /></button>
+            <div key={part.id} className="bg-zinc-900/60 border border-white/5 rounded-[2.5rem] relative flex flex-col justify-between shadow-xl hover:border-amber-500/20 transition-all group overflow-hidden h-full">
+              {/* Image Section */}
+              <div className="h-48 w-full bg-black/40 relative overflow-hidden shrink-0">
+                {part.imageUrl ? (
+                  <img
+                    src={part.imageUrl}
+                    alt={part.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center text-zinc-800 gap-2">
+                    <Car className="w-12 h-12 opacity-20" />
+                    <span className="text-[8px] font-black uppercase tracking-widest opacity-30">No Image</span>
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 to-transparent opacity-60" />
               </div>
 
-              <div className="space-y-4">
+              <div className="absolute top-5 right-5 flex gap-2 z-20">
+                <button onClick={() => handleCreateAd(part)} className="text-white hover:text-amber-500 p-2.5 bg-black/60 backdrop-blur-md rounded-xl transition-all active:scale-90 shadow-lg" title={t.create_ad}><Megaphone className="w-4 h-4" /></button>
+                <button onClick={() => setPartToDelete(part)} className="text-white hover:text-red-500 p-2.5 bg-black/60 backdrop-blur-md rounded-xl transition-all active:scale-90 shadow-lg"><Trash2 className="w-4 h-4" /></button>
+              </div>
+
+              <div className="p-6 space-y-4">
                 <span className="inline-block text-[8px] font-black bg-zinc-800 text-zinc-400 px-3 py-1.5 rounded-lg border border-white/5 uppercase tracking-widest truncate max-w-full">
                   {(t.categories as any)[part.category] || part.category}
                 </span>
@@ -266,9 +283,11 @@ const InventoryView: React.FC<InventoryViewProps> = ({
                   <p className="text-amber-500 font-mono text-2xl md:text-3xl font-black truncate">${part.suggestedPrice.toLocaleString()}</p>
                 </div>
               </div>
-              <button onClick={() => setPartToSell(part)} className="w-full mt-8 py-4 bg-amber-500 hover:bg-amber-400 text-black text-[10px] font-black rounded-2xl transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-amber-500/10 shrink-0">
-                <DollarSign className="w-4 h-4 shrink-0" /> {t.register_sale}
-              </button>
+              <div className="px-6 pb-6">
+                <button onClick={() => setPartToSell(part)} className="w-full py-4 bg-amber-500 hover:bg-amber-400 text-black text-[10px] font-black rounded-2xl transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-amber-500/10 shrink-0">
+                  <DollarSign className="w-4 h-4 shrink-0" /> {t.register_sale}
+                </button>
+              </div>
             </div>
           ))}
         </div>

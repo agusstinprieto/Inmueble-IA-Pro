@@ -42,6 +42,7 @@ export interface Part {
   finalPrice?: number;
   status: PartStatus;
   dateAdded: string;
+  imageUrl?: string;
 }
 
 export interface AnalysisGroup {
