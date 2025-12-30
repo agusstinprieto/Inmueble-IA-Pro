@@ -351,10 +351,15 @@ const App: React.FC = () => {
 
       <main className="flex-1 flex flex-col h-full overflow-y-auto custom-scrollbar relative">
         <div className="flex md:hidden items-center justify-between p-4 bg-zinc-900 border-b border-white/5 shrink-0 sticky top-0 z-50 w-full overflow-hidden">
-          <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-amber-500 bg-white/5 rounded-xl">
-            <MenuIcon className="w-6 h-6" />
-          </button>
-          <h1 className="text-sm font-black italic tracking-tighter text-white uppercase truncate px-2">
+          <div className="flex items-center gap-2">
+            <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-amber-500 bg-white/5 rounded-xl">
+              <MenuIcon className="w-6 h-6" />
+            </button>
+            <button onClick={handleLogout} className="p-2 text-zinc-500 bg-white/5 rounded-xl" title="Cerrar sesión">
+              <LogOut className="w-5 h-5" />
+            </button>
+          </div>
+          <h1 className="text-xs font-black italic tracking-tighter text-white uppercase truncate px-2">
             {activeClient.name} <span className="text-amber-500">OS</span>
           </h1>
           <button onClick={() => syncAll(true)} className="p-2 text-zinc-500 bg-white/5 rounded-xl">
@@ -427,6 +432,9 @@ const App: React.FC = () => {
             </p>
             <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">
               © {new Date().getFullYear()} {activeClient.name} Systems
+            </p>
+            <p className="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em] bg-white/5 px-4 py-2 rounded-full border border-amber-500/10">
+              Diseñado por IA.AGUS - Tel +52 871 143 9941
             </p>
           </div>
         </footer>

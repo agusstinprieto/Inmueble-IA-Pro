@@ -35,7 +35,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onClose, busi
   return (
     <aside className="w-72 md:w-64 h-screen bg-[#0f0f0f] border-r border-white/5 flex flex-col shrink-0 overflow-hidden relative shadow-2xl md:shadow-none">
       {onClose && (
-        <button 
+        <button
           onClick={onClose}
           className="absolute top-6 right-6 p-2 text-zinc-500 hover:text-white bg-white/5 rounded-xl md:hidden z-10"
         >
@@ -44,7 +44,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onClose, busi
       )}
 
       <div className="p-8 shrink-0">
-        <h1 className="text-xl font-black italic tracking-tighter text-white truncate uppercase">
+        <h1 className="text-lg md:text-xl font-black italic tracking-tighter text-white uppercase leading-none">
           {businessName} <span className="text-amber-500">OS</span>
         </h1>
         <p className="text-[8px] text-white/30 uppercase tracking-[0.4em] font-black mt-2 truncate">
@@ -57,11 +57,10 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onClose, busi
           <button
             key={item.id}
             onClick={() => onNavigate(item.id)}
-            className={`w-full text-left px-5 py-4 rounded-2xl flex items-center gap-4 transition-all relative group overflow-hidden ${
-              activeView === item.id
-                ? 'bg-amber-500/10 text-amber-500 font-black'
-                : 'text-zinc-500 hover:text-white hover:bg-white/5'
-            }`}
+            className={`w-full text-left px-5 py-4 rounded-2xl flex items-center gap-4 transition-all relative group overflow-hidden ${activeView === item.id
+              ? 'bg-amber-500/10 text-amber-500 font-black'
+              : 'text-zinc-500 hover:text-white hover:bg-white/5'
+              }`}
           >
             {activeView === item.id && (
               <span className="absolute left-2 w-1 h-4 bg-amber-500 rounded-full" />
@@ -76,9 +75,15 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onClose, busi
         ))}
       </nav>
 
-      <div className="p-6 border-t border-white/5 shrink-0 bg-black/20">
+      <div className="p-6 border-t border-white/5 shrink-0 bg-black/20 space-y-3">
         <div className="flex items-center gap-3 text-zinc-600 text-[9px] font-black uppercase tracking-widest truncate">
-           <Globe className="w-3 h-3 shrink-0" /> {location}
+          <Globe className="w-3 h-3 shrink-0" /> {location}
+        </div>
+        <div className="pt-2 border-t border-white/5">
+          <p className="text-[7px] font-black text-amber-500/50 uppercase tracking-widest leading-relaxed">
+            POWERED BY IA.AGUS<br />
+            +52 871 143 9941
+          </p>
         </div>
       </div>
     </aside>
