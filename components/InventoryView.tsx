@@ -6,19 +6,23 @@ import { generateFacebookAd } from '../services/gemini';
 import {
   Trash2, DollarSign, Search, Car, AlertTriangle, X,
   AlertCircle, CheckCircle2, ArrowRight, Loader2,
-  LayoutGrid, List, Megaphone, Copy, Check, ChevronRight, Hash
+  LayoutGrid, List, Megaphone, Copy, Check, ChevronRight, Hash, Package
 } from 'lucide-react';
 
 interface InventoryViewProps {
   inventory: Part[];
   onSellPart: (partId: string, price: number) => void;
   onDeletePart: (partId: string) => void;
+  onBatchDeleteVehicle: (parts: Part[]) => void;
+  onBatchSellVehicle: (parts: Part[], totalAmount: number) => void;
   lang: 'es' | 'en';
   businessName: string;
   location: string;
 }
 
-const InventoryView: React.FC<InventoryViewProps> = ({ inventory, onSellPart, onDeletePart, lang, businessName, location }) => {
+const InventoryView: React.FC<InventoryViewProps> = ({
+  inventory, onSellPart, onDeletePart, onBatchDeleteVehicle, onBatchSellVehicle, lang, businessName, location
+}) => {
   const t = translations[lang] || translations.es;
   const [filter, setFilter] = useState<string>('ALL');
   const [searchTerm, setSearchTerm] = useState('');
@@ -36,6 +40,11 @@ const InventoryView: React.FC<InventoryViewProps> = ({ inventory, onSellPart, on
   const [isCopied, setIsCopied] = useState(false);
 
   const [isProcessing, setIsProcessing] = useState(false);
+
+  const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
+  const [selectedVehicleKey, setSelectedVehicleKey] = useState<string | null>(null);
+  const [batchActionType, setBatchActionType] = useState<'DELETE' | 'SELL' | null>(null);
+  const [batchSalePrice, setBatchSalePrice] = useState<string>('');
 
   if (!t) return null;
 
@@ -87,6 +96,43 @@ const InventoryView: React.FC<InventoryViewProps> = ({ inventory, onSellPart, on
         setSalePrice('');
       }
     }
+  };
+
+  const vehicles = Array.from(new Set(availableInventory.map(p => {
+    return `${p.vehicleInfo.year}-${p.vehicleInfo.make}-${p.vehicleInfo.model}-${p.vehicleInfo.vin || 'no-vin'}`;
+  }))).map(key => {
+    const parts = availableInventory.filter(p => `${p.vehicleInfo.year}-${p.vehicleInfo.make}-${p.vehicleInfo.model}-${p.vehicleInfo.vin || 'no-vin'}` === key);
+    const v = parts[0].vehicleInfo;
+    return {
+      key,
+      year: v.year,
+      make: v.make,
+      model: v.model,
+      vin: v.vin,
+      partsCount: parts.length,
+      parts
+    };
+  }).sort((a, b) => b.partsCount - a.partsCount);
+
+  const confirmBatchAction = async () => {
+    if (!selectedVehicleKey || !batchActionType) return;
+    const vehicle = vehicles.find(v => v.key === selectedVehicleKey);
+    if (!vehicle) return;
+
+    setIsProcessing(true);
+    if (batchActionType === 'DELETE') {
+      await onBatchDeleteVehicle(vehicle.parts);
+    } else if (batchActionType === 'SELL') {
+      const price = parseFloat(batchSalePrice);
+      if (!isNaN(price) && price >= 0) {
+        await onBatchSellVehicle(vehicle.parts, price);
+      }
+    }
+    setIsProcessing(false);
+    setIsBatchModalOpen(false);
+    setSelectedVehicleKey(null);
+    setBatchActionType(null);
+    setBatchSalePrice('');
   };
 
   const handleCreateAd = async (part: Part) => {
@@ -182,6 +228,13 @@ const InventoryView: React.FC<InventoryViewProps> = ({ inventory, onSellPart, on
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
+
+          <button
+            onClick={() => setIsBatchModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-3 bg-zinc-900 border border-white/5 rounded-2xl text-[10px] font-black text-amber-500 uppercase tracking-widest hover:bg-zinc-800 transition-all active:scale-95 shrink-0"
+          >
+            <CheckCircle2 className="w-4 h-4" /> Administrar por Lote
+          </button>
         </div>
       </header>
 
@@ -312,6 +365,97 @@ const InventoryView: React.FC<InventoryViewProps> = ({ inventory, onSellPart, on
               <button onClick={() => setPartToDelete(null)} className="flex-1 py-4 bg-zinc-800 text-white text-[10px] font-black rounded-2xl uppercase tracking-widest">CANCELAR</button>
               <button onClick={confirmDelete} className="flex-1 py-4 bg-red-600 text-white text-[10px] font-black rounded-2xl uppercase tracking-widest flex items-center justify-center gap-2">
                 {isProcessing && <Loader2 className="w-3 h-3 animate-spin" />} ELIMINAR
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isBatchModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm text-white overflow-hidden">
+          <div className="bg-zinc-900 border border-white/5 w-full max-w-2xl rounded-[2.5rem] p-8 md:p-12 shadow-2xl scale-in-center max-h-[90vh] flex flex-col">
+            <div className="flex justify-between items-center mb-8 shrink-0">
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className="w-6 h-6 text-amber-500" />
+                <h3 className="text-xl font-black uppercase italic tracking-tighter text-white">
+                  ADMINISTRACIÓN POR LOTE
+                </h3>
+              </div>
+              <button onClick={() => setIsBatchModalOpen(false)} className="p-2 text-zinc-500 hover:text-white bg-white/5 rounded-xl transition-all">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto custom-scrollbar space-y-4 pr-2">
+              {vehicles.length === 0 ? (
+                <div className="py-20 text-center text-zinc-700 italic text-sm">No hay vehículos con piezas disponibles.</div>
+              ) : vehicles.map(v => (
+                <div key={v.key} className="bg-black/40 border border-white/5 rounded-3xl p-6 hover:border-amber-500/10 transition-all group">
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                    <div>
+                      <h4 className="text-white font-black text-sm uppercase tracking-tight group-hover:text-amber-500 transition-colors">
+                        {v.year} {v.make} {v.model}
+                      </h4>
+                      <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mt-1 flex items-center gap-2">
+                        <Package className="w-3 h-3" /> {v.partsCount} piezas disponibles • VIN: {v.vin || 'N/A'}
+                      </p>
+                    </div>
+                    <div className="flex gap-3 w-full md:w-auto">
+                      <button
+                        onClick={() => { setSelectedVehicleKey(v.key); setBatchActionType('DELETE'); }}
+                        className="flex-1 md:flex-none px-4 py-2 bg-red-950/30 border border-red-500/20 text-red-500 text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-red-500 hover:text-white transition-all"
+                      >
+                        Baja Total
+                      </button>
+                      <button
+                        onClick={() => { setSelectedVehicleKey(v.key); setBatchActionType('SELL'); setBatchSalePrice('0'); }}
+                        className="flex-1 md:flex-none px-4 py-2 bg-green-950/30 border border-green-500/20 text-green-500 text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-green-500 hover:text-white transition-all text-center"
+                      >
+                        Venta Lote
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {selectedVehicleKey && batchActionType === 'DELETE' && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md text-white">
+          <div className="bg-zinc-900 border border-red-500/30 w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl scale-in-center">
+            <div className="flex justify-center mb-6"><div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center border border-red-500/20"><AlertCircle className="w-8 h-8 text-red-500" /></div></div>
+            <h3 className="text-xl font-black text-white text-center uppercase italic tracking-tighter mb-2">¿ELIMINAR EL LOTE COMPLETO?</h3>
+            <p className="text-zinc-400 text-center text-sm mb-8">Se eliminarán permanentemente las {vehicles.find(v => v.key === selectedVehicleKey)?.partsCount} piezas de este vehículo.</p>
+            <div className="flex gap-4">
+              <button onClick={() => { setSelectedVehicleKey(null); setBatchActionType(null); }} className="flex-1 py-4 bg-zinc-800 text-white text-[10px] font-black rounded-2xl uppercase tracking-widest">CANCELAR</button>
+              <button onClick={confirmBatchAction} className="flex-1 py-4 bg-red-600 text-white text-[10px] font-black rounded-2xl uppercase tracking-widest flex items-center justify-center gap-2">
+                {isProcessing && <Loader2 className="w-3 h-3 animate-spin" />} SI, ELIMINAR TODO
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {selectedVehicleKey && batchActionType === 'SELL' && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md text-white">
+          <div className="bg-zinc-900 border border-green-500/30 w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl scale-in-center">
+            <h3 className="text-xl font-black text-white text-center uppercase italic tracking-tighter mb-6">VENTA POR LOTE</h3>
+            <div className="bg-black/40 border border-white/5 rounded-3xl p-6 mb-8 text-center">
+              <p className="text-green-500 text-[10px] font-black uppercase tracking-widest mb-1 truncate">
+                {vehicles.find(v => v.key === selectedVehicleKey)?.year} {vehicles.find(v => v.key === selectedVehicleKey)?.make} {vehicles.find(v => v.key === selectedVehicleKey)?.model}
+              </p>
+              <p className="text-zinc-500 text-[8px] uppercase tracking-widest">{vehicles.find(v => v.key === selectedVehicleKey)?.partsCount} piezas en total</p>
+              <div className="relative mt-6">
+                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-green-500 font-mono text-2xl font-black">$</span>
+                <input autoFocus type="number" value={batchSalePrice} onChange={(e) => setBatchSalePrice(e.target.value)} className="w-full bg-zinc-950 border border-white/10 rounded-2xl py-5 pl-12 pr-6 text-white text-3xl font-mono font-black focus:outline-none focus:border-green-500 transition-all text-center" />
+              </div>
+            </div>
+            <div className="flex gap-4">
+              <button onClick={() => { setSelectedVehicleKey(null); setBatchActionType(null); }} className="flex-1 py-4 bg-zinc-800 text-white text-[10px] font-black rounded-2xl uppercase tracking-widest">CANCELAR</button>
+              <button onClick={confirmBatchAction} className="flex-1 py-4 bg-green-600 text-white text-[10px] font-black rounded-2xl uppercase tracking-widest flex items-center justify-center gap-2">
+                {isProcessing && <Loader2 className="w-3 h-3 animate-spin" />} REGISTRAR VENTA
               </button>
             </div>
           </div>

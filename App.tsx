@@ -266,6 +266,67 @@ const App: React.FC = () => {
     setTimeout(() => syncAll(true), 3000);
   };
 
+  const handleBatchDeleteVehicle = async (parts: Part[]) => {
+    lastUserActionTimestamp.current = Date.now();
+    const ids = parts.map(p => p.id);
+    setInventory(prev => prev.filter(p => !ids.includes(p.id)));
+
+    for (const part of parts) {
+      await sendActionToCloud({
+        action: "DELETE",
+        targetSheet: "ELIMINADOS",
+        id: part.id,
+        marca: part.vehicleInfo.make,
+        modelo: part.vehicleInfo.model,
+        anio: part.vehicleInfo.year,
+        parte: part.name,
+        categoria: part.category
+      });
+    }
+
+    setTimeout(() => syncAll(true), 1000);
+  };
+
+  const handleBatchSellVehicle = async (parts: Part[], totalAmount: number) => {
+    lastUserActionTimestamp.current = Date.now();
+    const ids = parts.map(p => p.id);
+
+    // Distribution: Assign the total amount to the first part for financial records, others $0 or distribute.
+    // Given the cloud script might just log one record or many, we log each with a portion.
+    const pricePerPart = Math.floor(totalAmount / parts.length);
+
+    setInventory(prev => prev.filter(p => !ids.includes(p.id)));
+    setSalesRecords(prev => [
+      ...parts.map((p, idx) => ({
+        ...p,
+        status: PartStatus.SOLD,
+        finalPrice: idx === 0 ? totalAmount - (pricePerPart * (parts.length - 1)) : pricePerPart
+      })),
+      ...prev
+    ]);
+
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i];
+      const p = i === 0 ? totalAmount - (pricePerPart * (parts.length - 1)) : pricePerPart;
+
+      await sendActionToCloud({
+        action: "SELL",
+        targetSheet: "VENTAS",
+        id: part.id,
+        finalPrice: p,
+        precioVenta: p,
+        marca: part.vehicleInfo.make,
+        modelo: part.vehicleInfo.model,
+        anio: part.vehicleInfo.year,
+        parte: part.name,
+        categoria: part.category,
+        status: "SOLD"
+      });
+    }
+
+    setTimeout(() => syncAll(true), 1000);
+  };
+
   const handleAddParts = useCallback(async (newParts: Part[]) => {
     lastUserActionTimestamp.current = Date.now();
     setInventory(prev => [...newParts, ...prev]);
@@ -417,6 +478,8 @@ const App: React.FC = () => {
               inventory={inventory}
               onSellPart={handleSellPart}
               onDeletePart={handleDeletePart}
+              onBatchDeleteVehicle={handleBatchDeleteVehicle}
+              onBatchSellVehicle={handleBatchSellVehicle}
               lang={lang}
               businessName={activeClient.name}
               location={activeClient.location}
