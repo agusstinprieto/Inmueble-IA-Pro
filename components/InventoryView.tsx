@@ -3,9 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { Part, PartCategory, PartStatus } from '../types';
 import { translations } from '../translations';
 import { generateFacebookAd } from '../services/gemini';
-import { 
-  Trash2, DollarSign, Search, Car, AlertTriangle, X, 
-  AlertCircle, CheckCircle2, ArrowRight, Loader2, 
+import {
+  Trash2, DollarSign, Search, Car, AlertTriangle, X,
+  AlertCircle, CheckCircle2, ArrowRight, Loader2,
   LayoutGrid, List, Megaphone, Copy, Check, ChevronRight, Hash
 } from 'lucide-react';
 
@@ -25,11 +25,11 @@ const InventoryView: React.FC<InventoryViewProps> = ({ inventory, onSellPart, on
   const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
     return (localStorage.getItem('inventory_view_mode') as 'grid' | 'list') || 'grid';
   });
-  
+
   const [partToDelete, setPartToDelete] = useState<Part | null>(null);
   const [partToSell, setPartToSell] = useState<Part | null>(null);
   const [salePrice, setSalePrice] = useState<string>('');
-  
+
   const [adPart, setAdPart] = useState<Part | null>(null);
   const [generatedAd, setGeneratedAd] = useState('');
   const [isGeneratingAd, setIsGeneratingAd] = useState(false);
@@ -111,7 +111,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({ inventory, onSellPart, on
   };
 
   return (
-    <div className="p-4 md:p-8 relative min-h-full pb-20 animate-in fade-in duration-500 overflow-x-hidden">
+    <div className="p-4 md:p-8 pt-16 md:pt-8 relative min-h-full pb-20 animate-in fade-in duration-500 overflow-x-hidden">
       {adPart && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm text-white">
           <div className="bg-zinc-900 border border-white/5 w-full max-w-2xl rounded-[2.5rem] p-8 md:p-12 shadow-2xl scale-in-center max-h-[90vh] flex flex-col">
@@ -142,11 +142,10 @@ const InventoryView: React.FC<InventoryViewProps> = ({ inventory, onSellPart, on
 
             {!isGeneratingAd && (
               <div className="flex gap-4 shrink-0">
-                <button 
+                <button
                   onClick={handleCopyAd}
-                  className={`flex-1 py-4 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest transition-all ${
-                    isCopied ? 'bg-green-600 text-white' : 'bg-amber-500 text-black hover:bg-amber-400'
-                  }`}
+                  className={`flex-1 py-4 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest transition-all ${isCopied ? 'bg-green-600 text-white' : 'bg-amber-500 text-black hover:bg-amber-400'
+                    }`}
                 >
                   {isCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                   {isCopied ? (lang === 'es' ? 'COPIADO' : 'COPIED') : t.copy_ad}
@@ -162,7 +161,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({ inventory, onSellPart, on
           <h2 className="text-3xl font-black tracking-tighter uppercase italic truncate">INVENTARIO: {businessName}</h2>
           <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.2em] mt-1 truncate">Sincronizado con la nube de {location}</p>
         </div>
-        
+
         <div className="flex flex-wrap gap-4 w-full md:w-auto">
           <div className="flex bg-zinc-900 border border-white/5 p-1 rounded-xl shrink-0">
             <button onClick={() => toggleViewMode('grid')} className={`p-2.5 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-amber-500 text-black shadow-lg shadow-amber-500/20' : 'text-zinc-500 hover:text-white'}`}>
@@ -175,8 +174,8 @@ const InventoryView: React.FC<InventoryViewProps> = ({ inventory, onSellPart, on
 
           <div className="relative flex-1 md:w-64 min-w-[200px]">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder={t.search_placeholder}
               className="w-full bg-zinc-900 border border-white/10 rounded-2xl pl-11 pr-4 py-3 text-xs text-white focus:outline-none focus:border-amber-500 transition-all shadow-inner"
               value={searchTerm}
@@ -209,7 +208,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({ inventory, onSellPart, on
                   </div>
                 </div>
                 <div className="flex items-baseline gap-1.5 pt-4 border-t border-white/5 overflow-hidden">
-                   <p className="text-amber-500 font-mono text-2xl md:text-3xl font-black truncate">${part.suggestedPrice.toLocaleString()}</p>
+                  <p className="text-amber-500 font-mono text-2xl md:text-3xl font-black truncate">${part.suggestedPrice.toLocaleString()}</p>
                 </div>
               </div>
               <button onClick={() => setPartToSell(part)} className="w-full mt-8 py-4 bg-amber-500 hover:bg-amber-400 text-black text-[10px] font-black rounded-2xl transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-amber-500/10 shrink-0">
@@ -281,7 +280,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({ inventory, onSellPart, on
           </div>
         </div>
       )}
-      
+
       {partToSell && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm text-white">
           <div className="bg-zinc-900 border border-amber-500/30 w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl scale-in-center">
