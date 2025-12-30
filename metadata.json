@@ -1,0 +1,7 @@
+{
+  "name": "Autopartenon OS - Final Version for Antigravity",
+  "description": "Intelligent inventory and analysis system for used auto parts in Texas. Multimodal AI for vehicle identification, market valuation, and professional invoicing.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
