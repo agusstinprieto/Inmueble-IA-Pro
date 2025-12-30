@@ -12,6 +12,13 @@ import { translations } from './translations';
 import { supabase, getBusinessProfile, signOut } from './services/supabase';
 import { Loader2, RefreshCw, Wifi, CloudFog, Menu as MenuIcon, X, LogOut } from 'lucide-react';
 
+const hexToRgb = (hex: string) => {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ?
+    `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` :
+    '245, 158, 11';
+};
+
 const App: React.FC = () => {
   const [activeClient, setActiveClient] = useState<ClientConfig | null>(null);
   const [activeView, setActiveView] = useState<string>('dashboard');
@@ -293,8 +300,33 @@ const App: React.FC = () => {
 
   if (!activeClient) return <LoginView onLogin={(client) => setActiveClient(client)} />;
 
+  const brandColor = activeClient.brandingColor || '#f59e0b';
+
   return (
     <div className="flex flex-col md:flex-row h-screen bg-black text-white overflow-hidden">
+      <style>{`
+        :root {
+          --brand-color: ${brandColor};
+          --brand-color-rgb: ${brandColor.startsWith('#') ? hexToRgb(brandColor) : '245, 158, 11'};
+        }
+        .text-amber-500 { color: var(--brand-color) !important; }
+        .bg-amber-500 { background-color: var(--brand-color) !important; }
+        .border-amber-500 { border-color: var(--brand-color) !important; }
+        .focus\\:border-amber-500:focus { border-color: var(--brand-color) !important; }
+        .hover\\:text-amber-500:hover { color: var(--brand-color) !important; }
+        .hover\\:bg-amber-400:hover { filter: brightness(1.1); background-color: var(--brand-color) !important; }
+        .active\\:scale-95:active { transform: scale(0.95); }
+        
+        /* Specialized overrides for Opacity and Shorthands */
+        .bg-amber-500\\/10 { background-color: rgba(var(--brand-color-rgb), 0.1) !important; }
+        .bg-amber-500\\/5 { background-color: rgba(var(--brand-color-rgb), 0.05) !important; }
+        .border-amber-500\\/20 { border-color: rgba(var(--brand-color-rgb), 0.2) !important; }
+        .border-amber-500\\/30 { border-color: rgba(var(--brand-color-rgb), 0.3) !important; }
+        .border-amber-500\\/50 { border-color: rgba(var(--brand-color-rgb), 0.5) !important; }
+        .text-amber-500\\/60 { color: rgba(var(--brand-color-rgb), 0.6) !important; }
+        .shadow-amber-500\\/10 { --tw-shadow-color: rgba(var(--brand-color-rgb), 0.1); --tw-shadow: var(--tw-shadow-colored); }
+        .shadow-amber-500\\/20 { --tw-shadow-color: rgba(var(--brand-color-rgb), 0.2); --tw-shadow: var(--tw-shadow-colored); }
+      `}</style>
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] md:hidden"
