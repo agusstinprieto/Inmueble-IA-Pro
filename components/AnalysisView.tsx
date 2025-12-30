@@ -297,7 +297,13 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ onAddParts, lang, businessN
                   <Upload className="w-12 h-12 text-zinc-700 mb-4" />
                   <p className="text-xs font-black uppercase text-zinc-500 tracking-widest mb-6">{t.click_upload}</p>
                   <div className="flex flex-col sm:flex-row gap-3 md:gap-4 w-full px-6 sm:px-0 sm:w-auto mt-4">
-                    <button onClick={startCamera} className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-5 bg-amber-500 text-[var(--brand-text-color)] rounded-2xl text-[11px] font-black uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-amber-500/10"><Camera className="w-4 h-4" />{t.take_photo}</button>
+                    <button
+                      onClick={startCamera}
+                      className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-5 bg-amber-500 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-amber-500/10"
+                      style={{ color: 'var(--brand-text-color)' }}
+                    >
+                      <Camera className="w-4 h-4" />{t.take_photo}
+                    </button>
                     <button onClick={() => fileInputRef.current?.click()} className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-5 bg-zinc-800 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-zinc-700 active:scale-95 transition-all outline outline-1 outline-white/5 shadow-xl"><ImageIcon className="w-4 h-4" />Archivos</button>
                   </div>
                 </div>
@@ -307,7 +313,8 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ onAddParts, lang, businessN
             <button
               onClick={startMediaAnalysis}
               disabled={analyzing || mediaItems.length === 0}
-              className="mt-8 w-full bg-amber-500 hover:brightness-110 disabled:bg-zinc-800 disabled:text-zinc-600 text-[var(--brand-text-color)] font-black py-6 rounded-3xl flex justify-center items-center gap-4 transition-all uppercase tracking-[0.3em] text-[12px] shadow-2xl shadow-amber-500/20"
+              className="mt-8 w-full bg-amber-500 hover:brightness-110 disabled:bg-zinc-800 disabled:text-zinc-600 font-black py-6 rounded-3xl flex justify-center items-center gap-4 transition-all uppercase tracking-[0.3em] text-[12px] shadow-2xl shadow-amber-500/20 disabled:shadow-none"
+              style={{ color: (analyzing || mediaItems.length === 0) ? undefined : 'var(--brand-text-color)' }}
             >
               {analyzing ? <Loader2 className="w-5 h-5 animate-spin" /> : <RefreshCw className="w-5 h-5" />}
               {lang === 'es' ? 'ANALIZAR TODO EL LOTE' : 'ANALYZE ALL MEDIA'}
@@ -326,7 +333,8 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ onAddParts, lang, businessN
               <button onClick={() => setPendingParts(null)} className="flex-1 md:flex-none px-8 py-5 bg-zinc-800 text-zinc-400 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-zinc-700 transition-all">DESCARTAR</button>
               <button
                 onClick={handleConfirmSave}
-                className="flex-1 md:flex-none px-8 py-5 bg-amber-500 hover:brightness-110 text-[var(--brand-text-color)] rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-xl shadow-amber-500/10 flex items-center justify-center gap-3 active:scale-95 transition-all"
+                className="flex-1 md:flex-none px-8 py-5 bg-amber-500 hover:brightness-110 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-xl shadow-amber-500/10 flex items-center justify-center gap-3 active:scale-95 transition-all"
+                style={{ color: 'var(--brand-text-color)' }}
               >
                 <Save className="w-4 h-4" />CONFIRMAR TODO
               </button>

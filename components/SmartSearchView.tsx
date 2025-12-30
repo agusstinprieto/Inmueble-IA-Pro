@@ -69,7 +69,8 @@ const SmartSearchView: React.FC<SmartSearchViewProps> = ({ lang, location }) => 
           <button
             disabled={loading || !query.trim()}
             type="submit"
-            className="bg-amber-500 hover:brightness-110 disabled:bg-zinc-800 disabled:text-zinc-600 text-[var(--brand-text-color)] font-black px-10 py-4 rounded-2xl transition-all shadow-lg shadow-amber-500/10 uppercase tracking-widest text-[11px]"
+            className="bg-amber-500 hover:brightness-110 disabled:bg-zinc-800 disabled:text-zinc-600 font-black px-10 py-4 rounded-2xl transition-all shadow-lg shadow-amber-500/10 uppercase tracking-widest text-[11px] disabled:shadow-none"
+            style={{ color: (loading || !query.trim()) ? undefined : 'var(--brand-text-color)' }}
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : t.search_button}
           </button>

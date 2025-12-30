@@ -13,14 +13,18 @@ import { supabase, getBusinessProfile, signOut } from './services/supabase';
 import { Loader2, RefreshCw, Wifi, CloudFog, Menu as MenuIcon, X, LogOut } from 'lucide-react';
 
 const getContrastColor = (hex: string) => {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  if (!result) return 'black';
-  const r = parseInt(result[1], 16);
-  const g = parseInt(result[2], 16);
-  const b = parseInt(result[3], 16);
-  // Calculate relative luminance
-  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-  return luminance > 0.6 ? 'black' : 'white';
+  try {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    if (!result) return 'white';
+    const r = parseInt(result[1], 16);
+    const g = parseInt(result[2], 16);
+    const b = parseInt(result[3], 16);
+    // Standard relative luminance formula
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return luminance > 0.5 ? 'black' : 'white';
+  } catch {
+    return 'white';
+  }
 };
 
 const hexToRgb = (hex: string) => {
@@ -399,7 +403,7 @@ const App: React.FC = () => {
         :root {
           --brand-color: ${brandColor};
           --brand-color-rgb: ${brandColor.startsWith('#') ? hexToRgb(brandColor) : '245, 158, 11'};
-          --brand-text-color: ${brandColor.startsWith('#') ? getContrastColor(brandColor) : 'black'};
+          --brand-text-color: ${brandColor.startsWith('#') ? getContrastColor(brandColor) : 'white'};
         }
         .text-amber-500 { color: var(--brand-color) !important; }
         .bg-amber-500 { background-color: var(--brand-color) !important; }

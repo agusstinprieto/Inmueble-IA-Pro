@@ -190,8 +190,9 @@ const InventoryView: React.FC<InventoryViewProps> = ({
               <div className="flex gap-4 shrink-0">
                 <button
                   onClick={handleCopyAd}
-                  className={`flex-1 py-5 rounded-2xl flex items-center justify-center gap-3 text-[11px] font-black uppercase tracking-widest transition-all ${isCopied ? 'bg-green-600 text-white' : 'bg-amber-500 text-[var(--brand-text-color)] hover:brightness-110'
+                  className={`flex-1 py-5 rounded-2xl flex items-center justify-center gap-3 text-[11px] font-black uppercase tracking-widest transition-all ${isCopied ? 'bg-green-600 text-white' : 'bg-amber-500 hover:brightness-110'
                     }`}
+                  style={{ color: isCopied ? undefined : 'var(--brand-text-color)' }}
                 >
                   {isCopied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
                   {isCopied ? (lang === 'es' ? 'COPIADO' : 'COPIED') : t.copy_ad}
@@ -230,10 +231,10 @@ const InventoryView: React.FC<InventoryViewProps> = ({
           </div>
 
           <div className="flex bg-zinc-900 border border-white/5 p-1 rounded-xl shrink-0">
-            <button onClick={() => toggleViewMode('grid')} className={`p-2.5 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-amber-500 text-black shadow-lg shadow-amber-500/20' : 'text-zinc-500 hover:text-white'}`}>
+            <button onClick={() => toggleViewMode('grid')} className={`p-2.5 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-amber-500 shadow-lg shadow-amber-500/20' : 'text-zinc-500 hover:text-white'}`} style={{ color: viewMode === 'grid' ? 'var(--brand-text-color)' : undefined }}>
               <LayoutGrid className="w-4 h-4" />
             </button>
-            <button onClick={() => toggleViewMode('list')} className={`p-2.5 rounded-lg transition-all ${viewMode === 'list' ? 'bg-amber-500 text-black shadow-lg shadow-amber-500/20' : 'text-zinc-500 hover:text-white'}`}>
+            <button onClick={() => toggleViewMode('list')} className={`p-2.5 rounded-lg transition-all ${viewMode === 'list' ? 'bg-amber-500 shadow-lg shadow-amber-500/20' : 'text-zinc-500 hover:text-white'}`} style={{ color: viewMode === 'list' ? 'var(--brand-text-color)' : undefined }}>
               <List className="w-4 h-4" />
             </button>
           </div>
@@ -284,7 +285,11 @@ const InventoryView: React.FC<InventoryViewProps> = ({
                 </div>
               </div>
               <div className="px-6 pb-6 mt-auto">
-                <button onClick={() => setPartToSell(part)} className="w-full py-5 bg-amber-500 hover:brightness-110 text-[var(--brand-text-color)] text-[11px] font-black rounded-2xl transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-amber-500/10 shrink-0">
+                <button
+                  onClick={() => setPartToSell(part)}
+                  className="w-full py-5 bg-amber-500 hover:brightness-110 text-[11px] font-black rounded-2xl transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-amber-500/10 shrink-0"
+                  style={{ color: 'var(--brand-text-color)' }}
+                >
                   <DollarSign className="w-4 h-4 shrink-0" /> {t.register_sale}
                 </button>
               </div>

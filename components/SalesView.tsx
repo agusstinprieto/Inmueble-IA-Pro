@@ -90,7 +90,8 @@ ${t.no_returns}
                 <div className="bg-amber-500/10 text-amber-500 px-4 py-1.5 rounded-lg border border-amber-500/20 text-[11px] font-black uppercase tracking-widest">Configurador</div>
                 <button
                   onClick={handleCopy}
-                  className={`px-8 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all flex items-center gap-3 shadow-lg ${isCopying ? 'bg-green-600 text-white' : 'bg-amber-500 text-[var(--brand-text-color)] hover:brightness-110'}`}
+                  className={`px-8 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all flex items-center gap-3 shadow-lg ${isCopying ? 'bg-green-600 text-white' : 'bg-amber-500 hover:brightness-110'}`}
+                  style={{ color: isCopying ? undefined : 'var(--brand-text-color)' }}
                 >
                   {isCopying ? <FileText className="w-4 h-4 animate-bounce" /> : <Copy className="w-4 h-4" />}
                   {isCopying ? '¡COPIADO!' : t.copy_docs}
