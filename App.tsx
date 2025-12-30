@@ -409,7 +409,7 @@ const App: React.FC = () => {
             </div>
           )}
 
-          {activeView === 'summary' && <SummaryView inventory={inventory} lang={lang} />}
+          {activeView === 'summary' && <SummaryView inventory={inventory} lang={lang} location={activeClient.location} />}
           {activeView === 'analysis' && <AnalysisView onAddParts={handleAddParts} lang={lang} businessName={activeClient.name} location={activeClient.location} />}
           {activeView === 'inventory' && (
             <InventoryView

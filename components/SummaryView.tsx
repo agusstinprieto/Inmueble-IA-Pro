@@ -7,11 +7,12 @@ import { DollarSign, TrendingUp, Package, BarChart3 } from 'lucide-react';
 interface SummaryViewProps {
   inventory: Part[];
   lang: 'es' | 'en';
+  location: string;
 }
 
-const SummaryView: React.FC<SummaryViewProps> = ({ inventory, lang }) => {
+const SummaryView: React.FC<SummaryViewProps> = ({ inventory, lang, location }) => {
   const t = translations[lang] || translations.es;
-  
+
   const availableParts = inventory.filter(p => p.status === PartStatus.AVAILABLE);
   const totalValue = availableParts.reduce((acc, p) => acc + (p.suggestedPrice || 0), 0);
 
@@ -30,7 +31,7 @@ const SummaryView: React.FC<SummaryViewProps> = ({ inventory, lang }) => {
 
   // Colores para el gráfico
   const colors = [
-    '#f59e0b', '#3b82f6', '#10b981', '#ef4444', '#8b5cf6', 
+    '#f59e0b', '#3b82f6', '#10b981', '#ef4444', '#8b5cf6',
     '#ec4899', '#f97316', '#06b6d4', '#84cc16', '#64748b'
   ];
 
@@ -85,7 +86,7 @@ const SummaryView: React.FC<SummaryViewProps> = ({ inventory, lang }) => {
           <BarChart3 className="w-8 h-8 text-amber-500" />
           {t.summary}
         </h2>
-        <p className="text-zinc-500 text-[10px] font-bold uppercase mt-1 tracking-widest">Quinlan Terminal Finance • TX</p>
+        <p className="text-zinc-500 text-[10px] font-bold uppercase mt-1 tracking-widest">{location} Terminal Finance</p>
       </header>
 
       {/* Hero Total Card */}
@@ -100,16 +101,16 @@ const SummaryView: React.FC<SummaryViewProps> = ({ inventory, lang }) => {
             </p>
           </div>
           <div className="flex gap-4">
-             <div className="bg-black/40 border border-white/5 p-6 rounded-3xl text-center min-w-[120px]">
-                <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-1">{t.available_stock}</p>
-                <p className="text-2xl font-black text-white">{availableParts.length}</p>
-             </div>
-             <div className="bg-black/40 border border-white/5 p-6 rounded-3xl text-center min-w-[120px]">
-                <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-1">PROM. PIEZA</p>
-                <p className="text-2xl font-black text-green-500">
-                  ${availableParts.length > 0 ? Math.round(totalValue / availableParts.length).toLocaleString() : 0}
-                </p>
-             </div>
+            <div className="bg-black/40 border border-white/5 p-6 rounded-3xl text-center min-w-[120px]">
+              <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-1">{t.available_stock}</p>
+              <p className="text-2xl font-black text-white">{availableParts.length}</p>
+            </div>
+            <div className="bg-black/40 border border-white/5 p-6 rounded-3xl text-center min-w-[120px]">
+              <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-1">PROM. PIEZA</p>
+              <p className="text-2xl font-black text-green-500">
+                ${availableParts.length > 0 ? Math.round(totalValue / availableParts.length).toLocaleString() : 0}
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -158,34 +159,34 @@ const SummaryView: React.FC<SummaryViewProps> = ({ inventory, lang }) => {
 
         {/* Chart View */}
         <div className="bg-zinc-900/30 border border-white/5 rounded-[2.5rem] p-8 md:p-12 flex flex-col items-center justify-center space-y-8 min-h-[500px]">
-           <h3 className="text-xs font-black text-zinc-400 uppercase tracking-widest mb-4">{t.distribution}</h3>
-           {totalValue > 0 ? (
-             <>
-               <div className="relative w-full flex justify-center">
-                 {renderPieChart()}
-                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                    <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">CAPITAL</p>
-                    <p className="text-xl font-black text-white italic">100%</p>
-                 </div>
-               </div>
-               <div className="flex flex-wrap justify-center gap-x-6 gap-y-3">
-                 {categorySummary.slice(0, 5).map((item, index) => (
-                   <div key={item.category} className="flex items-center gap-2">
-                     <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: colors[index % colors.length] }}></div>
-                     <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">{item.label}</span>
-                   </div>
-                 ))}
-                 {categorySummary.length > 5 && (
-                    <span className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">+ {categorySummary.length - 5} MÁS</span>
-                 )}
-               </div>
-             </>
-           ) : (
-             <div className="flex flex-col items-center text-zinc-700">
-                <Package className="w-12 h-12 opacity-20 mb-4" />
-                <p className="text-[10px] font-black uppercase tracking-widest italic">Inventario vacío</p>
-             </div>
-           )}
+          <h3 className="text-xs font-black text-zinc-400 uppercase tracking-widest mb-4">{t.distribution}</h3>
+          {totalValue > 0 ? (
+            <>
+              <div className="relative w-full flex justify-center">
+                {renderPieChart()}
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">CAPITAL</p>
+                  <p className="text-xl font-black text-white italic">100%</p>
+                </div>
+              </div>
+              <div className="flex flex-wrap justify-center gap-x-6 gap-y-3">
+                {categorySummary.slice(0, 5).map((item, index) => (
+                  <div key={item.category} className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: colors[index % colors.length] }}></div>
+                    <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">{item.label}</span>
+                  </div>
+                ))}
+                {categorySummary.length > 5 && (
+                  <span className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">+ {categorySummary.length - 5} MÁS</span>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col items-center text-zinc-700">
+              <Package className="w-12 h-12 opacity-20 mb-4" />
+              <p className="text-[10px] font-black uppercase tracking-widest italic">Inventario vacío</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
