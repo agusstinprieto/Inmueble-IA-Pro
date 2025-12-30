@@ -98,7 +98,7 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ onAddParts, lang, businessN
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       canvas.getContext('2d')?.drawImage(video, 0, 0);
-      
+
       canvas.toBlob(async (blob) => {
         if (!blob) return;
         const { b64, preview } = await processSecurely(blob);
@@ -179,8 +179,8 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ onAddParts, lang, businessN
       }
 
       const result: AnalysisResult = await analyzeVehicleMedia(images, businessName, location);
-      
-      const allParts: Part[] = result.groups.flatMap((group, groupIdx) => 
+
+      const allParts: Part[] = result.groups.flatMap((group, groupIdx) =>
         group.parts.map((p, partIdx) => ({
           id: `${Date.now()}-${groupIdx}-${partIdx}`,
           name: p.name,
@@ -234,8 +234,8 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ onAddParts, lang, businessN
 
       {!pendingParts ? (
         <div className="space-y-6 animate-in fade-in duration-500">
-          <div className="bg-zinc-900/40 border border-white/5 rounded-[2.5rem] p-8 md:p-12 shadow-2xl relative overflow-hidden group">
-            <div className={`h-64 border-2 border-dashed rounded-3xl flex flex-col items-center justify-center transition-all ${mediaItems.length > 0 ? 'border-amber-500/30 bg-amber-500/5' : 'border-white/10'}`}>
+          <div className="bg-zinc-900/40 border border-white/5 rounded-[2.5rem] p-6 md:p-12 shadow-2xl relative overflow-hidden group">
+            <div className={`min-h-[16rem] md:h-64 border-2 border-dashed rounded-3xl flex flex-col items-center justify-center transition-all ${mediaItems.length > 0 ? 'border-amber-500/30 bg-amber-500/5' : 'border-white/10'}`}>
               {analyzing ? (
                 <div className="flex flex-col items-center p-4">
                   <Loader2 className="w-12 h-12 text-amber-500 animate-spin mb-4" />
@@ -260,9 +260,9 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ onAddParts, lang, businessN
                 <div className="p-4 flex flex-col items-center text-center">
                   <Upload className="w-12 h-12 text-zinc-700 mb-4" />
                   <p className="text-xs font-black uppercase text-zinc-500 tracking-widest mb-6">{t.click_upload}</p>
-                  <div className="flex gap-4">
-                    <button onClick={startCamera} className="flex items-center gap-3 px-6 py-4 bg-amber-500 text-black rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-400 active:scale-95"><Camera className="w-4 h-4" />{t.take_photo}</button>
-                    <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-3 px-6 py-4 bg-zinc-800 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-zinc-700 active:scale-95"><ImageIcon className="w-4 h-4" />Archivos</button>
+                  <div className="flex flex-col sm:flex-row gap-3 md:gap-4 w-full px-6 sm:px-0 sm:w-auto">
+                    <button onClick={startCamera} className="w-full sm:w-auto flex items-center justify-center gap-3 px-6 py-4 bg-amber-500 text-black rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-400 active:scale-95 transition-all"><Camera className="w-4 h-4" />{t.take_photo}</button>
+                    <button onClick={() => fileInputRef.current?.click()} className="w-full sm:w-auto flex items-center justify-center gap-3 px-6 py-4 bg-zinc-800 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-zinc-700 active:scale-95 transition-all"><ImageIcon className="w-4 h-4" />Archivos</button>
                   </div>
                 </div>
               )}
@@ -278,14 +278,14 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ onAddParts, lang, businessN
       ) : (
         <div className="space-y-8 animate-in zoom-in-95 duration-500">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-zinc-900/80 border border-white/5 p-8 rounded-3xl">
-             <div>
-               <h3 className="text-white font-black text-xl uppercase tracking-tight italic">RESULTADOS MULTI-VEHÍCULO</h3>
-               <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mt-1">Se detectaron {Array.from(new Set(pendingParts.map(p => `${p.vehicleInfo.make} ${p.vehicleInfo.model}`))).length} modelos distintos</p>
-             </div>
-             <div className="flex gap-4">
-               <button onClick={() => setPendingParts(null)} className="px-8 py-4 bg-zinc-800 text-zinc-400 rounded-2xl text-[10px] font-black uppercase tracking-widest">DESCARTAR</button>
-               <button onClick={handleConfirmSave} className="px-8 py-4 bg-amber-500 hover:bg-amber-400 text-black rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg flex items-center gap-3"><Save className="w-4 h-4" />CONFIRMAR TODO</button>
-             </div>
+            <div>
+              <h3 className="text-white font-black text-xl uppercase tracking-tight italic">RESULTADOS MULTI-VEHÍCULO</h3>
+              <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mt-1">Se detectaron {Array.from(new Set(pendingParts.map(p => `${p.vehicleInfo.make} ${p.vehicleInfo.model}`))).length} modelos distintos</p>
+            </div>
+            <div className="flex gap-4">
+              <button onClick={() => setPendingParts(null)} className="px-8 py-4 bg-zinc-800 text-zinc-400 rounded-2xl text-[10px] font-black uppercase tracking-widest">DESCARTAR</button>
+              <button onClick={handleConfirmSave} className="px-8 py-4 bg-amber-500 hover:bg-amber-400 text-black rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg flex items-center gap-3"><Save className="w-4 h-4" />CONFIRMAR TODO</button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
