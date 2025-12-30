@@ -350,11 +350,11 @@ const App: React.FC = () => {
       </div>
 
       <main className="flex-1 flex flex-col h-full overflow-y-auto custom-scrollbar relative">
-        <div className="flex md:hidden items-center justify-between p-4 bg-zinc-900 border-b border-white/5 shrink-0 sticky top-0 z-50">
+        <div className="flex md:hidden items-center justify-between p-4 bg-zinc-900 border-b border-white/5 shrink-0 sticky top-0 z-50 w-full overflow-hidden">
           <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-amber-500 bg-white/5 rounded-xl">
             <MenuIcon className="w-6 h-6" />
           </button>
-          <h1 className="text-sm font-black italic tracking-tighter text-white uppercase">
+          <h1 className="text-sm font-black italic tracking-tighter text-white uppercase truncate px-2">
             {activeClient.name} <span className="text-amber-500">OS</span>
           </h1>
           <button onClick={() => syncAll(true)} className="p-2 text-zinc-500 bg-white/5 rounded-xl">
