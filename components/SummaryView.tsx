@@ -125,7 +125,7 @@ const SummaryView: React.FC<SummaryViewProps> = ({ inventory, location, lang }) 
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,_rgba(245,158,11,0.05),_transparent_70%)] pointer-events-none"></div>
         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
           <div>
-            <p className="text-[11px] font-black text-amber-500/60 uppercase tracking-[0.4em] mb-3">{t.inventory_value} (TOTAL)</p>
+            <p className="text-[11px] font-black text-amber-500 uppercase tracking-[0.4em] mb-3">{t.inventory_value} (TOTAL)</p>
             <p className="text-5xl md:text-7xl font-black text-white italic tracking-tighter">
               ${totalValue.toLocaleString()}
               <span className="text-white text-2xl md:text-3xl ml-4 not-italic">{currency}</span>
@@ -166,7 +166,7 @@ const SummaryView: React.FC<SummaryViewProps> = ({ inventory, location, lang }) 
                 </div>
                 <div className="text-right">
                   <p className="text-white font-mono font-black text-sm">${item.value.toLocaleString()}</p>
-                  <p className="text-white font-mono text-[9px] font-bold">{item.percentage.toFixed(1)}%</p>
+                  <p className="text-white font-mono text-[10px] font-black">{item.percentage.toFixed(1)}%</p>
                 </div>
               </div>
             ))}

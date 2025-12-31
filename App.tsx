@@ -21,6 +21,9 @@ const getContrastColor = (hex: string) => {
     const b = parseInt(result[3], 16);
     // Standard relative luminance formula
     const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    // Hard rules: Blue-ish -> White, Orange-ish -> Black
+    if (r < 100 && b > 150) return 'white'; // Strong Blue
+    if (r > 200 && g > 130 && b < 100) return 'black'; // Strong Orange/Amber
     return luminance > 0.5 ? 'black' : 'white';
   } catch {
     return 'white';
@@ -448,17 +451,17 @@ const App: React.FC = () => {
       <main className="flex-1 flex flex-col h-full overflow-y-auto custom-scrollbar relative">
         <div className="flex md:hidden items-center justify-between p-4 bg-zinc-900 border-b border-white/5 shrink-0 sticky top-0 z-50 w-full overflow-hidden">
           <div className="flex items-center gap-2">
-            <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-amber-500 bg-white/5 rounded-xl">
+            <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-amber-500 bg-white/10 rounded-xl">
               <MenuIcon className="w-6 h-6" />
             </button>
-            <button onClick={handleLogout} className="p-2 text-zinc-500 bg-white/5 rounded-xl" title="Cerrar sesión">
+            <button onClick={handleLogout} className="p-2 text-white bg-white/10 rounded-xl" title="Cerrar sesión">
               <LogOut className="w-5 h-5" />
             </button>
           </div>
           <h1 className="text-sm font-black italic tracking-tighter text-white uppercase truncate px-2">
             {activeClient.name} <span style={{ color: 'var(--brand-color)' }}>OS</span>
           </h1>
-          <button onClick={() => syncAll(true)} className="p-2 text-zinc-500 bg-white/5 rounded-xl">
+          <button onClick={() => syncAll(true)} className="p-2 text-white bg-white/10 rounded-xl">
             <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin text-amber-500' : ''}`} />
           </button>
         </div>
@@ -490,17 +493,17 @@ const App: React.FC = () => {
 
               <div className={`grid grid-cols-1 ${activeClient.role === 'admin' ? 'md:grid-cols-3' : 'md:grid-cols-1'} gap-4 md:gap-6`}>
                 <div className="bg-zinc-900/50 border border-white/5 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden group hover:border-white/10 transition-colors">
-                  <p className="text-[10px] font-black text-white uppercase tracking-widest mb-3 truncate group-hover:text-amber-500 transition-colors opacity-60">{t.available_stock}</p>
+                  <p className="text-[10px] font-black text-white uppercase tracking-widest mb-3 truncate group-hover:text-amber-500 transition-colors">{t.available_stock}</p>
                   <p className="text-3xl md:text-4xl lg:text-5xl font-black text-white italic truncate">{inventory.length}</p>
                 </div>
                 {activeClient.role === 'admin' && (
                   <>
                     <div className="bg-zinc-900/50 border border-white/5 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden group hover:border-white/10 transition-colors">
-                      <p className="text-[10px] font-black text-white uppercase tracking-widest mb-3 truncate group-hover:text-green-500 transition-colors opacity-60">{t.total_revenue}</p>
+                      <p className="text-[10px] font-black text-white uppercase tracking-widest mb-3 truncate group-hover:text-green-500 transition-colors">{t.total_revenue}</p>
                       <p className="text-3xl md:text-4xl lg:text-5xl font-black text-green-500 italic truncate">${salesRecords.reduce((acc, p) => acc + (p.finalPrice || 0), 0).toLocaleString()}</p>
                     </div>
                     <div className="bg-zinc-900/50 border border-white/5 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden group hover:border-white/10 transition-colors">
-                      <p className="text-[10px] font-black text-white uppercase tracking-widest mb-3 truncate group-hover:text-blue-400 transition-colors opacity-60">{t.inventory_value}</p>
+                      <p className="text-[10px] font-black text-white uppercase tracking-widest mb-3 truncate group-hover:text-blue-400 transition-colors">{t.inventory_value}</p>
                       <p className="text-3xl md:text-4xl lg:text-5xl font-black text-blue-400 italic truncate">${inventory.reduce((acc, p) => acc + (p.suggestedPrice || 0), 0).toLocaleString()}</p>
                     </div>
                   </>
@@ -529,10 +532,10 @@ const App: React.FC = () => {
 
         <footer className="mt-auto py-8 px-4 md:px-8 border-t border-white/5 bg-black/40 backdrop-blur-md">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-[10px] font-black text-white uppercase tracking-[0.2em] opacity-60">
-              {t.connected_terminal}: <span className="text-amber-500">{activeClient.id.toUpperCase()}</span>
+            <p className="text-[10px] font-black text-white uppercase tracking-[0.2em]">
+              {t.connected_terminal}: <span style={{ color: 'var(--brand-color)' }}>{activeClient.id.toUpperCase()}</span>
             </p>
-            <p className="text-[10px] font-black text-white uppercase tracking-[0.2em] opacity-60">
+            <p className="text-[10px] font-black text-white uppercase tracking-[0.2em]">
               © {new Date().getFullYear()} {activeClient.name} Systems
             </p>
             <p className="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em] bg-white/5 px-4 py-2 rounded-full border border-amber-500/10">

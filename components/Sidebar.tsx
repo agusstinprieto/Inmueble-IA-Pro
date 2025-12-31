@@ -62,7 +62,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         <h1 className="text-lg md:text-xl font-black italic tracking-tighter text-white uppercase leading-none">
           {businessName} <span style={{ color: 'var(--brand-color)' }}>OS</span>
         </h1>
-        <p className="text-[8px] text-white/30 uppercase tracking-[0.4em] font-black mt-2 truncate">
+        <p className="text-[8px] text-white uppercase tracking-[0.4em] font-black mt-2 truncate">
           Terminal v1.9 Multi-Tenant
         </p>
       </div>
@@ -81,7 +81,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             {activeView === item.id && (
               <span className="absolute left-2 w-1 h-4 rounded-full" style={{ backgroundColor: 'var(--brand-color)' }} />
             )}
-            <span className="shrink-0 transition-colors" style={{ color: activeView === item.id ? 'var(--brand-color)' : 'rgb(82 82 91)' }}>
+            <span className="shrink-0 transition-colors" style={{ color: activeView === item.id ? 'var(--brand-color)' : 'white' }}>
               {item.icon}
             </span>
             <span className="text-[10px] uppercase tracking-widest font-bold truncate whitespace-nowrap">
@@ -118,7 +118,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         <div className="pt-2 border-t border-white/5">
-          <p className="text-[7px] font-black text-amber-500/50 uppercase tracking-widest leading-relaxed">
+          <p className="text-[7px] font-black text-amber-500 uppercase tracking-widest leading-relaxed">
             POWERED BY IA.AGUS<br />
             +52 871 143 9941
           </p>

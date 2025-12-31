@@ -239,9 +239,10 @@ const InventoryView: React.FC<InventoryViewProps> = ({
                 <div className="flex gap-4 shrink-0">
                   <button
                     onClick={handleCopyAd}
-                    className={`flex-1 py-5 rounded-2xl flex items-center justify-center gap-3 text-[11px] font-black uppercase tracking-widest transition-all ${isCopied ? 'bg-green-600 text-white' : 'bg-amber-500 text-black hover:brightness-110'}`}
+                    className={`flex-1 py-5 rounded-2xl flex items-center justify-center gap-3 text-[11px] font-black uppercase tracking-widest transition-all hover:brightness-110 ${isCopied ? 'bg-green-600 text-white' : ''}`}
+                    style={!isCopied ? { backgroundColor: 'var(--brand-color)', color: 'var(--brand-text-color)' } : {}}
                   >
-                    {isCopied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                    {isCopied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" style={{ color: 'var(--brand-text-color)' }} />}
                     {isCopied ? (lang === 'es' ? 'COPIADO' : 'COPIED') : t.copy_ad}
                   </button>
                 </div>
@@ -254,7 +255,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div className="max-w-full text-white">
               <h2 className="text-xl md:text-3xl font-black tracking-tighter uppercase italic leading-tight">{t.inventory}: {businessName}</h2>
-              <p className="text-white text-[9px] md:text-[10px] font-bold uppercase tracking-[0.2em] mt-1">{t.synced_cloud} {location}</p>
+              <p className="text-white text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] mt-1">{t.synced_cloud} {location}</p>
             </div>
 
             <button
@@ -271,7 +272,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
               <input
                 type="text"
                 placeholder={t.search_placeholder}
-                className="w-full bg-zinc-900/50 border border-white/10 rounded-2xl pl-11 pr-4 py-3 text-xs text-white focus:outline-none focus:border-amber-500 transition-all shadow-inner"
+                className="w-full bg-zinc-900/50 border border-white/10 rounded-2xl pl-11 pr-4 py-3 text-xs text-white focus:outline-none focus:border-amber-500 transition-all shadow-inner placeholder:text-white/50"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -348,8 +349,11 @@ const InventoryView: React.FC<InventoryViewProps> = ({
                 </div>
 
                 <div className="px-6 pb-6 mt-auto flex gap-2">
-                  <button onClick={() => setPartToSell(part)} className="flex-1 py-5 bg-amber-500 hover:brightness-110 text-black text-[11px] font-black rounded-2xl transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-amber-500/10">
-                    <DollarSign className="w-4 h-4" /> {t.register_sale}
+                  <button onClick={() => setPartToSell(part)}
+                    className="flex-1 py-5 hover:brightness-110 text-[11px] font-black rounded-2xl transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-2 active:scale-95 shadow-lg"
+                    style={{ backgroundColor: 'var(--brand-color)', color: 'var(--brand-text-color)', boxShadow: '0 10px 40px -10px rgba(var(--brand-color-rgb), 0.1)' }}
+                  >
+                    <DollarSign className="w-4 h-4" style={{ color: 'var(--brand-text-color)' }} /> {t.register_sale}
                   </button>
                   <div className="flex flex-col gap-2">
                     <button onClick={() => handleCreateAd(part)} className="p-4 bg-zinc-800 hover:bg-zinc-700 text-white rounded-2xl transition-all" title={t.create_ad}>
@@ -475,8 +479,11 @@ const InventoryView: React.FC<InventoryViewProps> = ({
               </div>
               <div className="flex gap-4">
                 <button onClick={() => setPartToSell(null)} className="flex-1 py-4 bg-zinc-800 text-white text-[10px] font-black rounded-2xl uppercase tracking-widest">CANCELAR</button>
-                <button onClick={confirmSell} className="flex-1 py-4 bg-amber-500 text-black text-[10px] font-black rounded-2xl uppercase tracking-widest flex items-center justify-center gap-2">
-                  {isProcessing && <Loader2 className="w-3 h-3 animate-spin" />} CONFIRMAR
+                <button onClick={confirmSell}
+                  className="flex-1 py-4 text-[10px] font-black rounded-2xl uppercase tracking-widest flex items-center justify-center gap-2 hover:brightness-110 transition-all"
+                  style={{ backgroundColor: 'var(--brand-color)', color: 'var(--brand-text-color)' }}
+                >
+                  {isProcessing && <Loader2 className="w-3 h-3 animate-spin" style={{ color: 'var(--brand-text-color)' }} />} CONFIRMAR
                 </button>
               </div>
             </div>

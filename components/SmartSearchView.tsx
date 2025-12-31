@@ -64,15 +64,19 @@ const SmartSearchView: React.FC<SmartSearchViewProps> = ({ lang, location }) => 
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t.smart_search_placeholder}
-            className="flex-1 bg-zinc-900 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-amber-500 transition-all text-lg"
+            className="flex-1 bg-zinc-900 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-amber-500 transition-all text-lg placeholder:text-white/50"
           />
           <button
             disabled={loading || !query.trim()}
             type="submit"
-            className="bg-amber-500 hover:brightness-110 disabled:bg-zinc-800 disabled:text-zinc-600 font-black px-10 py-4 rounded-2xl transition-all shadow-lg shadow-amber-500/10 uppercase tracking-widest text-[11px] disabled:shadow-none"
-            style={{ color: (loading || !query.trim()) ? undefined : 'var(--brand-text-color)' }}
+            className="hover:brightness-110 disabled:bg-zinc-800 disabled:text-white/20 font-black px-10 py-4 rounded-2xl transition-all shadow-lg uppercase tracking-widest text-[11px] disabled:shadow-none"
+            style={{
+              backgroundColor: loading || !query.trim() ? undefined : 'var(--brand-color)',
+              color: loading || !query.trim() ? undefined : 'var(--brand-text-color)',
+              boxShadow: loading || !query.trim() ? undefined : '0 10px 40px -10px rgba(var(--brand-color-rgb), 0.1)'
+            }}
           >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : t.search_button}
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" style={{ color: 'var(--brand-text-color)' }} /> : t.search_button}
           </button>
         </div>
       </form>
