@@ -86,7 +86,24 @@ export const translations = {
       CARROCERIA: 'Carrocería',
       DIRECCION: 'Dirección y Caja',
       OTROS: 'Otros'
-    }
+    },
+    batch_management: "Administrar por Lote",
+    synced_cloud: "Sincronizado con la nube de",
+    configurator: "Configurador",
+    copied: "¡COPIADO!",
+    avg_per_part: "PROM. PIEZA",
+    pieces: "PIEZAS",
+    value_usd: "VALOR ($)",
+    category: "CATEGORÍA",
+    capital: "CAPITAL",
+    more: "MÁS",
+    empty_inventory: "Inventario vacío",
+    searching_near: "Buscando en yonkes y tiendas cercanas a",
+    scanning_market: "Escaneando mercado en",
+    writing: "Escribiendo...",
+    control_terminal: "Terminal de Control",
+    connected_terminal: "Terminal Conectada",
+    designed_by: "Diseñado por"
   },
   en: {
     dashboard: "Dashboard",
@@ -174,6 +191,23 @@ export const translations = {
       CARROCERIA: 'Body Parts',
       DIRECCION: 'Steering',
       OTROS: 'Others'
-    }
+    },
+    batch_management: "Batch Management",
+    synced_cloud: "Synced with cloud in",
+    configurator: "Configurator",
+    copied: "COPIED!",
+    avg_per_part: "AVG PER PART",
+    pieces: "PIECES",
+    value_usd: "VALUE ($)",
+    category: "CATEGORY",
+    capital: "CAPITAL",
+    more: "MORE",
+    empty_inventory: "Empty inventory",
+    searching_near: "Searching in junkyards and shops near",
+    scanning_market: "Scanning market in",
+    writing: "Writing...",
+    control_terminal: "Control Terminal",
+    connected_terminal: "Connected Terminal",
+    designed_by: "Designed by"
   }
 };

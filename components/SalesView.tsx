@@ -56,7 +56,7 @@ ${t.no_returns}
         <div>
           <h2 className="text-2xl md:text-3xl font-black italic uppercase tracking-tighter flex items-center gap-3">
             <ReceiptText className="text-amber-500 w-6 h-6 md:w-8 md:h-8" />
-            Ventas & Facturas
+            {t.sales}
           </h2>
           <p className="text-zinc-500 text-[11px] font-black uppercase tracking-[0.2em] mt-1 italic opacity-60">Terminal: {businessName}</p>
         </div>
@@ -87,14 +87,14 @@ ${t.no_returns}
           {selectedPart ? (
             <div className="bg-zinc-900/60 border border-zinc-800 rounded-[2.5rem] p-6 md:p-8 space-y-6 animate-in fade-in zoom-in-95 duration-300">
               <div className="flex justify-between items-center">
-                <div className="bg-amber-500/10 text-amber-500 px-4 py-1.5 rounded-lg border border-amber-500/20 text-[11px] font-black uppercase tracking-widest">Configurador</div>
+                <div className="bg-amber-500/10 text-amber-500 px-4 py-1.5 rounded-lg border border-amber-500/20 text-[11px] font-black uppercase tracking-widest">{t.configurator}</div>
                 <button
                   onClick={handleCopy}
                   className={`px-8 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all flex items-center gap-3 shadow-lg ${isCopying ? 'bg-green-600 text-white' : 'bg-amber-500 hover:brightness-110'}`}
                   style={{ color: isCopying ? undefined : 'var(--brand-text-color)' }}
                 >
                   {isCopying ? <FileText className="w-4 h-4 animate-bounce" /> : <Copy className="w-4 h-4" />}
-                  {isCopying ? '¡COPIADO!' : t.copy_docs}
+                  {isCopying ? t.copied : t.copy_docs}
                 </button>
               </div>
               <div className="space-y-4">

@@ -54,7 +54,7 @@ const SmartSearchView: React.FC<SmartSearchViewProps> = ({ lang, location }) => 
     <div className="p-8 max-w-5xl mx-auto text-white">
       <header className="mb-8">
         <h2 className="text-3xl font-bold">{t.smart_search}</h2>
-        <p className="text-zinc-400 mt-2">Buscando en yonkes y tiendas cercanas a {location}.</p>
+        <p className="text-zinc-400 mt-2">{t.searching_near} {location}.</p>
       </header>
 
       <form onSubmit={handleSearch} className="mb-12">
@@ -80,7 +80,7 @@ const SmartSearchView: React.FC<SmartSearchViewProps> = ({ lang, location }) => 
       {loading && (
         <div className="flex flex-col items-center justify-center py-20 animate-pulse">
           <div className="w-12 h-12 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin mb-4"></div>
-          <p className="text-zinc-400 font-medium">Escaneando mercado en {location}...</p>
+          <p className="text-zinc-400 font-medium">{t.scanning_market} {location}...</p>
         </div>
       )}
 

@@ -106,7 +106,7 @@ const SummaryView: React.FC<SummaryViewProps> = ({ inventory, lang, location }) 
               <p className="text-3xl font-black text-white">{availableParts.length}</p>
             </div>
             <div className="bg-black/40 border border-white/5 p-6 rounded-3xl text-center min-w-[120px]">
-              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2">PROM. PIEZA</p>
+              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2">{t.avg_per_part}</p>
               <p className="text-3xl font-black text-green-500">
                 ${availableParts.length > 0 ? Math.round(totalValue / availableParts.length).toLocaleString() : 0}
               </p>
@@ -128,9 +128,9 @@ const SummaryView: React.FC<SummaryViewProps> = ({ inventory, lang, location }) 
             <table className="w-full text-left">
               <thead>
                 <tr className="bg-black/20">
-                  <th className="px-8 py-5 text-[10px] font-black text-zinc-600 uppercase tracking-widest">CATEGORÍA</th>
-                  <th className="px-8 py-5 text-[10px] font-black text-zinc-600 uppercase tracking-widest text-right">PIEZAS</th>
-                  <th className="px-8 py-5 text-[10px] font-black text-zinc-600 uppercase tracking-widest text-right">VALOR ($)</th>
+                  <th className="px-8 py-5 text-[10px] font-black text-zinc-600 uppercase tracking-widest">{t.category}</th>
+                  <th className="px-8 py-5 text-[10px] font-black text-zinc-600 uppercase tracking-widest text-right">{t.pieces}</th>
+                  <th className="px-8 py-5 text-[10px] font-black text-zinc-600 uppercase tracking-widest text-right">{t.value_usd}</th>
                   <th className="px-8 py-5 text-[10px] font-black text-zinc-600 uppercase tracking-widest text-right">%</th>
                 </tr>
               </thead>
@@ -165,7 +165,7 @@ const SummaryView: React.FC<SummaryViewProps> = ({ inventory, lang, location }) 
               <div className="relative w-full flex justify-center">
                 {renderPieChart()}
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">CAPITAL</p>
+                  <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">{t.capital}</p>
                   <p className="text-xl font-black text-white italic">100%</p>
                 </div>
               </div>
@@ -177,14 +177,14 @@ const SummaryView: React.FC<SummaryViewProps> = ({ inventory, lang, location }) 
                   </div>
                 ))}
                 {categorySummary.length > 5 && (
-                  <span className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">+ {categorySummary.length - 5} MÁS</span>
+                  <span className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">+ {categorySummary.length - 5} {t.more}</span>
                 )}
               </div>
             </>
           ) : (
             <div className="flex flex-col items-center text-zinc-700">
               <Package className="w-12 h-12 opacity-20 mb-4" />
-              <p className="text-[10px] font-black uppercase tracking-widest italic">Inventario vacío</p>
+              <p className="text-[10px] font-black uppercase tracking-widest italic">{t.empty_inventory}</p>
             </div>
           )}
         </div>

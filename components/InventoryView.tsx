@@ -206,15 +206,15 @@ const InventoryView: React.FC<InventoryViewProps> = ({
       <header className="flex flex-col gap-8 mb-12">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="max-w-full text-white">
-            <h2 className="text-xl md:text-3xl font-black tracking-tighter uppercase italic leading-tight">INVENTARIO: {businessName}</h2>
-            <p className="text-zinc-500 text-[9px] md:text-[10px] font-bold uppercase tracking-[0.2em] mt-1">Sincronizado con la nube de {location}</p>
+            <h2 className="text-xl md:text-3xl font-black tracking-tighter uppercase italic leading-tight">{t.inventory}: {businessName}</h2>
+            <p className="text-zinc-500 text-[9px] md:text-[10px] font-bold uppercase tracking-[0.2em] mt-1">{t.synced_cloud} {location}</p>
           </div>
 
           <button
             onClick={() => setIsBatchModalOpen(true)}
             className="flex items-center gap-3 px-8 py-5 bg-zinc-900 border border-white/5 rounded-2xl text-[11px] font-black text-amber-500 uppercase tracking-widest hover:bg-zinc-800 transition-all active:scale-95 shadow-lg shadow-black/20"
           >
-            <CheckCircle2 className="w-5 h-5" /> Administrar por Lote
+            <CheckCircle2 className="w-5 h-5" /> {t.batch_management}
           </button>
         </div>
 

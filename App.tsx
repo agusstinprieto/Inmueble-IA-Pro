@@ -464,7 +464,7 @@ const App: React.FC = () => {
         <div className="hidden md:flex absolute top-4 right-8 items-center gap-3 z-50">
           {isSyncing && (
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[10px] font-black uppercase tracking-widest animate-pulse shrink-0">
-              <CloudFog className="w-3.5 h-3.5" /> Escribiendo...
+              <CloudFog className="w-3.5 h-3.5" /> {t.writing}
             </div>
           )}
           <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[10px] font-black uppercase tracking-widest shrink-0 ${cloudStatus === 'connected' ? 'bg-green-500/10 border-green-500/20 text-green-500' : 'bg-red-500/10 border-red-500/20 text-red-500'}`}>
@@ -483,7 +483,7 @@ const App: React.FC = () => {
             <div className="p-4 md:p-8 max-w-7xl mx-auto w-full space-y-6 md:space-y-8 animate-in fade-in duration-500 overflow-x-hidden pt-6 md:pt-8">
               <header className="overflow-hidden">
                 <h2 className="text-2xl md:text-3xl font-black italic tracking-tighter uppercase truncate">{t.operational_dashboard}</h2>
-                <p className="text-zinc-500 text-[11px] font-black uppercase mt-1 tracking-[0.2em] opacity-60 truncate">Terminal de Control • {activeClient.location}</p>
+                <p className="text-zinc-500 text-[11px] font-black uppercase mt-1 tracking-[0.2em] opacity-60 truncate">{t.control_terminal} • {activeClient.location}</p>
               </header>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
@@ -496,7 +496,7 @@ const App: React.FC = () => {
                   <p className="text-3xl md:text-4xl lg:text-5xl font-black text-green-500 italic truncate">${salesRecords.reduce((acc, p) => acc + (p.finalPrice || 0), 0).toLocaleString()}</p>
                 </div>
                 <div className="bg-zinc-900/50 border border-white/5 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden group hover:border-white/10 transition-colors">
-                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-3 truncate group-hover:text-zinc-300 transition-colors">Valor Inventario</p>
+                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-3 truncate group-hover:text-zinc-300 transition-colors">{t.inventory_value}</p>
                   <p className="text-3xl md:text-4xl lg:text-5xl font-black text-blue-400 italic truncate">${inventory.reduce((acc, p) => acc + (p.suggestedPrice || 0), 0).toLocaleString()}</p>
                 </div>
               </div>
@@ -524,13 +524,13 @@ const App: React.FC = () => {
         <footer className="mt-auto py-8 px-4 md:px-8 border-t border-white/5 bg-black/40 backdrop-blur-md">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">
-              Terminal Conectada: <span className="text-amber-500">{activeClient.id.toUpperCase()}</span>
+              {t.connected_terminal}: <span className="text-amber-500">{activeClient.id.toUpperCase()}</span>
             </p>
             <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">
               © {new Date().getFullYear()} {activeClient.name} Systems
             </p>
             <p className="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em] bg-white/5 px-4 py-2 rounded-full border border-amber-500/10">
-              Diseñado por IA.AGUS - Tel +52 871 143 9941
+              {t.designed_by} IA.AGUS - Tel +52 871 143 9941
             </p>
           </div>
         </footer>
