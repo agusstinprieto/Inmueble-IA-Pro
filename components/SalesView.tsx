@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Part } from '../types';
 import { translations } from '../translations';
-import { ReceiptText, FileText, Copy, Printer, Check, Eye, Download, MessageSquare, ChevronRight, Share2, Package } from 'lucide-react';
+import { ReceiptText, FileText, Copy, Printer, Check, Eye, Download, MessageSquare, ChevronRight, Share2, Package, LogOut } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
