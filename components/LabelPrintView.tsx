@@ -1,8 +1,10 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Part } from '../types';
 import { translations } from '../translations';
-import { X, Printer, Package } from 'lucide-react';
+import { X, Printer, Package, Download, Loader2 } from 'lucide-react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 interface LabelPrintViewProps {
     part: Part;
@@ -14,9 +16,37 @@ interface LabelPrintViewProps {
 const LabelPrintView: React.FC<LabelPrintViewProps> = ({ part, businessName, lang, onClose }) => {
     const t = translations[lang] || translations.es;
     const printRef = useRef<HTMLDivElement>(null);
+    const [isExporting, setIsExporting] = useState(false);
 
     const handlePrint = () => {
         window.print();
+    };
+
+    const handleDownloadPDF = async () => {
+        if (!printRef.current) return;
+        setIsExporting(true);
+        try {
+            const canvas = await html2canvas(printRef.current, {
+                scale: 4, // Higher scale for print quality
+                backgroundColor: '#ffffff',
+                logging: false,
+                useCORS: true
+            });
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF({
+                orientation: 'landscape',
+                unit: 'in',
+                format: [4, 2] // Standard 4x2 thermal label size
+            });
+
+            pdf.addImage(imgData, 'PNG', 0, 0, 4, 2);
+            pdf.save(`Label_${part.id}.pdf`);
+        } catch (error) {
+            console.error("Label PDF error:", error);
+            alert(lang === 'es' ? "Error al generar PDF" : "Error generating PDF");
+        } finally {
+            setIsExporting(false);
+        }
     };
 
     return (
@@ -37,9 +67,10 @@ const LabelPrintView: React.FC<LabelPrintViewProps> = ({ part, businessName, lan
                 {/* Print Content Area */}
                 <div className="flex-1 flex flex-col items-center justify-center mb-8">
                     <div
+                        id="label-to-print"
                         ref={printRef}
-                        className="bg-white text-black p-6 rounded-lg shadow-xl print:shadow-none print:m-0 print:p-8"
-                        style={{ width: '4in', height: '2in', display: 'flex' }}
+                        className="bg-white text-black p-6 rounded-lg shadow-xl print:shadow-none print:m-0 print:p-8 flex"
+                        style={{ width: '4in', height: '2in' }}
                     >
                         <div className="flex-1 flex flex-col justify-between">
                             <div>
@@ -57,7 +88,7 @@ const LabelPrintView: React.FC<LabelPrintViewProps> = ({ part, businessName, lan
                         </div>
 
                         <div className="ml-4 flex flex-col items-end justify-center">
-                            <div className="p-2 border-2 border-zinc-100 rounded-lg">
+                            <div className="p-2 border-2 border-zinc-100 rounded-lg bg-white">
                                 <QRCodeSVG
                                     value={part.id}
                                     size={100}
@@ -70,19 +101,28 @@ const LabelPrintView: React.FC<LabelPrintViewProps> = ({ part, businessName, lan
                     </div>
                 </div>
 
-                <div className="flex gap-4">
+                <div className="flex flex-col gap-3">
+                    <div className="flex gap-4">
+                        <button
+                            onClick={handleDownloadPDF}
+                            disabled={isExporting}
+                            className="flex-1 py-4 bg-zinc-800 text-white text-[10px] font-black rounded-2xl uppercase tracking-widest transition-all hover:bg-zinc-700 flex items-center justify-center gap-2"
+                        >
+                            {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4 text-amber-500" />}
+                            DESCARGAR PDF
+                        </button>
+                        <button
+                            onClick={handlePrint}
+                            className="flex-1 py-4 bg-amber-500 text-black text-[10px] font-black rounded-2xl uppercase tracking-widest transition-all hover:brightness-110 flex items-center justify-center gap-2"
+                        >
+                            <Printer className="w-4 h-4" /> {t.print_label}
+                        </button>
+                    </div>
                     <button
                         onClick={onClose}
-                        className="flex-1 py-4 bg-zinc-800 text-white text-[10px] font-black rounded-2xl uppercase tracking-widest transition-all hover:bg-zinc-700"
+                        className="w-full py-3 text-zinc-500 text-[9px] font-black uppercase tracking-widest hover:text-white transition-colors"
                     >
-                        CANCELAR
-                    </button>
-                    <button
-                        onClick={handlePrint}
-                        className="flex-1 py-4 bg-amber-500 text-[10px] font-black rounded-2xl uppercase tracking-widest transition-all hover:brightness-110 flex items-center justify-center gap-2"
-                        style={{ color: 'var(--brand-text-color)' }}
-                    >
-                        <Printer className="w-4 h-4" /> {t.print_label}
+                        CERRAR
                     </button>
                 </div>
             </div>
@@ -95,24 +135,19 @@ const LabelPrintView: React.FC<LabelPrintViewProps> = ({ part, businessName, lan
           .no-print {
             display: none !important;
           }
-          #print-root, #print-root * {
+          #label-to-print, #label-to-print * {
             visibility: visible;
           }
-          .print-section, .print-section * {
-            visibility: visible;
-          }
-          /* Specialized Print View */
-          div[ref="printRef"], .print-label-area {
-            visibility: visible;
+          #label-to-print {
             position: absolute;
             left: 0;
             top: 0;
-            width: 100%;
-            height: 100%;
-            background: white !important;
-            color: black !important;
+            width: 4in !important;
+            height: 2in !important;
             padding: 20px !important;
             margin: 0 !important;
+            border: none !important;
+            box-shadow: none !important;
           }
         }
       `}</style>
