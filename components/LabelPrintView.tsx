@@ -15,12 +15,7 @@ interface LabelPrintViewProps {
 
 const LabelPrintView: React.FC<LabelPrintViewProps> = ({ part, businessName, lang, onClose }) => {
     const t = translations[lang] || translations.es;
-    const printRef = useRef<HTMLDivElement>(null);
     const [isExporting, setIsExporting] = useState(false);
-
-    const handlePrint = () => {
-        window.print();
-    };
 
     const handleDownloadPDF = async () => {
         const element = document.getElementById('label-to-print');
@@ -31,7 +26,7 @@ const LabelPrintView: React.FC<LabelPrintViewProps> = ({ part, businessName, lan
 
         try {
             const canvas = await html2canvas(element, {
-                scale: 3, // slightly lower to be safer, yet still high quality
+                scale: 3,
                 backgroundColor: '#ffffff',
                 logging: true,
                 useCORS: true,
@@ -41,7 +36,7 @@ const LabelPrintView: React.FC<LabelPrintViewProps> = ({ part, businessName, lan
             const pdf = new jsPDF({
                 orientation: 'landscape',
                 unit: 'in',
-                format: [4, 2] // Standard 4x2 thermal label size
+                format: [4, 2]
             });
 
             pdf.addImage(imgData, 'PNG', 0, 0, 4, 2);
@@ -71,7 +66,7 @@ const LabelPrintView: React.FC<LabelPrintViewProps> = ({ part, businessName, lan
                 </div>
 
                 {/* Print Content Area - USING HEX COLORS ONLY TO AVOID OKLCH ERROR */}
-                <div className="flex-1 flex flex-col items-center justify-center mb-8 overflow-hidden">
+                <div className="flex-1 flex flex-col items-center justify-center mb-10 overflow-hidden">
                     <div
                         id="label-to-print"
                         style={{
@@ -116,56 +111,23 @@ const LabelPrintView: React.FC<LabelPrintViewProps> = ({ part, businessName, lan
                     </div>
                 </div>
 
-                <div className="flex flex-col gap-3">
-                    <div className="flex gap-4">
-                        <button
-                            onClick={handleDownloadPDF}
-                            disabled={isExporting}
-                            className="flex-1 py-4 bg-zinc-800 text-white text-[10px] font-black rounded-2xl uppercase tracking-widest transition-all hover:bg-zinc-700 flex items-center justify-center gap-2"
-                        >
-                            {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4 text-amber-500" />}
-                            DESCARGAR PDF
-                        </button>
-                        <button
-                            onClick={handlePrint}
-                            className="flex-1 py-4 bg-amber-500 text-black text-[10px] font-black rounded-2xl uppercase tracking-widest transition-all hover:brightness-110 flex items-center justify-center gap-2"
-                        >
-                            <Printer className="w-4 h-4" /> {t.print_label}
-                        </button>
-                    </div>
+                <div className="flex flex-col gap-4">
+                    <button
+                        onClick={handleDownloadPDF}
+                        disabled={isExporting}
+                        className="w-full py-5 bg-amber-500 text-black text-[12px] font-black rounded-2xl uppercase tracking-[0.2em] transition-all hover:brightness-110 flex items-center justify-center gap-3 active:scale-95 shadow-xl shadow-amber-500/20"
+                    >
+                        {isExporting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Printer className="w-5 h-5" />}
+                        {t.print_label} (PDF)
+                    </button>
                     <button
                         onClick={onClose}
                         className="w-full py-3 text-zinc-500 text-[9px] font-black uppercase tracking-widest hover:text-white transition-colors"
                     >
-                        CERRAR
+                        {lang === 'es' ? 'VOLVER AL INVENTARIO' : 'BACK TO INVENTORY'}
                     </button>
                 </div>
             </div>
-
-            <style>{`
-        @media print {
-          body * {
-            visibility: hidden;
-          }
-          .no-print {
-            display: none !important;
-          }
-          #label-to-print, #label-to-print * {
-            visibility: visible;
-          }
-          #label-to-print {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 4in !important;
-            height: 2in !important;
-            padding: 20px !important;
-            margin: 0 !important;
-            border: none !important;
-            box-shadow: none !important;
-          }
-        }
-      `}</style>
         </div>
     );
 };
