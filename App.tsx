@@ -1,706 +1,544 @@
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Sidebar from './components/Sidebar';
 import AnalysisView from './components/AnalysisView';
-import InventoryView from './components/InventoryView';
+import PropertiesView from './components/PropertiesView';
+import CRMView from './components/CRMView';
+import ContractsView from './components/ContractsView';
+import DashboardView from './components/DashboardView';
+import MortgageCalculator from './components/MortgageCalculator';
 import SalesView from './components/SalesView';
-import SmartSearchView from './components/SmartSearchView';
-import SummaryView from './components/SummaryView';
-import LoginView, { ClientConfig } from './components/LoginView';
-import { Part, PartStatus, PartCategory } from './types';
+import AgentsView from './components/AgentsView';
+import GalleryView from './components/GalleryView';
+import MarketSearchView from './components/MarketSearchView';
+import ValuationView from './components/ValuationView';
+import MapView from './components/MapView';
+import TourView from './components/TourView';
+import AnalyticsView from './components/AnalyticsView';
+import LoginView from './components/LoginView';
 import { translations } from './translations';
 import { supabase, getBusinessProfile, signOut } from './services/supabase';
-import { Loader2, RefreshCw, Wifi, CloudFog, Menu as MenuIcon, X, LogOut } from 'lucide-react';
+import {
+  Property,
+  Client,
+  Contract,
+  Sale,
+  PropertyStatus,
+  ClientStatus,
+  Agent
+} from './types';
+import { Loader2, RefreshCw, Wifi, CloudOff } from 'lucide-react';
 
-const getContrastColor = (hex: string) => {
-  try {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    if (!result) return 'white';
-    const r = parseInt(result[1], 16);
-    const g = parseInt(result[2], 16);
-    const b = parseInt(result[3], 16);
-    // Standard relative luminance formula
-    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-    // Hard rules: Blue-ish -> White, Orange-ish -> Black
-    if (r < 100 && b > 150) return 'white'; // Strong Blue
-    if (r > 200 && g > 130 && b < 100) return 'black'; // Strong Orange/Amber
-    return luminance > 0.5 ? 'black' : 'white';
-  } catch {
-    return 'white';
-  }
-};
+// ============ HELPERS ============
 
-const hexToRgb = (hex: string) => {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result ?
-    `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` :
-    '245, 158, 11';
-};
+function getContrastColor(hex: string): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance > 0.5 ? '#000000' : '#ffffff';
+}
 
-// Sales Analytics Chart Component
-const SalesChart: React.FC<{ salesRecords: Part[]; lang: 'es' | 'en' }> = ({ salesRecords, lang }) => {
-  const [period, setPeriod] = useState<'day' | 'week' | 'month' | 'year'>('week');
+// ============ MAIN APP ============
 
-  const getChartData = () => {
-    const now = new Date();
-    const data: { label: string; value: number }[] = [];
+function App() {
+  // Auth state
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
 
-    if (period === 'day') {
-      // Last 7 days
-      for (let i = 6; i >= 0; i--) {
-        const date = new Date(now);
-        date.setDate(date.getDate() - i);
-        const dayStr = date.toLocaleDateString(lang === 'es' ? 'es-MX' : 'en-US', { weekday: 'short' });
-        const total = salesRecords
-          .filter(s => {
-            const saleDate = new Date(s.dateAdded);
-            return saleDate.toDateString() === date.toDateString();
-          })
-          .reduce((acc, s) => acc + (s.finalPrice || 0), 0);
-        data.push({ label: dayStr, value: total });
-      }
-    } else if (period === 'week') {
-      // Last 4 weeks
-      for (let i = 3; i >= 0; i--) {
-        const weekStart = new Date(now);
-        weekStart.setDate(weekStart.getDate() - (i * 7) - weekStart.getDay());
-        const weekEnd = new Date(weekStart);
-        weekEnd.setDate(weekEnd.getDate() + 6);
-        const label = `${lang === 'es' ? 'Sem' : 'Wk'} ${4 - i}`;
-        const total = salesRecords
-          .filter(s => {
-            const saleDate = new Date(s.dateAdded);
-            return saleDate >= weekStart && saleDate <= weekEnd;
-          })
-          .reduce((acc, s) => acc + (s.finalPrice || 0), 0);
-        data.push({ label, value: total });
-      }
-    } else if (period === 'month') {
-      // Last 6 months
-      for (let i = 5; i >= 0; i--) {
-        const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        const label = date.toLocaleDateString(lang === 'es' ? 'es-MX' : 'en-US', { month: 'short' });
-        const total = salesRecords
-          .filter(s => {
-            const saleDate = new Date(s.dateAdded);
-            return saleDate.getMonth() === date.getMonth() && saleDate.getFullYear() === date.getFullYear();
-          })
-          .reduce((acc, s) => acc + (s.finalPrice || 0), 0);
-        data.push({ label, value: total });
-      }
-    } else {
-      // Last 3 years
-      for (let i = 2; i >= 0; i--) {
-        const year = now.getFullYear() - i;
-        const total = salesRecords
-          .filter(s => new Date(s.dateAdded).getFullYear() === year)
-          .reduce((acc, s) => acc + (s.finalPrice || 0), 0);
-        data.push({ label: String(year), value: total });
-      }
-    }
-    return data;
-  };
+  // Business config
+  const [businessName, setBusinessName] = useState('INMUEBLE IA PRO');
+  const [location, setLocation] = useState('Torreón, Coahuila');
+  const [brandColor, setBrandColor] = useState('#f59e0b');
+  const [scriptUrl, setScriptUrl] = useState('');
+  const [userRole, setUserRole] = useState<'admin' | 'employee'>('admin');
 
-  const chartData = getChartData();
-  const maxValue = Math.max(...chartData.map(d => d.value), 1);
+  // App state
+  const [lang, setLang] = useState<'es' | 'en'>('es');
+  const [activeView, setActiveView] = useState('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  return (
-    <div className="bg-zinc-900/50 border border-white/5 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <p className="text-[10px] font-black text-white uppercase tracking-widest">
-          📊 {lang === 'es' ? 'Análisis de Ventas' : 'Sales Analytics'}
-        </p>
-        <div className="flex gap-1 bg-black/30 p-1 rounded-xl">
-          {(['day', 'week', 'month', 'year'] as const).map(p => (
-            <button
-              key={p}
-              onClick={() => setPeriod(p)}
-              className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${period === p
-                  ? 'bg-amber-500 text-black'
-                  : 'text-white/50 hover:text-white hover:bg-white/5'
-                }`}
-            >
-              {p === 'day' ? (lang === 'es' ? 'Día' : 'Day') :
-                p === 'week' ? (lang === 'es' ? 'Sem' : 'Week') :
-                  p === 'month' ? (lang === 'es' ? 'Mes' : 'Month') :
-                    (lang === 'es' ? 'Año' : 'Year')}
-            </button>
-          ))}
-        </div>
-      </div>
+  // Data state
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [contracts, setContracts] = useState<Contract[]>([]);
+  const [sales, setSales] = useState<Sale[]>([]);
+  const [agents, setAgents] = useState<Agent[]>([]);
 
-      <div className="flex items-end gap-2 h-40 mt-4">
-        {chartData.map((d, idx) => (
-          <div key={idx} className="flex-1 flex flex-col items-center gap-2">
-            <div className="w-full flex flex-col items-center justify-end h-32">
-              <p className="text-[8px] font-black text-green-500 mb-1">
-                {d.value > 0 ? `$${(d.value / 1000).toFixed(1)}k` : ''}
-              </p>
-              <div
-                className="w-full bg-gradient-to-t from-green-600 to-green-400 rounded-t-lg transition-all duration-500 hover:brightness-110"
-                style={{ height: `${Math.max((d.value / maxValue) * 100, d.value > 0 ? 8 : 2)}%` }}
-              />
-            </div>
-            <p className="text-[9px] font-black text-white/50 uppercase">{d.label}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-const App: React.FC = () => {
-  const [activeClient, setActiveClient] = useState<ClientConfig | null>(null);
-  const [activeView, setActiveView] = useState<string>('dashboard');
-  const [lang, setLang] = useState<'es' | 'en'>(() => {
-    return (localStorage.getItem('app_lang') as 'es' | 'en') || 'en';
-  });
-  const [inventory, setInventory] = useState<Part[]>([]);
-
-  const toggleLang = () => {
-    const newLang = lang === 'es' ? 'en' : 'es';
-    setLang(newLang);
-    localStorage.setItem('app_lang', newLang);
-  };
-  const [salesRecords, setSalesRecords] = useState<Part[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [cloudStatus, setCloudStatus] = useState<'connected' | 'error' | 'offline'>('offline');
+  // Sync state
   const [isSyncing, setIsSyncing] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const [lastSync, setLastSync] = useState<Date | null>(null);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
 
-  const lastUserActionTimestamp = useRef<number>(0);
-  const t = translations[lang] || translations.es;
+  const t = translations[lang];
 
-  // Supabase auth state listener - check for existing session on mount
+  // ============ AUTH ============
+
   useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          const profile = await getBusinessProfile(session.user.id);
-          if (profile) {
-            setActiveClient({
-              id: profile.business_id,
-              name: profile.business_name,
-              location: profile.location,
-              scriptUrl: profile.script_url,
-              brandingColor: profile.branding_color || '#f59e0b',
-              role: profile.role || 'employee'
-            });
-          }
-        }
-      } catch (err) {
-        console.error('Session check error:', err);
-      } finally {
-        setIsAuthLoading(false);
-      }
-    };
-
     checkSession();
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_OUT') {
-        setActiveClient(null);
-        setInventory([]);
-        setSalesRecords([]);
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        setUserId(session.user.id);
+        await loadProfile(session.user.id);
+        setIsAuthenticated(true);
+      } else if (event === 'SIGNED_OUT') {
+        setIsAuthenticated(false);
+        setUserId(null);
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
   }, []);
 
-  // Logout handler
-  const handleLogout = async () => {
+  const checkSession = async () => {
     try {
-      await signOut();
-      setActiveClient(null);
-      setInventory([]);
-      setSalesRecords([]);
-      setActiveView('dashboard');
-    } catch (err) {
-      console.error('Logout error:', err);
-    }
-  };
-
-  const mapToCategory = (val: string): PartCategory => {
-    if (!val) return PartCategory.OTROS;
-    const clean = val.trim().toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    const categories = Object.values(PartCategory);
-    return categories.includes(clean as PartCategory) ? (clean as PartCategory) : PartCategory.OTROS;
-  };
-
-  const normalizeCloudData = (data: any[]): Part[] => {
-    if (!Array.isArray(data)) return [];
-    const normalized = data.map((item: any) => {
-      const parsePrice = (val: any) => {
-        if (typeof val === 'number') return val;
-        if (!val) return 0;
-        const cleaned = String(val).replace(/[$,]/g, '').trim();
-        const num = parseFloat(cleaned);
-        return isNaN(num) ? 0 : num;
-      };
-
-      const statusRaw = String(item.status || item.Status || item.Estado || '').toUpperCase();
-      const isSold = statusRaw === 'SOLD' || statusRaw === 'VENDIDO' || statusRaw === 'VENDIDA';
-      const cleanId = String(item.id || item.ID || item.Id || Math.random().toString(36).substr(2, 9)).trim();
-
-      const rawPrice = item.precio || item.price || item.suggestedPrice || 0;
-      const rawFinalPrice = item.finalPrice || item.precioVenta || item.precio_venta || item.total || 0;
-
-      return {
-        id: cleanId,
-        name: String(item.parte || item.name || item.Parte || "Pieza"),
-        category: mapToCategory(item.categoria || item.category || ''),
-        status: isSold ? PartStatus.SOLD : PartStatus.AVAILABLE,
-        condition: String(item.condicion || item.condition || "Usada"),
-        suggestedPrice: parsePrice(rawPrice),
-        minPrice: parsePrice(item.minPrice || 0),
-        finalPrice: rawFinalPrice ? parsePrice(rawFinalPrice) : (isSold ? parsePrice(rawPrice) : undefined),
-        dateAdded: String(item.fecha || item.dateAdded || item.fechaVenta || new Date().toISOString()),
-        imageUrl: item.imagen || item.imageUrl || item.Imagen || undefined,
-        vehicleInfo: {
-          year: Number(item.anio || item.year || 0),
-          make: String(item.marca || item.make || "N/A"),
-          model: String(item.modelo || item.model || "N/A"),
-          trim: String(item.trim || ""),
-          vin: String(item.vin || "")
-        }
-      };
-    });
-    console.log('DEBUG: Normalized parts:', normalized);
-    return normalized;
-  };
-
-  const fetchCloudData = useCallback(async (sheet: string = "INVENTARIO") => {
-    if (!activeClient || !navigator.onLine) return [];
-    try {
-      const response = await fetch(`${activeClient.scriptUrl}?sheet=${sheet}&nocache=${Date.now()}`, {
-        method: 'GET',
-        cache: 'no-store'
-      });
-      if (!response.ok) throw new Error("Fetch failed");
-      const data = await response.json();
-      return normalizeCloudData(data);
-    } catch (err) {
-      console.error(`Error fetching ${sheet}:`, err);
-      setCloudStatus('error');
-      return [];
-    }
-  }, [activeClient]);
-
-  const syncAll = useCallback(async (force = false) => {
-    if (!activeClient) return;
-    if (!force && (Date.now() - lastUserActionTimestamp.current < 20000)) return;
-    setIsLoading(true);
-
-    try {
-      const [inv, sales] = await Promise.all([
-        fetchCloudData("INVENTARIO"),
-        fetchCloudData("VENTAS")
-      ]);
-
-      setInventory(inv);
-      setSalesRecords(sales);
-      setCloudStatus('connected');
-    } catch (e) {
-      setCloudStatus('error');
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        setUserId(session.user.id);
+        await loadProfile(session.user.id);
+        setIsAuthenticated(true);
+      }
+    } catch (error) {
+      console.error('Session check error:', error);
     } finally {
       setIsLoading(false);
     }
-  }, [fetchCloudData, activeClient]);
+  };
 
-  useEffect(() => {
-    if (activeClient) {
-      syncAll(true);
-      document.title = `${activeClient.name} OS`;
-    } else {
-      document.title = 'Autopartenon OS';
+  const loadProfile = async (uid: string) => {
+    try {
+      const profile = await getBusinessProfile(uid);
+      if (profile) {
+        setBusinessName(profile.business_name);
+        setLocation(profile.location);
+        setBrandColor(profile.branding_color || '#f59e0b');
+        setScriptUrl(profile.script_url);
+        setUserRole(profile.role);
+      }
+    } catch (err) {
+      console.error('loadProfile error:', err);
     }
-  }, [syncAll, activeClient]);
+  };
 
-  const sendActionToCloud = async (payload: any) => {
-    if (!activeClient || !navigator.onLine) return false;
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      setIsAuthenticated(false);
+      setUserId(null);
+      setProperties([]);
+      setClients([]);
+      setContracts([]);
+      setSales([]);
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
+  // ============ DATA SYNC ============
+
+  const syncWithCloud = useCallback(async () => {
+    if (!scriptUrl || isSyncing) return;
+
     setIsSyncing(true);
     try {
-      const targetSheet = payload.targetSheet || 'INVENTARIO';
-      const finalPayload = {
-        action: payload.action || 'ADD',
-        sheet: targetSheet,
-        id: String(payload.id),
-        parte: payload.parte || payload.name || '',
-        categoria: payload.categoria || payload.category || '',
-        marca: payload.marca || payload.vehicleInfo?.make || '',
-        modelo: payload.modelo || payload.vehicleInfo?.model || '',
-        anio: payload.anio || payload.vehicleInfo?.year || '',
-        condicion: payload.condicion || payload.condition || 'Usada',
-        precio: payload.precio || payload.suggestedPrice || 0,
-        minPrice: payload.minPrice || 0,
-        finalPrice: payload.finalPrice || payload.precioVenta || 0,
-        status: payload.status || 'AVAILABLE',
-        vin: payload.vin || payload.vehicleInfo?.vin || '',
-        imagen: payload.imageUrl || '',
-        fecha: payload.fecha || new Date().toISOString(),
-        timestamp: new Date().toISOString()
-      };
+      const response = await fetch(scriptUrl);
+      if (!response.ok) throw new Error('Sync failed');
 
-      console.log('DEBUG: Final payload to cloud:', finalPayload);
+      const data = await response.json();
 
-      await fetch(activeClient.scriptUrl, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(finalPayload)
-      });
+      // Normalize and set data
+      if (data.properties) setProperties(data.properties);
+      if (data.clients) setClients(data.clients);
+      if (data.contracts) setContracts(data.contracts);
+      if (data.sales) setSales(data.sales);
+      if (data.agents) setAgents(data.agents);
 
-      setCloudStatus('connected');
-      return true;
-    } catch (e) {
-      console.error("Cloud Error:", e);
-      setCloudStatus('error');
-      return false;
+      setLastSync(new Date());
+    } catch (error) {
+      console.error('Sync error:', error);
     } finally {
       setIsSyncing(false);
     }
-  };
+  }, [scriptUrl, isSyncing]);
 
-  const handleSellPart = async (id: string, price: number) => {
-    lastUserActionTimestamp.current = Date.now();
-    const partToUpdate = inventory.find(p => p.id === id);
-    if (!partToUpdate) return;
-
-    setInventory(prev => prev.filter(p => p.id !== id));
-    setSalesRecords(prev => [{ ...partToUpdate, status: PartStatus.SOLD, finalPrice: price }, ...prev]);
-
-    await sendActionToCloud({
-      action: "SELL",
-      targetSheet: "VENTAS",
-      id,
-      finalPrice: price,
-      precioVenta: price,
-      marca: partToUpdate.vehicleInfo.make,
-      modelo: partToUpdate.vehicleInfo.model,
-      anio: partToUpdate.vehicleInfo.year,
-      parte: partToUpdate.name,
-      categoria: partToUpdate.category,
-      status: "SOLD"
-    });
-
-    setTimeout(() => syncAll(true), 3000);
-  };
-
-  const handleDeletePart = async (id: string) => {
-    lastUserActionTimestamp.current = Date.now();
-    const partToDelete = inventory.find(p => p.id === id);
-    if (!partToDelete) return;
-
-    setInventory(prev => prev.filter(p => p.id !== id));
-
-    await sendActionToCloud({
-      action: "DELETE",
-      targetSheet: "ELIMINADOS",
-      id,
-      marca: partToDelete.vehicleInfo.make,
-      modelo: partToDelete.vehicleInfo.model,
-      anio: partToDelete.vehicleInfo.year,
-      parte: partToDelete.name,
-      categoria: partToDelete.category
-    });
-
-    setTimeout(() => syncAll(true), 3000);
-  };
-
-  const handleBatchDeleteVehicle = async (parts: Part[]) => {
-    lastUserActionTimestamp.current = Date.now();
-    const ids = parts.map(p => p.id);
-    setInventory(prev => prev.filter(p => !ids.includes(p.id)));
-
-    for (const part of parts) {
-      await sendActionToCloud({
-        action: "DELETE",
-        targetSheet: "ELIMINADOS",
-        id: part.id,
-        marca: part.vehicleInfo.make,
-        modelo: part.vehicleInfo.model,
-        anio: part.vehicleInfo.year,
-        parte: part.name,
-        categoria: part.category
-      });
+  useEffect(() => {
+    if (isAuthenticated && scriptUrl) {
+      syncWithCloud();
     }
+  }, [isAuthenticated, scriptUrl]);
 
-    setTimeout(() => syncAll(true), 1000);
-  };
+  // Online status
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
 
-  const handleBatchSellVehicle = async (parts: Part[], totalAmount: number) => {
-    lastUserActionTimestamp.current = Date.now();
-    const ids = parts.map(p => p.id);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
 
-    // Distribution: Assign the total amount to the first part for financial records, others $0 or distribute.
-    // Given the cloud script might just log one record or many, we log each with a portion.
-    const pricePerPart = Math.floor(totalAmount / parts.length);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
-    setInventory(prev => prev.filter(p => !ids.includes(p.id)));
-    setSalesRecords(prev => [
-      ...parts.map((p, idx) => ({
-        ...p,
-        status: PartStatus.SOLD,
-        finalPrice: idx === 0 ? totalAmount - (pricePerPart * (parts.length - 1)) : pricePerPart
-      })),
-      ...prev
-    ]);
+  // ============ CRUD HANDLERS ============
 
-    for (let i = 0; i < parts.length; i++) {
-      const part = parts[i];
-      const p = i === 0 ? totalAmount - (pricePerPart * (parts.length - 1)) : pricePerPart;
+  const handleAddProperty = async (property: Partial<Property>) => {
+    const newProperty = {
+      ...property,
+      id: property.id || `prop_${Date.now()}`,
+      status: PropertyStatus.DISPONIBLE,
+      agentId: userId || '',
+      agencyId: '',
+      dateAdded: new Date().toISOString(),
+      views: 0,
+      favorites: 0
+    } as Property;
 
-      await sendActionToCloud({
-        action: "SELL",
-        targetSheet: "VENTAS",
-        id: part.id,
-        finalPrice: p,
-        precioVenta: p,
-        marca: part.vehicleInfo.make,
-        modelo: part.vehicleInfo.model,
-        anio: part.vehicleInfo.year,
-        parte: part.name,
-        categoria: part.category,
-        status: "SOLD"
-      });
+    setProperties(prev => [newProperty, ...prev]);
+
+    // Sync to cloud
+    if (scriptUrl) {
+      try {
+        await fetch(scriptUrl, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'addProperty', data: newProperty })
+        });
+      } catch (error) {
+        console.error('Failed to sync property:', error);
+      }
     }
-
-    setTimeout(() => syncAll(true), 1000);
   };
 
-  const handleReturnPart = async (part: Part) => {
-    lastUserActionTimestamp.current = Date.now();
-    // 1. Remove from Sales
-    setSalesRecords(prev => prev.filter(p => p.id !== part.id));
-
-    // 2. Add back to Inventory
-    const returnedPart = { ...part, status: PartStatus.AVAILABLE, finalPrice: undefined };
-    setInventory(prev => [returnedPart, ...prev]);
-
-    // 3. Send to Cloud
-    await sendActionToCloud({
-      action: "RETURN",
-      targetSheet: "VENTAS",
-      id: part.id,
-      marca: part.vehicleInfo.make,
-      modelo: part.vehicleInfo.model,
-      anio: part.vehicleInfo.year,
-      parte: part.name,
-      categoria: part.category,
-      status: "RETURNED"
-    });
-
-    // 4. Ensure it exists in INVENTARIO
-    await sendActionToCloud({
-      action: "ADD",
-      targetSheet: "INVENTARIO",
-      ...returnedPart,
-      marca: returnedPart.vehicleInfo.make,
-      modelo: returnedPart.vehicleInfo.model,
-      anio: returnedPart.vehicleInfo.year,
-      parte: returnedPart.name,
-      precio: returnedPart.suggestedPrice
-    });
-
-    setTimeout(() => syncAll(true), 3000);
+  const handleEditProperty = (property: Property) => {
+    setProperties(prev => prev.map(p => p.id === property.id ? property : p));
   };
 
+  const handleDeleteProperty = (id: string) => {
+    if (!confirm(t.confirm_delete)) return;
+    setProperties(prev => prev.filter(p => p.id !== id));
+  };
 
-  const handleAddParts = useCallback(async (newParts: Part[]) => {
-    lastUserActionTimestamp.current = Date.now();
-    setInventory(prev => [...newParts, ...prev]);
-    setActiveView('inventory');
+  const handleAddClient = (client: Partial<Client>) => {
+    const newClient = {
+      ...client,
+      id: client.id || `client_${Date.now()}`,
+      agentId: userId || '',
+      status: ClientStatus.NUEVO,
+      followUps: [],
+      viewedProperties: [],
+      dateAdded: new Date().toISOString()
+    } as Client;
 
-    for (let i = 0; i < newParts.length; i++) {
-      const p = newParts[i];
-      await sendActionToCloud({
-        action: "ADD",
-        targetSheet: "INVENTARIO",
-        ...p,
-        marca: p.vehicleInfo.make,
-        modelo: p.vehicleInfo.model,
-        anio: p.vehicleInfo.year,
-        parte: p.name,
-        precio: p.suggestedPrice
-      });
-      if (newParts.length > 1) await new Promise(r => setTimeout(r, 600));
-    }
+    setClients(prev => [newClient, ...prev]);
+  };
 
-    setTimeout(() => syncAll(true), 4000);
-  }, [inventory, activeClient]);
+  const handleUpdateClient = (client: Client) => {
+    setClients(prev => prev.map(c => c.id === client.id ? client : c));
+  };
+
+  const handleDeleteClient = (id: string) => {
+    if (!confirm(t.confirm_delete)) return;
+    setClients(prev => prev.filter(c => c.id !== id));
+  };
+
+  const handleAddContract = (contract: Partial<Contract>) => {
+    const newContract = {
+      ...contract,
+      id: contract.id || `contract_${Date.now()}`,
+      agentId: userId || '',
+      dateCreated: new Date().toISOString()
+    } as Contract;
+
+    setContracts(prev => [newContract, ...prev]);
+  };
+
+  const handleDeleteContract = (id: string) => {
+    if (!confirm(t.confirm_delete)) return;
+    setContracts(prev => prev.filter(c => c.id !== id));
+  };
+
+  // ============ NAVIGATION ============
 
   const handleNavigate = (view: string) => {
     setActiveView(view);
-    setIsSidebarOpen(false);
   };
 
-  // Show loading while checking auth
-  if (isAuthLoading) {
+  // ============ RENDER ============
+
+  // Loading screen
+  if (isLoading) {
     return (
-      <div className="fixed inset-0 bg-[#0a0a0a] flex items-center justify-center">
-        <Loader2 className="w-10 h-10 text-amber-500 animate-spin" />
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: '#0a0a0a' }}
+      >
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4" style={{ color: brandColor }} />
+          <p className="text-zinc-400">Cargando...</p>
+        </div>
       </div>
     );
   }
 
-  if (!activeClient) return <LoginView onLogin={(client) => setActiveClient(client)} />;
+  // Login screen
+  if (!isAuthenticated) {
+    return <LoginView brandColor={brandColor} lang={lang} onToggleLang={() => setLang(l => l === 'es' ? 'en' : 'es')} />;
+  }
 
-  const brandColor = activeClient.brandingColor || '#f59e0b';
+  // Render active view
+  const renderView = () => {
+    switch (activeView) {
+      case 'dashboard':
+        return (
+          <DashboardView
+            properties={properties}
+            clients={clients}
+            sales={sales}
+            lang={lang}
+            brandColor={brandColor}
+            businessName={businessName}
+          />
+        );
+
+      case 'analyze':
+        return (
+          <AnalysisView
+            onAddProperty={handleAddProperty}
+            lang={lang}
+            businessName={businessName}
+            location={location}
+            brandColor={brandColor}
+            agentId={userId || ''}
+            agencyId=""
+          />
+        );
+
+      case 'properties':
+        return (
+          <PropertiesView
+            properties={properties}
+            onEditProperty={handleEditProperty}
+            onDeleteProperty={handleDeleteProperty}
+            onViewProperty={() => { }}
+            lang={lang}
+            brandColor={brandColor}
+            businessName={businessName}
+            location={location}
+          />
+        );
+
+      case 'clients':
+        return (
+          <CRMView
+            clients={clients}
+            properties={properties}
+            onAddClient={handleAddClient}
+            onUpdateClient={handleUpdateClient}
+            onDeleteClient={handleDeleteClient}
+            lang={lang}
+            brandColor={brandColor}
+            agentName={businessName}
+          />
+        );
+
+      case 'contracts':
+        return (
+          <ContractsView
+            contracts={contracts}
+            properties={properties}
+            clients={clients}
+            onAddContract={handleAddContract}
+            onDeleteContract={handleDeleteContract}
+            lang={lang}
+            brandColor={brandColor}
+            businessName={businessName}
+          />
+        );
+
+      case 'sales':
+        return (
+          <SalesView
+            sales={sales}
+            properties={properties}
+            clients={clients}
+            lang={lang}
+            brandColor={brandColor}
+            businessName={businessName}
+          />
+        );
+
+      case 'agents':
+        return (
+          <AgentsView
+            agents={agents}
+            properties={properties}
+            sales={sales}
+            clients={clients}
+            lang={lang}
+            brandColor={brandColor}
+            businessName={businessName}
+          />
+        );
+
+      case 'calculator':
+        return (
+          <MortgageCalculator
+            lang={lang}
+            brandColor={brandColor}
+          />
+        );
+
+      case 'gallery':
+        return (
+          <GalleryView
+            properties={properties}
+            lang={lang}
+            brandColor={brandColor}
+            onUpdateProperty={handleEditProperty}
+          />
+        );
+
+      case 'market':
+        return (
+          <MarketSearchView
+            properties={properties}
+            lang={lang}
+            brandColor={brandColor}
+          />
+        );
+
+      case 'valuation':
+        return (
+          <ValuationView
+            lang={lang}
+            brandColor={brandColor}
+            businessName={businessName}
+          />
+        );
+
+      case 'map':
+        return (
+          <MapView
+            properties={properties}
+            lang={lang}
+            brandColor={brandColor}
+          />
+        );
+
+      case 'tours':
+        return (
+          <TourView
+            properties={properties}
+            lang={lang}
+            brandColor={brandColor}
+          />
+        );
+
+      case 'analytics':
+        return (
+          <AnalyticsView
+            properties={properties}
+            clients={clients}
+            sales={sales}
+            agents={agents}
+            lang={lang}
+            brandColor={brandColor}
+          />
+        );
+
+      case 'settings':
+        return (
+          <div className="p-6 flex items-center justify-center min-h-[60vh]">
+            <div className="text-center">
+              <p className="text-zinc-400 text-lg">Módulo en desarrollo</p>
+              <p className="text-zinc-500 text-sm mt-2">Próximamente disponible</p>
+            </div>
+          </div>
+        );
+
+      default:
+        return (
+          <DashboardView
+            properties={properties}
+            clients={clients}
+            sales={sales}
+            lang={lang}
+            brandColor={brandColor}
+            businessName={businessName}
+          />
+        );
+    }
+  };
 
   return (
-    <div className="flex flex-col md:flex-row h-screen bg-black text-white overflow-hidden">
-      <style>{`
-        :root {
-          --brand-color: ${brandColor};
-          --brand-color-rgb: ${brandColor.startsWith('#') ? hexToRgb(brandColor) : '245, 158, 11'};
-          --brand-text-color: ${brandColor.startsWith('#') ? getContrastColor(brandColor) : 'white'};
-        }
-        .text-amber-500 { color: var(--brand-color) !important; }
-        .bg-amber-500 { background-color: var(--brand-color) !important; }
-        .border-amber-500 { border-color: var(--brand-color) !important; }
-        .focus\\:border-amber-500:focus { border-color: var(--brand-color) !important; }
-        .hover\\:text-amber-500:hover { color: var(--brand-color) !important; }
-        .hover\\:bg-amber-400:hover { filter: brightness(1.1); background-color: var(--brand-color) !important; }
-        .active\\:scale-95:active { transform: scale(0.95); }
-        
-        /* Specialized overrides for Opacity and Shorthands */
-        .bg-amber-500\\/10 { background-color: rgba(var(--brand-color-rgb), 0.1) !important; }
-        .bg-amber-500\\/5 { background-color: rgba(var(--brand-color-rgb), 0.05) !important; }
-        .border-amber-500\\/20 { border-color: rgba(var(--brand-color-rgb), 0.2) !important; }
-        .border-amber-500\\/30 { border-color: rgba(var(--brand-color-rgb), 0.3) !important; }
-        .border-amber-500\\/50 { border-color: rgba(var(--brand-color-rgb), 0.5) !important; }
-        .text-amber-500\\/50 { color: rgba(var(--brand-color-rgb), 0.5) !important; }
-        .text-amber-500\\/60 { color: rgba(var(--brand-color-rgb), 0.6) !important; }
-        .shadow-amber-500\\/10 { --tw-shadow-color: rgba(var(--brand-color-rgb), 0.1); --tw-shadow: var(--tw-shadow-colored); }
-        .shadow-amber-500\\/20 { --tw-shadow-color: rgba(var(--brand-color-rgb), 0.2); --tw-shadow: var(--tw-shadow-colored); }
-      `}</style>
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] md:hidden"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
+    <div className="min-h-screen bg-black text-white flex">
+      {/* Sidebar */}
+      <Sidebar
+        activeView={activeView}
+        onNavigate={handleNavigate}
+        lang={lang}
+        businessName={businessName}
+        brandColor={brandColor}
+        userRole={userRole}
+        isOpen={sidebarOpen}
+        onToggle={() => setSidebarOpen(!sidebarOpen)}
+        onLogout={handleLogout}
+      />
 
-      <div className={`fixed inset-y-0 left-0 z-[70] transition-transform duration-300 transform md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <Sidebar
-          activeView={activeView}
-          onNavigate={(v) => { setActiveView(v); setIsSidebarOpen(false); }}
-          onClose={() => setIsSidebarOpen(false)}
-          businessName={activeClient.name}
-          location={activeClient.location}
-          lang={lang}
-          onToggleLang={toggleLang}
-          role={activeClient.role}
-        />
-      </div>
+      {/* Main Content */}
+      <main className="flex-1 min-h-screen overflow-y-auto bg-black lg:ml-0">
+        {/* Top Bar */}
+        <div className="sticky top-0 z-20 bg-black/80 backdrop-blur-lg border-b border-zinc-800 px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {isOnline ? (
+              <Wifi className="text-green-400" size={18} />
+            ) : (
+              <CloudOff className="text-red-400" size={18} />
+            )}
+            {lastSync && (
+              <span className="text-zinc-500 text-sm">
+                Sync: {lastSync.toLocaleTimeString()}
+              </span>
+            )}
+          </div>
 
-      <main className="flex-1 flex flex-col h-full overflow-y-auto custom-scrollbar relative">
-        <div className="flex md:hidden items-center justify-between p-4 bg-zinc-900 border-b border-white/5 shrink-0 sticky top-0 z-50 w-full overflow-hidden">
-          <div className="flex items-center gap-2">
-            <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-amber-500 bg-white/10 rounded-xl">
-              <MenuIcon className="w-6 h-6" />
+          <div className="flex items-center gap-3">
+            <button
+              onClick={syncWithCloud}
+              disabled={isSyncing}
+              className="flex items-center gap-2 px-3 py-1.5 bg-zinc-800 rounded-lg text-zinc-300 text-sm hover:bg-zinc-700 disabled:opacity-50"
+            >
+              <RefreshCw size={16} className={isSyncing ? 'animate-spin' : ''} />
+              {isSyncing ? 'Sincronizando...' : 'Sincronizar'}
             </button>
-            <button onClick={handleLogout} className="p-2 text-white bg-white/10 rounded-xl" title="Cerrar sesión">
-              <LogOut className="w-5 h-5" />
+
+            <button
+              onClick={() => setLang(l => l === 'es' ? 'en' : 'es')}
+              className="px-3 py-1.5 bg-zinc-800 rounded-lg text-zinc-300 text-sm hover:bg-zinc-700"
+            >
+              {lang.toUpperCase()}
             </button>
           </div>
-          <h1 className="text-sm font-black italic tracking-tighter text-white uppercase truncate px-2">
-            {activeClient.name} <span style={{ color: 'var(--brand-color)' }}>OS</span>
-          </h1>
-          <button onClick={() => syncAll(true)} className="p-2 text-white bg-white/10 rounded-xl">
-            <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin text-amber-500' : ''}`} />
-          </button>
         </div>
 
-        <div className="hidden md:flex absolute top-4 right-8 items-center gap-3 z-50">
-          {isSyncing && (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[10px] font-black uppercase tracking-widest animate-pulse shrink-0">
-              <CloudFog className="w-3.5 h-3.5" /> {t.writing}
-            </div>
-          )}
-          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[10px] font-black uppercase tracking-widest shrink-0 ${cloudStatus === 'connected' ? 'bg-green-500/10 border-green-500/20 text-green-500' : 'bg-red-500/10 border-red-500/20 text-red-500'}`}>
-            <Wifi className="w-3.5 h-3.5" /> {cloudStatus === 'connected' ? 'ONLINE' : 'OFFLINE'}
-          </div>
-          <button onClick={() => syncAll(true)} className="p-2 bg-zinc-900 border border-white/5 rounded-lg hover:bg-zinc-800 transition-colors shrink-0">
-            <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin text-amber-500' : 'text-white'}`} />
-          </button>
-          <button onClick={handleLogout} className="p-2 bg-zinc-900 border border-white/5 rounded-lg hover:bg-red-900/50 hover:border-red-500/30 transition-colors shrink-0" title="Cerrar sesión">
-            <LogOut className="w-3.5 h-3.5 text-white/50 hover:text-red-400" />
-          </button>
-        </div>
+        {/* View Content */}
+        {renderView()}
 
-        <div className="flex-1">
-          {activeView === 'dashboard' && (
-            <div className="p-4 md:p-8 max-w-7xl mx-auto w-full space-y-6 md:space-y-8 animate-in fade-in duration-500 overflow-x-hidden pt-6 md:pt-8">
-              <header className="overflow-hidden">
-                <h2 className="text-2xl md:text-3xl font-black italic tracking-tighter uppercase truncate">{t.operational_dashboard}</h2>
-                <p className="text-white text-[11px] font-black uppercase mt-1 tracking-[0.2em] opacity-60 truncate">{t.control_terminal} • {activeClient.location}</p>
-              </header>
-
-              <div className={`grid grid-cols-1 ${activeClient.role === 'admin' ? 'md:grid-cols-3' : 'md:grid-cols-1'} gap-4 md:gap-6`}>
-                <div className="bg-zinc-900/50 border border-white/5 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden group hover:border-white/10 transition-colors">
-                  <p className="text-[10px] font-black text-white uppercase tracking-widest mb-3 truncate group-hover:text-amber-500 transition-colors">{t.available_stock}</p>
-                  <p className="text-3xl md:text-4xl lg:text-5xl font-black text-white italic truncate">{inventory.length}</p>
-                </div>
-                {activeClient.role === 'admin' && (
-                  <>
-                    <div className="bg-zinc-900/50 border border-white/5 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden group hover:border-white/10 transition-colors">
-                      <p className="text-[10px] font-black text-white uppercase tracking-widest mb-3 truncate group-hover:text-green-500 transition-colors">{t.total_revenue}</p>
-                      <p className="text-3xl md:text-4xl lg:text-5xl font-black text-green-500 italic truncate">${salesRecords.reduce((acc, p) => acc + (p.finalPrice || 0), 0).toLocaleString()}</p>
-                    </div>
-                    <div className="bg-zinc-900/50 border border-white/5 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden group hover:border-white/10 transition-colors">
-                      <p className="text-[10px] font-black text-white uppercase tracking-widest mb-3 truncate group-hover:text-blue-400 transition-colors">{t.inventory_value}</p>
-                      <p className="text-3xl md:text-4xl lg:text-5xl font-black text-blue-400 italic truncate">${inventory.reduce((acc, p) => acc + (p.suggestedPrice || 0), 0).toLocaleString()}</p>
-                    </div>
-                  </>
-                )}
-              </div>
-
-              {/* Sales Analytics Chart - Admin Only */}
-              {activeClient.role === 'admin' && salesRecords.length > 0 && (
-                <SalesChart salesRecords={salesRecords} lang={lang} />
-              )}
-            </div>
-          )}
-
-          {activeView === 'summary' && activeClient.role === 'admin' && <SummaryView inventory={inventory} lang={lang} location={activeClient.location} />}
-          {activeView === 'analysis' && <AnalysisView onAddParts={handleAddParts} lang={lang} businessName={activeClient.name} location={activeClient.location} />}
-          {activeView === 'inventory' && (
-            <InventoryView
-              inventory={inventory}
-              onSellPart={handleSellPart}
-              onDeletePart={handleDeletePart}
-              onBatchDeleteVehicle={handleBatchDeleteVehicle}
-              onBatchSellVehicle={handleBatchSellVehicle}
-              lang={lang}
-              businessName={activeClient.name}
-              location={activeClient.location}
-            />
-          )}
-          {activeView === 'sales' && activeClient.role === 'admin' && <SalesView salesHistory={salesRecords} onRefresh={() => syncAll(true)} lang={lang} businessName={activeClient.name} location={activeClient.location} onReturnPart={handleReturnPart} />}
-          {activeView === 'search' && <SmartSearchView lang={lang} location={activeClient.location} />}
-        </div>
-
-        <footer className="mt-auto py-8 px-4 md:px-8 border-t border-white/5 bg-black/40 backdrop-blur-md">
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-[10px] font-black text-white uppercase tracking-[0.2em]">
-              {t.connected_terminal}: <span style={{ color: 'var(--brand-color)' }}>{activeClient.id.toUpperCase()}</span>
-            </p>
-            <p className="text-[10px] font-black text-white uppercase tracking-[0.2em]">
-              © {new Date().getFullYear()} {activeClient.name} Systems
-            </p>
-            <p className="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em] bg-white/5 px-4 py-2 rounded-full border border-amber-500/10">
-              {t.designed_by} IA.AGUS - Tel +52 871 143 9941
-            </p>
-          </div>
+        {/* Footer */}
+        <footer className="p-4 border-t border-zinc-800 text-center">
+          <p className="text-zinc-500 text-sm">
+            Powered by <span className="text-zinc-400">Gemini AI</span> •
+            Diseñado por <span style={{ color: brandColor }}>IA.AGUS</span>
+          </p>
         </footer>
       </main>
     </div>
   );
-};
+}
 
 export default App;

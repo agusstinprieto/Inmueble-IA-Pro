@@ -1,130 +1,263 @@
 
 import React from 'react';
-import { translations } from '../translations';
 import {
-  LayoutDashboard,
+  Home,
   Camera,
-  Package,
+  Building2,
+  Users,
   FileText,
+  UserCircle,
+  DollarSign,
+  Image,
   Search,
-  Globe,
+  TrendingUp,
+  Map,
+  Video,
+  Calculator,
+  BarChart3,
+  Settings,
+  LogOut,
+  Menu,
   X,
-  PieChart
+  Sparkles
 } from 'lucide-react';
+import { translations } from '../translations';
 
 interface SidebarProps {
   activeView: string;
   onNavigate: (view: string) => void;
-  onClose?: () => void;
-  businessName: string;
-  location: string;
   lang: 'es' | 'en';
-  onToggleLang: () => void;
-  role: 'admin' | 'employee';
+  businessName: string;
+  brandColor: string;
+  userRole: 'admin' | 'employee';
+  isOpen: boolean;
+  onToggle: () => void;
+  onLogout: () => void;
+}
+
+interface NavItem {
+  id: string;
+  label: string;
+  icon: React.ReactNode;
+  adminOnly?: boolean;
+  badge?: string;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
   activeView,
   onNavigate,
-  onClose,
-  businessName,
-  location,
   lang,
-  onToggleLang,
-  role
+  businessName,
+  brandColor,
+  userRole,
+  isOpen,
+  onToggle,
+  onLogout
 }) => {
-  const t = translations[lang] || translations.es;
+  const t = translations[lang];
 
-  const navItems = [
-    { id: 'dashboard', label: t.dashboard, icon: <LayoutDashboard className="w-4 h-4" /> },
-    { id: 'summary', label: t.summary, icon: <PieChart className="w-4 h-4" /> },
-    { id: 'analysis', label: t.multimodal_analysis, icon: <Camera className="w-4 h-4" /> },
-    { id: 'inventory', label: t.inventory, icon: <Package className="w-4 h-4" /> },
-    { id: 'sales', label: t.sales, icon: <FileText className="w-4 h-4" /> },
-    { id: 'search', label: t.smart_search, icon: <Search className="w-4 h-4" /> }
-  ].filter(item => {
-    if (role === 'employee' && (item.id === 'summary' || item.id === 'sales')) return false;
-    return true;
-  });
+  const navItems: NavItem[] = [
+    // Core
+    { id: 'dashboard', label: t.dashboard, icon: <Home size={20} /> },
+    { id: 'analyze', label: t.analyze, icon: <Camera size={20} />, badge: 'IA' },
+    { id: 'properties', label: t.properties, icon: <Building2 size={20} /> },
+
+    // CRM
+    { id: 'clients', label: t.clients, icon: <Users size={20} /> },
+    { id: 'contracts', label: t.contracts, icon: <FileText size={20} /> },
+
+    // Agentes (solo admin)
+    { id: 'agents', label: t.agents, icon: <UserCircle size={20} />, adminOnly: true },
+
+    // Ventas
+    { id: 'sales', label: t.sales, icon: <DollarSign size={20} /> },
+
+    // Herramientas
+    { id: 'gallery', label: t.gallery, icon: <Image size={20} /> },
+    { id: 'market', label: t.market_search, icon: <Search size={20} />, badge: 'IA' },
+    { id: 'valuation', label: t.valuation, icon: <TrendingUp size={20} />, badge: 'IA' },
+
+    // Extras
+    { id: 'map', label: t.map, icon: <Map size={20} /> },
+    { id: 'tours', label: t.virtual_tours, icon: <Video size={20} /> },
+    { id: 'calculator', label: t.mortgage_calc, icon: <Calculator size={20} /> },
+
+    // Analytics (solo admin)
+    { id: 'analytics', label: t.analytics, icon: <BarChart3 size={20} />, adminOnly: true },
+  ];
+
+  const filteredItems = navItems.filter(item =>
+    !item.adminOnly || userRole === 'admin'
+  );
+
+  const getContrastColor = (hex: string) => {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return luminance > 0.5 ? '#000000' : '#ffffff';
+  };
+
+  const textColor = getContrastColor(brandColor);
 
   return (
-    <aside className="w-72 md:w-64 h-screen bg-[#0f0f0f] border-r border-white/5 flex flex-col shrink-0 overflow-hidden relative shadow-2xl md:shadow-none">
-      {onClose && (
-        <button
-          onClick={onClose}
-          className="absolute top-6 right-6 p-2 text-white hover:text-white bg-white/5 rounded-xl md:hidden z-10"
-        >
-          <X className="w-5 h-5" />
-        </button>
+    <>
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={onToggle}
+        />
       )}
 
-      <div className="p-8 shrink-0">
-        <h1 className="text-lg md:text-xl font-black italic tracking-tighter text-white uppercase leading-none">
-          {businessName} <span style={{ color: 'var(--brand-color)' }}>OS</span>
-        </h1>
-        <p className="text-[8px] text-white uppercase tracking-[0.4em] font-black mt-2 truncate">
-          Terminal v1.9 Multi-Tenant
-        </p>
-      </div>
-
-      <nav className="flex-1 space-y-1 px-3 overflow-y-auto custom-scrollbar pt-4">
-        {navItems.map(item => (
-          <button
-            key={item.id}
-            onClick={() => onNavigate(item.id)}
-            className={`w-full text-left px-5 py-4 rounded-2xl flex items-center gap-4 transition-all relative group overflow-hidden ${activeView === item.id
-              ? 'text-white font-black'
-              : 'text-white hover:text-white hover:bg-white/5'
-              }`}
-            style={activeView === item.id ? { backgroundColor: 'rgba(var(--brand-color-rgb), 0.1)', color: 'var(--brand-color)' } : {}}
-          >
-            {activeView === item.id && (
-              <span className="absolute left-2 w-1 h-4 rounded-full" style={{ backgroundColor: 'var(--brand-color)' }} />
-            )}
-            <span className="shrink-0 transition-colors" style={{ color: activeView === item.id ? 'var(--brand-color)' : 'white' }}>
-              {item.icon}
-            </span>
-            <span className="text-[10px] uppercase tracking-widest font-bold truncate whitespace-nowrap">
-              {item.label}
-            </span>
-          </button>
-        ))}
-      </nav>
-
-      <div className="p-6 border-t border-white/5 shrink-0 bg-black/20 space-y-4">
-        <button
-          onClick={onToggleLang}
-          className="w-full flex items-center justify-between px-4 py-3 bg-white/5 border border-white/5 rounded-xl hover:bg-white/10 transition-all group"
+      {/* Sidebar */}
+      <aside
+        className={`
+          fixed lg:static inset-y-0 left-0 z-50
+          w-64 bg-zinc-900 border-r border-zinc-800
+          transform transition-transform duration-200 ease-in-out
+          ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          flex flex-col
+        `}
+      >
+        {/* Header */}
+        <div
+          className="p-4 border-b border-zinc-800"
+          style={{ backgroundColor: brandColor }}
         >
-          <div className="flex items-center gap-3">
-            <Globe className="w-3.5 h-3.5 text-white group-hover:text-[var(--brand-color)] transition-colors" />
-            <span className="text-[9px] font-black text-white uppercase tracking-widest">
-              {lang === 'es' ? 'Español' : 'English'}
-            </span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sparkles size={24} style={{ color: textColor }} />
+              <div>
+                <h1
+                  className="font-bold text-lg leading-tight"
+                  style={{ color: textColor }}
+                >
+                  INMUEBLE IA PRO
+                </h1>
+                <p
+                  className="text-xs opacity-80"
+                  style={{ color: textColor }}
+                >
+                  {businessName}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={onToggle}
+              className="lg:hidden p-1 rounded"
+              style={{ color: textColor }}
+            >
+              <X size={20} />
+            </button>
           </div>
-          <span
-            className="text-[8px] font-black px-2 py-0.5 rounded-md uppercase tracking-tighter"
-            style={{
-              color: 'var(--brand-color)',
-              backgroundColor: 'rgba(var(--brand-color-rgb), 0.1)'
-            }}
-          >
-            {lang === 'es' ? 'Switch' : 'Cambiar'}
-          </span>
-        </button>
-
-        <div className="flex items-center gap-3 text-white text-[9px] font-black uppercase tracking-widest truncate">
-          <Globe className="w-3 h-3 shrink-0" /> {location}
         </div>
 
-        <div className="pt-2 border-t border-white/5">
-          <p className="text-[7px] font-black text-amber-500 uppercase tracking-widest leading-relaxed">
-            POWERED BY IA.AGUS<br />
-            +52 871 143 9941
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto py-4">
+          <div className="px-3 space-y-1">
+            {filteredItems.map((item) => {
+              const isActive = activeView === item.id;
+
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    onNavigate(item.id);
+                    if (window.innerWidth < 1024) onToggle();
+                  }}
+                  className={`
+                    w-full flex items-center gap-3 px-3 py-2.5 rounded-lg
+                    text-left text-sm font-medium
+                    transition-all duration-150
+                    ${isActive
+                      ? 'text-white'
+                      : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
+                    }
+                  `}
+                  style={isActive ? {
+                    backgroundColor: brandColor + '20',
+                    color: brandColor
+                  } : {}}
+                >
+                  <span style={isActive ? { color: brandColor } : {}}>
+                    {item.icon}
+                  </span>
+                  <span className="flex-1">{item.label}</span>
+                  {item.badge && (
+                    <span
+                      className="px-1.5 py-0.5 text-[10px] font-bold rounded"
+                      style={{
+                        backgroundColor: brandColor + '30',
+                        color: brandColor
+                      }}
+                    >
+                      {item.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Separator */}
+          <div className="my-4 mx-3 border-t border-zinc-800" />
+
+          {/* Settings & Logout */}
+          <div className="px-3 space-y-1">
+            <button
+              onClick={() => onNavigate('settings')}
+              className={`
+                w-full flex items-center gap-3 px-3 py-2.5 rounded-lg
+                text-left text-sm font-medium
+                text-zinc-400 hover:text-white hover:bg-zinc-800
+                transition-all duration-150
+              `}
+            >
+              <Settings size={20} />
+              <span>{t.settings}</span>
+            </button>
+
+            <button
+              onClick={onLogout}
+              className="
+                w-full flex items-center gap-3 px-3 py-2.5 rounded-lg
+                text-left text-sm font-medium
+                text-red-400 hover:text-red-300 hover:bg-red-500/10
+                transition-all duration-150
+              "
+            >
+              <LogOut size={20} />
+              <span>Cerrar Sesión</span>
+            </button>
+          </div>
+        </nav>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-zinc-800">
+          <p className="text-xs text-zinc-500 text-center">
+            Powered by <span className="text-zinc-400">Gemini AI</span>
+          </p>
+          <p className="text-xs text-zinc-600 text-center mt-1">
+            {t.designed_by} IA.AGUS
           </p>
         </div>
-      </div>
-    </aside>
+      </aside>
+
+      {/* Mobile menu button */}
+      <button
+        onClick={onToggle}
+        className="
+          fixed bottom-4 right-4 z-30 lg:hidden
+          w-14 h-14 rounded-full shadow-lg
+          flex items-center justify-center
+          text-white
+        "
+        style={{ backgroundColor: brandColor }}
+      >
+        <Menu size={24} />
+      </button>
+    </>
   );
 };
 

@@ -1,16 +1,38 @@
 
-import { AlertCircle, Camera, Car, Disc, Film, Fingerprint, Image as ImageIcon, Loader2, Plus, RefreshCw, Save, Trash2, Upload, X } from 'lucide-react';
-import React, { useEffect, useRef, useState } from 'react';
-import { analyzeVehicleMedia } from '../services/gemini';
-import { uploadPartImage } from '../services/supabase';
+import React, { useState, useRef, useEffect } from 'react';
+import {
+  Camera,
+  Upload,
+  X,
+  Loader2,
+  Home,
+  Building2,
+  MapPin,
+  Bed,
+  Bath,
+  Car,
+  Ruler,
+  Plus,
+  Trash2,
+  Save,
+  Sparkles,
+  CheckCircle,
+  AlertCircle,
+  RefreshCw,
+  Image as ImageIcon
+} from 'lucide-react';
+import { analyzePropertyImages, generatePropertyDescription } from '../services/gemini';
 import { translations } from '../translations';
-import { AnalysisResult, Part, PartCategory, PartStatus } from '../types';
+import { Property, PropertyType, OperationType, PropertyStatus, PropertyAnalysis } from '../types';
 
 interface AnalysisViewProps {
-  onAddParts: (parts: Part[]) => void;
+  onAddProperty: (property: Partial<Property>) => void;
   lang: 'es' | 'en';
   businessName: string;
   location: string;
+  brandColor: string;
+  agentId: string;
+  agencyId: string;
 }
 
 interface MediaItem {
@@ -22,350 +44,694 @@ interface MediaItem {
   fileSize: number;
 }
 
-const MAX_IA_DIMENSION = 640;
-const QUALITY = 0.5;
+const MAX_DIMENSION = 1024;
+const QUALITY = 0.7;
 
-const AnalysisView: React.FC<AnalysisViewProps> = ({ onAddParts, lang, businessName, location }) => {
-  const t = translations[lang] || translations.es;
-  const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
-  const [analyzing, setAnalyzing] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [pendingParts, setPendingParts] = useState<Part[] | null>(null);
-
-  const [isCameraOpen, setIsCameraOpen] = useState(false);
-  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
+const AnalysisView: React.FC<AnalysisViewProps> = ({
+  onAddProperty,
+  lang,
+  businessName,
+  location,
+  brandColor,
+  agentId,
+  agencyId
+}) => {
+  const t = translations[lang];
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  useEffect(() => {
-    if (isCameraOpen && cameraStream && videoRef.current) {
-      videoRef.current.srcObject = cameraStream;
-    }
-  }, [isCameraOpen, cameraStream]);
+  const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<PropertyAnalysis | null>(null);
+  const [showCamera, setShowCamera] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [manualMode, setManualMode] = useState(false);
 
-  const processSecurely = async (file: File | Blob) => {
-    const bitmap = await createImageBitmap(file);
-    const scale = MAX_IA_DIMENSION / Math.max(bitmap.width, bitmap.height);
-    const canvas = document.createElement('canvas');
-    canvas.width = bitmap.width * scale;
-    canvas.height = bitmap.height * scale;
-    const ctx = canvas.getContext('2d')!;
-    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-    bitmap.close();
+  // Manual form state
+  const [formData, setFormData] = useState<Partial<Property>>({
+    type: PropertyType.CASA,
+    operation: OperationType.VENTA,
+    title: '',
+    description: '',
+    address: {
+      street: '',
+      exteriorNumber: '',
+      colony: '',
+      city: '',
+      state: '',
+      zipCode: ''
+    },
+    specs: {
+      m2Total: 0,
+      m2Built: 0,
+      bedrooms: 0,
+      bathrooms: 0,
+      parking: 0,
+      floors: 1
+    },
+    amenities: [],
+    salePrice: 0,
+    rentPrice: 0
+  });
 
-    return new Promise<{ b64: string; preview: string }>((resolve) => {
-      canvas.toBlob((blob) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          resolve({
-            b64: (reader.result as string).split(',')[1],
-            preview: URL.createObjectURL(blob!)
-          });
+  // Process image for AI
+  const processImage = async (file: File | Blob): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let { width, height } = img;
+
+          if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+            const ratio = Math.min(MAX_DIMENSION / width, MAX_DIMENSION / height);
+            width *= ratio;
+            height *= ratio;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+
+          const base64 = canvas.toDataURL('image/jpeg', QUALITY).split(',')[1];
+          resolve(base64);
         };
-        reader.readAsDataURL(blob!);
-      }, 'image/jpeg', QUALITY);
+        img.onerror = reject;
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
     });
   };
 
-  const startCamera = async () => {
-    setErrorMessage(null);
-    if (cameraStream) {
-      cameraStream.getTracks().forEach(track => track.stop());
+  // Handle file upload
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    setError(null);
+    const newItems: MediaItem[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (!file.type.startsWith('image/')) continue;
+
+      try {
+        const b64 = await processImage(file);
+        newItems.push({
+          id: `media_${Date.now()}_${i}`,
+          src: URL.createObjectURL(file),
+          type: 'image',
+          b64,
+          fileName: file.name,
+          fileSize: file.size
+        });
+      } catch (err) {
+        console.error('Error processing image:', err);
+      }
     }
+
+    setMediaItems(prev => [...prev, ...newItems]);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  // Camera functions
+  const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: 'environment' } }
+        video: { facingMode: 'environment' }
       });
-      setCameraStream(stream);
-      setIsCameraOpen(true);
-    } catch (err: any) {
-      setErrorMessage(lang === 'es' ? "Error al acceder a la cámara." : "Error accessing camera.");
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        setShowCamera(true);
+      }
+    } catch (err) {
+      setError('No se pudo acceder a la cámara');
     }
   };
 
   const stopCamera = () => {
-    if (cameraStream) {
-      cameraStream.getTracks().forEach(track => track.stop());
-      setCameraStream(null);
+    if (videoRef.current?.srcObject) {
+      const stream = videoRef.current.srcObject as MediaStream;
+      stream.getTracks().forEach(track => track.stop());
+      setShowCamera(false);
     }
-    setIsCameraOpen(false);
   };
 
   const capturePhoto = async () => {
-    if (!videoRef.current) return;
-    try {
-      const video = videoRef.current;
-      const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      canvas.getContext('2d')?.drawImage(video, 0, 0);
+    if (!videoRef.current || !canvasRef.current) return;
 
-      canvas.toBlob(async (blob) => {
-        if (!blob) return;
-        const { b64, preview } = await processSecurely(blob);
-        const newItem: MediaItem = {
-          id: crypto.randomUUID(),
-          src: preview,
-          type: 'image',
-          b64,
-          fileName: `capture_${Date.now()}.jpg`,
-          fileSize: blob.size
-        };
-        setMediaItems(prev => [...prev, newItem]);
-        stopCamera();
-      }, 'image/jpeg', 0.8);
-    } catch (e) {
-      setErrorMessage(lang === 'es' ? "Error al capturar la imagen." : "Error capturing image.");
+    const canvas = canvasRef.current;
+    const video = videoRef.current;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    const ctx = canvas.getContext('2d');
+    ctx?.drawImage(video, 0, 0);
+
+    canvas.toBlob(async (blob) => {
+      if (!blob) return;
+      const b64 = await processImage(blob);
+      setMediaItems(prev => [...prev, {
+        id: `capture_${Date.now()}`,
+        src: URL.createObjectURL(blob),
+        type: 'image',
+        b64,
+        fileName: 'capture.jpg',
+        fileSize: blob.size
+      }]);
+    }, 'image/jpeg', QUALITY);
+  };
+
+  // Run AI analysis
+  const analyzeWithAI = async () => {
+    if (mediaItems.length === 0) {
+      setError('Agrega al menos una imagen para analizar');
+      return;
     }
-  };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []) as File[];
-    if (!files.length) return;
-    setAnalyzing(true);
+    setIsAnalyzing(true);
+    setError(null);
+    setAnalysisResult(null);
+
     try {
-      const items: MediaItem[] = [...mediaItems];
-      for (const file of files) {
-        if (file.type.startsWith('video')) {
-          items.push({
-            id: crypto.randomUUID(),
-            src: URL.createObjectURL(file),
-            type: 'video',
-            fileName: file.name,
-            fileSize: file.size
-          });
-        } else {
-          const { b64, preview } = await processSecurely(file);
-          items.push({
-            id: crypto.randomUUID(),
-            src: preview,
-            type: 'image',
-            b64,
-            fileName: file.name,
-            fileSize: file.size
-          });
-        }
-      }
-      setMediaItems(items);
-    } catch {
-      setErrorMessage('Error procesando archivos');
-    } finally {
-      setAnalyzing(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
-  };
+      const base64Images = mediaItems.map(m => m.b64!).filter(Boolean);
+      const result = await analyzePropertyImages(base64Images, businessName, location);
 
-  const extractFrameFromVideo = async (src: string) => {
-    const video = document.createElement('video');
-    video.src = src;
-    await new Promise(r => (video.onloadedmetadata = r));
-    video.currentTime = Math.min(1, video.duration / 2);
-    await new Promise(r => (video.onseeked = r));
-    const canvas = document.createElement('canvas');
-    canvas.width = 480;
-    canvas.height = 360;
-    canvas.getContext('2d')!.drawImage(video, 0, 0, 480, 360);
-    return canvas.toDataURL('image/jpeg', 0.4).split(',')[1];
-  };
-
-  const startMediaAnalysis = async () => {
-    if (!mediaItems.length) return;
-    setAnalyzing(true);
-    setErrorMessage(null);
-    try {
-      const images: string[] = [];
-      for (const item of mediaItems) {
-        if (item.type === 'image' && item.b64) images.push(item.b64);
-        if (item.type === 'video') images.push(await extractFrameFromVideo(item.src));
-      }
-
-      const result: AnalysisResult = await analyzeVehicleMedia(images, businessName, location);
-
-      const allParts: Part[] = result.groups.flatMap((group, groupIdx) =>
-        group.parts.map((p, partIdx) => ({
-          id: `${Date.now()}-${groupIdx}-${partIdx}`,
-          name: p.name,
-          category: p.category as PartCategory,
-          vehicleInfo: { ...group.vehicle },
-          condition: p.condition,
-          suggestedPrice: p.suggestedPrice,
-          minPrice: p.minPrice || 0,
-          status: PartStatus.AVAILABLE,
-          dateAdded: new Date().toISOString()
-        }))
-      );
-
-      setPendingParts(allParts);
-    } catch (e) {
-      console.error(e);
-      setErrorMessage('Error en el análisis de IA');
-    } finally {
-      setAnalyzing(false);
-    }
-  };
-
-  const handleConfirmSave = async () => {
-    if (pendingParts && mediaItems.length > 0) {
-      setAnalyzing(true);
-      try {
-        let imageUrl: string | undefined;
-        const firstItem = mediaItems.find(i => i.type === 'image' && i.b64);
-
-        if (firstItem && firstItem.b64) {
-          const byteCharacters = atob(firstItem.b64);
-          const byteNumbers = new Array(byteCharacters.length);
-          for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.charCodeAt(i);
-          }
-          const byteArray = new Uint8Array(byteNumbers);
-          const blob = new Blob([byteArray], { type: 'image/jpeg' });
-
-          const fileName = `part_${Date.now()}_${businessName.replace(/\s+/g, '_')}.jpg`;
-          const uploadedUrl = await uploadPartImage(blob, fileName);
-          console.log('DEBUG: Uploaded Image URL:', uploadedUrl);
-          if (uploadedUrl) imageUrl = uploadedUrl;
-        }
-
-        const partsWithImages = pendingParts.map(p => ({
-          ...p,
-          imageUrl: imageUrl || p.imageUrl
+      if (result.properties.length > 0) {
+        setAnalysisResult(result.properties[0]);
+        // Update form with AI results
+        const analysis = result.properties[0];
+        setFormData(prev => ({
+          ...prev,
+          type: analysis.type as PropertyType,
+          specs: {
+            m2Total: analysis.estimatedSpecs.m2Total,
+            m2Built: analysis.estimatedSpecs.m2Built,
+            bedrooms: analysis.estimatedSpecs.bedrooms,
+            bathrooms: analysis.estimatedSpecs.bathrooms,
+            parking: analysis.estimatedSpecs.parking,
+            floors: analysis.estimatedSpecs.floors
+          },
+          amenities: analysis.detectedAmenities,
+          salePrice: analysis.estimatedPrice
         }));
-
-        onAddParts(partsWithImages);
-        setPendingParts(null);
-        setMediaItems([]);
-      } catch (err) {
-        console.error('Error saving with images:', err);
-        setErrorMessage('Error al subir imágenes');
-      } finally {
-        setAnalyzing(false);
       }
-    } else if (pendingParts) {
-      onAddParts(pendingParts);
-      setPendingParts(null);
-      setMediaItems([]);
+    } catch (err) {
+      console.error('Analysis error:', err);
+      setError('Error al analizar las imágenes. Intenta de nuevo.');
+    } finally {
+      setIsAnalyzing(false);
     }
   };
+
+  // Generate description with AI
+  const generateDescription = async () => {
+    try {
+      const desc = await generatePropertyDescription(formData, lang);
+      setFormData(prev => ({ ...prev, description: desc }));
+    } catch (err) {
+      console.error('Error generating description:', err);
+    }
+  };
+
+  // Remove media item
+  const removeMedia = (id: string) => {
+    setMediaItems(prev => prev.filter(m => m.id !== id));
+  };
+
+  // Save property
+  const handleSave = () => {
+    const property: Partial<Property> = {
+      ...formData,
+      id: `prop_${Date.now()}`,
+      status: PropertyStatus.DISPONIBLE,
+      agentId,
+      agencyId,
+      images: mediaItems.map(m => m.src),
+      dateAdded: new Date().toISOString(),
+      views: 0,
+      favorites: 0
+    };
+
+    onAddProperty(property);
+
+    // Reset form
+    setMediaItems([]);
+    setAnalysisResult(null);
+    setFormData({
+      type: PropertyType.CASA,
+      operation: OperationType.VENTA,
+      title: '',
+      description: '',
+      address: { street: '', exteriorNumber: '', colony: '', city: '', state: '', zipCode: '' },
+      specs: { m2Total: 0, m2Built: 0, bedrooms: 0, bathrooms: 0, parking: 0, floors: 1 },
+      amenities: [],
+      salePrice: 0,
+      rentPrice: 0
+    });
+  };
+
+  // Cleanup camera on unmount
+  useEffect(() => {
+    return () => stopCamera();
+  }, []);
 
   return (
-    <div className="p-4 md:p-8 max-w-6xl mx-auto pb-32 overflow-x-hidden">
-      {isCameraOpen && (
-        <div className="fixed inset-0 z-[200] bg-black flex flex-col items-center justify-center animate-in fade-in duration-300">
-          <div className="absolute inset-0 bg-black overflow-hidden flex items-center justify-center">
-            <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
-          </div>
-          <div className="absolute bottom-12 left-0 right-0 flex justify-between items-center px-12">
-            <button onClick={stopCamera} className="w-14 h-14 bg-white/10 rounded-full flex items-center justify-center text-white"><X /></button>
-            <button onClick={capturePhoto} className="w-24 h-24 bg-amber-500 rounded-full border-[6px] border-black flex items-center justify-center shadow-2xl active:scale-95 transition-all">
-              <Disc className="w-8 h-8 text-black" />
-            </button>
-            <div className="w-14 h-14"></div>
-          </div>
+    <div className="p-4 lg:p-6 space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <div
+          className="w-12 h-12 rounded-xl flex items-center justify-center"
+          style={{ backgroundColor: brandColor + '20' }}
+        >
+          <Sparkles size={24} style={{ color: brandColor }} />
         </div>
-      )}
+        <div>
+          <h1 className="text-2xl font-bold text-white">{t.multimodal_analysis}</h1>
+          <p className="text-zinc-400 text-sm">{t.upload_property_photo}</p>
+        </div>
+      </div>
 
-      <h2 className="text-2xl font-black text-white flex gap-3 items-center italic tracking-tighter uppercase mb-8">
-        <Film className="text-amber-500 w-8 h-8" /> {t.multimodal_analysis}
-      </h2>
+      {/* Media Upload Section */}
+      <div className="bg-zinc-900 rounded-xl border border-zinc-800 p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Upload Area */}
+          <div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleFileUpload}
+              className="hidden"
+            />
 
-      {!pendingParts ? (
-        <div className="space-y-6 animate-in fade-in duration-500">
-          <div className="bg-zinc-900/40 border border-white/5 rounded-[2.5rem] p-6 md:p-12 shadow-2xl relative overflow-hidden group">
-            <div className={`min-h-[16rem] md:h-64 border-2 border-dashed rounded-3xl flex flex-col items-center justify-center transition-all ${mediaItems.length > 0 ? 'border-amber-500/30 bg-amber-500/5' : 'border-white/10'}`}>
-              {analyzing ? (
-                <div className="flex flex-col items-center p-4">
-                  <Loader2 className="w-12 h-12 text-amber-500 animate-spin mb-4" />
-                  <p className="text-[10px] uppercase font-black tracking-widest text-amber-500 animate-pulse">{t.scanning}</p>
-                </div>
-              ) : mediaItems.length > 0 ? (
-                <div className="flex flex-wrap justify-center gap-4 p-6 overflow-y-auto max-h-full">
-                  {mediaItems.map(item => (
-                    <div key={item.id} className="relative w-20 h-20 rounded-xl overflow-hidden border border-amber-500/50 group">
-                      {item.type === 'video' ? <div className="absolute inset-0 bg-black flex items-center justify-center"><Film className="text-amber-500" /></div> : <img src={item.src} className="w-full h-full object-cover" />}
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                        <X className="w-4 h-4 text-white cursor-pointer" onClick={() => setMediaItems(prev => prev.filter(i => i.id !== item.id))} />
-                      </div>
-                    </div>
-                  ))}
-                  <div className="flex gap-2">
-                    <div onClick={() => fileInputRef.current?.click()} className="w-20 h-20 rounded-xl border-2 border-dashed border-zinc-700 flex items-center justify-center cursor-pointer hover:bg-white/5"><Plus className="text-white" /></div>
-                    <div onClick={startCamera} className="w-20 h-20 rounded-xl border-2 border-dashed border-amber-500/30 flex items-center justify-center cursor-pointer hover:bg-amber-500/10"><Camera className="text-amber-500" /></div>
-                  </div>
-                </div>
-              ) : (
-                <div className="p-4 flex flex-col items-center text-center">
-                  <Upload className="w-12 h-12 text-white/20 mb-4" />
-                  <p className="text-xs font-black uppercase text-white tracking-widest mb-6 opacity-60">{t.click_upload}</p>
-                  <div className="flex flex-col sm:flex-row gap-3 md:gap-4 w-full px-6 sm:px-0 sm:w-auto mt-4">
-                    <button
-                      onClick={startCamera}
-                      className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all shadow-lg"
-                      style={{ backgroundColor: 'var(--brand-color)', color: 'var(--brand-text-color)', boxShadow: '0 10px 40px -10px rgba(var(--brand-color-rgb), 0.1)' }}
-                    >
-                      <Camera className="w-4 h-4" style={{ color: 'var(--brand-text-color)' }} />{t.take_photo}
-                    </button>
-                    <button onClick={() => fileInputRef.current?.click()} className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-5 bg-zinc-800 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-zinc-700 active:scale-95 transition-all outline outline-1 outline-white/5 shadow-xl"><ImageIcon className="w-4 h-4" />Archivos</button>
-                  </div>
-                </div>
-              )}
-            </div>
-            <input ref={fileInputRef} type="file" accept="image/*,video/*" multiple className="hidden" onChange={handleFileUpload} />
-            <button
-              onClick={startMediaAnalysis}
-              disabled={analyzing || mediaItems.length === 0}
-              className="mt-8 w-full hover:brightness-110 disabled:bg-zinc-800 disabled:text-white/20 font-black py-6 rounded-3xl flex justify-center items-center gap-4 transition-all uppercase tracking-[0.3em] text-[12px] shadow-2xl disabled:shadow-none"
-              style={{
-                backgroundColor: analyzing || mediaItems.length === 0 ? undefined : 'var(--brand-color)',
-                color: analyzing || mediaItems.length === 0 ? undefined : 'var(--brand-text-color)',
-                boxShadow: analyzing || mediaItems.length === 0 ? undefined : '0 20px 60px -15px rgba(var(--brand-color-rgb), 0.2)'
-              }}
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="
+                border-2 border-dashed border-zinc-700 rounded-xl p-8
+                flex flex-col items-center justify-center gap-4
+                cursor-pointer hover:border-zinc-500 transition-colors
+                min-h-[200px]
+              "
             >
-              {analyzing ? <Loader2 className="w-5 h-5 animate-spin" style={{ color: 'var(--brand-text-color)' }} /> : <RefreshCw className="w-5 h-5" style={{ color: 'var(--brand-text-color)' }} />}
-              {lang === 'es' ? 'ANALIZAR TODO EL LOTE' : 'ANALYZE ALL MEDIA'}
-            </button>
-          </div>
-          {errorMessage && <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-6 rounded-3xl flex items-center gap-4"><AlertCircle /><p className="text-xs font-black uppercase tracking-widest">{errorMessage}</p></div>}
-        </div>
-      ) : (
-        <div className="space-y-8 animate-in zoom-in-95 duration-500">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-zinc-900/80 border border-white/5 p-8 rounded-3xl">
-            <div>
-              <h3 className="text-white font-black text-xl uppercase tracking-tight italic">RESULTADOS MULTI-VEHÍCULO</h3>
-              <p className="text-white text-[10px] font-black uppercase tracking-widest mt-1 opacity-60">Se detectaron {Array.from(new Set(pendingParts.map(p => `${p.vehicleInfo.make} ${p.vehicleInfo.model}`))).length} modelos distintos</p>
-            </div>
-            <div className="flex gap-4 w-full md:w-auto">
-              <button onClick={() => setPendingParts(null)} className="flex-1 md:flex-none px-8 py-5 bg-zinc-800 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-zinc-700 transition-all">DESCARTAR</button>
-              <button
-                onClick={handleConfirmSave}
-                className="flex-1 md:flex-none px-8 py-5 hover:brightness-110 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-all"
-                style={{ backgroundColor: 'var(--brand-color)', color: 'var(--brand-text-color)', boxShadow: '0 10px 40px -10px rgba(var(--brand-color-rgb), 0.1)' }}
+              <div
+                className="w-16 h-16 rounded-full flex items-center justify-center"
+                style={{ backgroundColor: brandColor + '20' }}
               >
-                <Save className="w-4 h-4" style={{ color: 'var(--brand-text-color)' }} />CONFIRMAR TODO
+                <Upload size={28} style={{ color: brandColor }} />
+              </div>
+              <div className="text-center">
+                <p className="text-white font-medium">{t.click_upload}</p>
+                <p className="text-zinc-500 text-sm mt-1">JPG, PNG hasta 10MB</p>
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-4">
+              <button
+                onClick={startCamera}
+                className="
+                  flex-1 flex items-center justify-center gap-2 py-3 px-4
+                  bg-zinc-800 hover:bg-zinc-700 rounded-lg
+                  text-white font-medium transition-colors
+                "
+              >
+                <Camera size={20} />
+                {t.take_photo}
+              </button>
+              <button
+                onClick={() => setManualMode(!manualMode)}
+                className="
+                  flex items-center justify-center gap-2 py-3 px-4
+                  bg-zinc-800 hover:bg-zinc-700 rounded-lg
+                  text-white font-medium transition-colors
+                "
+              >
+                <Plus size={20} />
+                Manual
               </button>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {pendingParts.map((part) => (
-              <div key={part.id} className="bg-zinc-900 border border-white/5 rounded-3xl p-6 relative hover:border-amber-500/30 transition-all flex flex-col h-full">
-                <button onClick={() => setPendingParts(prev => prev ? prev.filter(p => p.id !== part.id) : null)} className="absolute top-4 right-4 p-2 bg-black/40 text-white hover:text-red-500 rounded-xl"><Trash2 className="w-4 h-4" /></button>
-                <div className="mb-3">
-                  <span className="text-[8px] font-black bg-zinc-800 text-amber-500 px-2 py-1 rounded-md border border-white/5 uppercase tracking-widest inline-block">{part.vehicleInfo.year} {part.vehicleInfo.make}</span>
-                </div>
-                <h4 className="text-white font-black text-sm uppercase mb-4 line-clamp-2">{part.name}</h4>
-                <div className="grid grid-cols-2 gap-4 border-t border-white/5 pt-4 mt-auto">
-                  <div>
-                    <p className="text-[8px] text-white font-black uppercase mb-1">Precio</p>
-                    <p className="text-lg font-mono font-black text-green-500">${part.suggestedPrice}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-[8px] text-white font-black uppercase mb-1">VIN Detectado</p>
-                    <p className="text-[10px] font-mono font-black text-white truncate">{part.vehicleInfo.vin || 'N/A'}</p>
-                  </div>
-                </div>
+          {/* Camera View */}
+          {showCamera && (
+            <div className="relative rounded-xl overflow-hidden">
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                className="w-full rounded-xl"
+              />
+              <canvas ref={canvasRef} className="hidden" />
+              <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-3">
+                <button
+                  onClick={capturePhoto}
+                  className="
+                    w-14 h-14 rounded-full flex items-center justify-center
+                    text-white shadow-lg
+                  "
+                  style={{ backgroundColor: brandColor }}
+                >
+                  <Camera size={24} />
+                </button>
+                <button
+                  onClick={stopCamera}
+                  className="
+                    w-14 h-14 rounded-full bg-red-500 
+                    flex items-center justify-center text-white shadow-lg
+                  "
+                >
+                  <X size={24} />
+                </button>
               </div>
-            ))}
+            </div>
+          )}
+
+          {/* Media Preview */}
+          {mediaItems.length > 0 && !showCamera && (
+            <div className="grid grid-cols-3 gap-2">
+              {mediaItems.map((item) => (
+                <div key={item.id} className="relative group aspect-square">
+                  <img
+                    src={item.src}
+                    alt="Preview"
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                  <button
+                    onClick={() => removeMedia(item.id)}
+                    className="
+                      absolute top-1 right-1 w-6 h-6 rounded-full
+                      bg-red-500 text-white flex items-center justify-center
+                      opacity-0 group-hover:opacity-100 transition-opacity
+                    "
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Analyze Button */}
+        {mediaItems.length > 0 && (
+          <button
+            onClick={analyzeWithAI}
+            disabled={isAnalyzing}
+            className="
+              w-full mt-6 py-4 rounded-xl font-bold text-lg
+              flex items-center justify-center gap-3
+              transition-all duration-200 disabled:opacity-50
+            "
+            style={{
+              backgroundColor: brandColor,
+              color: '#000'
+            }}
+          >
+            {isAnalyzing ? (
+              <>
+                <Loader2 className="animate-spin" size={24} />
+                {t.scanning_property}
+              </>
+            ) : (
+              <>
+                <Sparkles size={24} />
+                ANALIZAR CON IA
+              </>
+            )}
+          </button>
+        )}
+
+        {/* Error */}
+        {error && (
+          <div className="mt-4 p-4 bg-red-500/20 border border-red-500/50 rounded-xl flex items-center gap-3">
+            <AlertCircle className="text-red-400" size={20} />
+            <p className="text-red-400">{error}</p>
           </div>
+        )}
+      </div>
+
+      {/* Analysis Results */}
+      {analysisResult && (
+        <div className="bg-zinc-900 rounded-xl border border-zinc-800 p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <CheckCircle className="text-green-400" size={24} />
+            <h2 className="text-xl font-bold text-white">Resultado del Análisis</h2>
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div className="bg-zinc-800 rounded-lg p-4">
+              <p className="text-zinc-400 text-sm">Tipo</p>
+              <p className="text-white font-bold text-lg">
+                {t.property_types[analysisResult.type as keyof typeof t.property_types] || analysisResult.type}
+              </p>
+            </div>
+            <div className="bg-zinc-800 rounded-lg p-4">
+              <p className="text-zinc-400 text-sm">Condición</p>
+              <p className="text-white font-bold text-lg">
+                {t.conditions[analysisResult.condition as keyof typeof t.conditions] || analysisResult.condition}
+              </p>
+            </div>
+            <div className="bg-zinc-800 rounded-lg p-4">
+              <p className="text-zinc-400 text-sm">Precio Estimado</p>
+              <p className="font-bold text-lg" style={{ color: brandColor }}>
+                ${analysisResult.estimatedPrice?.toLocaleString()}
+              </p>
+            </div>
+            <div className="bg-zinc-800 rounded-lg p-4">
+              <p className="text-zinc-400 text-sm">Rango</p>
+              <p className="text-white font-bold text-lg">
+                ${analysisResult.priceRange?.min?.toLocaleString()} - ${analysisResult.priceRange?.max?.toLocaleString()}
+              </p>
+            </div>
+          </div>
+
+          {/* Specs */}
+          <div className="grid grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+            <div className="bg-zinc-800 rounded-lg p-3 text-center">
+              <Ruler className="text-zinc-400 mx-auto mb-1" size={20} />
+              <p className="text-white font-bold">{analysisResult.estimatedSpecs?.m2Built}</p>
+              <p className="text-zinc-500 text-xs">m² Const.</p>
+            </div>
+            <div className="bg-zinc-800 rounded-lg p-3 text-center">
+              <Bed className="text-zinc-400 mx-auto mb-1" size={20} />
+              <p className="text-white font-bold">{analysisResult.estimatedSpecs?.bedrooms}</p>
+              <p className="text-zinc-500 text-xs">Recámaras</p>
+            </div>
+            <div className="bg-zinc-800 rounded-lg p-3 text-center">
+              <Bath className="text-zinc-400 mx-auto mb-1" size={20} />
+              <p className="text-white font-bold">{analysisResult.estimatedSpecs?.bathrooms}</p>
+              <p className="text-zinc-500 text-xs">Baños</p>
+            </div>
+            <div className="bg-zinc-800 rounded-lg p-3 text-center">
+              <Car className="text-zinc-400 mx-auto mb-1" size={20} />
+              <p className="text-white font-bold">{analysisResult.estimatedSpecs?.parking}</p>
+              <p className="text-zinc-500 text-xs">Estac.</p>
+            </div>
+            <div className="bg-zinc-800 rounded-lg p-3 text-center">
+              <Building2 className="text-zinc-400 mx-auto mb-1" size={20} />
+              <p className="text-white font-bold">{analysisResult.estimatedSpecs?.floors}</p>
+              <p className="text-zinc-500 text-xs">Niveles</p>
+            </div>
+            <div className="bg-zinc-800 rounded-lg p-3 text-center">
+              <Home className="text-zinc-400 mx-auto mb-1" size={20} />
+              <p className="text-white font-bold">{analysisResult.estimatedSpecs?.m2Total}</p>
+              <p className="text-zinc-500 text-xs">m² Terreno</p>
+            </div>
+          </div>
+
+          {/* Amenities */}
+          {analysisResult.detectedAmenities?.length > 0 && (
+            <div className="mb-6">
+              <p className="text-zinc-400 text-sm mb-2">{t.detected_amenities}</p>
+              <div className="flex flex-wrap gap-2">
+                {analysisResult.detectedAmenities.map((amenity, idx) => (
+                  <span
+                    key={idx}
+                    className="px-3 py-1 rounded-full text-sm"
+                    style={{ backgroundColor: brandColor + '20', color: brandColor }}
+                  >
+                    {amenity}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Suggestions */}
+          {analysisResult.suggestions?.length > 0 && (
+            <div className="mb-6 p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl">
+              <p className="text-blue-400 font-medium mb-2">💡 Sugerencias de la IA</p>
+              <ul className="text-blue-300 text-sm space-y-1">
+                {analysisResult.suggestions.map((sug, idx) => (
+                  <li key={idx}>• {sug}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Add to catalog button */}
+          <button
+            onClick={handleSave}
+            className="
+              w-full py-4 rounded-xl font-bold text-lg
+              flex items-center justify-center gap-3
+              transition-all duration-200
+            "
+            style={{ backgroundColor: brandColor, color: '#000' }}
+          >
+            <Save size={24} />
+            {t.add_to_catalog}
+          </button>
+        </div>
+      )}
+
+      {/* Manual Form (optional) */}
+      {manualMode && !analysisResult && (
+        <div className="bg-zinc-900 rounded-xl border border-zinc-800 p-6">
+          <h2 className="text-xl font-bold text-white mb-6">Registro Manual</h2>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Type & Operation */}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-zinc-400 text-sm mb-2">Tipo de Propiedad</label>
+                <select
+                  value={formData.type}
+                  onChange={e => setFormData(prev => ({ ...prev, type: e.target.value as PropertyType }))}
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white"
+                >
+                  {Object.values(PropertyType).map(type => (
+                    <option key={type} value={type}>
+                      {t.property_types[type as keyof typeof t.property_types] || type}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-zinc-400 text-sm mb-2">Operación</label>
+                <select
+                  value={formData.operation}
+                  onChange={e => setFormData(prev => ({ ...prev, operation: e.target.value as OperationType }))}
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white"
+                >
+                  {Object.values(OperationType).map(op => (
+                    <option key={op} value={op}>
+                      {t.operations[op as keyof typeof t.operations] || op}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-zinc-400 text-sm mb-2">Título</label>
+                <input
+                  type="text"
+                  value={formData.title}
+                  onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                  placeholder="Ej: Casa en Residencial del Norte"
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white"
+                />
+              </div>
+            </div>
+
+            {/* Specs */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-zinc-400 text-sm mb-2">m² Terreno</label>
+                <input
+                  type="number"
+                  value={formData.specs?.m2Total || 0}
+                  onChange={e => setFormData(prev => ({
+                    ...prev,
+                    specs: { ...prev.specs!, m2Total: parseInt(e.target.value) || 0 }
+                  }))}
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-zinc-400 text-sm mb-2">m² Construcción</label>
+                <input
+                  type="number"
+                  value={formData.specs?.m2Built || 0}
+                  onChange={e => setFormData(prev => ({
+                    ...prev,
+                    specs: { ...prev.specs!, m2Built: parseInt(e.target.value) || 0 }
+                  }))}
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-zinc-400 text-sm mb-2">Recámaras</label>
+                <input
+                  type="number"
+                  value={formData.specs?.bedrooms || 0}
+                  onChange={e => setFormData(prev => ({
+                    ...prev,
+                    specs: { ...prev.specs!, bedrooms: parseInt(e.target.value) || 0 }
+                  }))}
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-zinc-400 text-sm mb-2">Baños</label>
+                <input
+                  type="number"
+                  value={formData.specs?.bathrooms || 0}
+                  onChange={e => setFormData(prev => ({
+                    ...prev,
+                    specs: { ...prev.specs!, bathrooms: parseInt(e.target.value) || 0 }
+                  }))}
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-zinc-400 text-sm mb-2">Estacionamiento</label>
+                <input
+                  type="number"
+                  value={formData.specs?.parking || 0}
+                  onChange={e => setFormData(prev => ({
+                    ...prev,
+                    specs: { ...prev.specs!, parking: parseInt(e.target.value) || 0 }
+                  }))}
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-zinc-400 text-sm mb-2">
+                  {formData.operation === OperationType.RENTA ? 'Renta Mensual' : 'Precio Venta'}
+                </label>
+                <input
+                  type="number"
+                  value={formData.operation === OperationType.RENTA ? formData.rentPrice : formData.salePrice}
+                  onChange={e => {
+                    const price = parseInt(e.target.value) || 0;
+                    if (formData.operation === OperationType.RENTA) {
+                      setFormData(prev => ({ ...prev, rentPrice: price }));
+                    } else {
+                      setFormData(prev => ({ ...prev, salePrice: price }));
+                    }
+                  }}
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white"
+                />
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={handleSave}
+            className="
+              w-full mt-6 py-4 rounded-xl font-bold text-lg
+              flex items-center justify-center gap-3
+            "
+            style={{ backgroundColor: brandColor, color: '#000' }}
+          >
+            <Save size={24} />
+            Guardar Propiedad
+          </button>
         </div>
       )}
     </div>

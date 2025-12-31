@@ -1,6 +1,6 @@
 {
-  "name": "Autopartenon OS - Final Version for Antigravity",
-  "description": "Intelligent inventory and analysis system for used auto parts in Texas. Multimodal AI for vehicle identification, market valuation, and professional invoicing.",
+  "name": "INMUEBLE IA PRO - Plataforma Inmobiliaria",
+  "description": "Sistema inteligente de gestión inmobiliaria con IA. Incluye CRM, generador de contratos, valuación automática, comparador de mercado, seguimiento por WhatsApp y control por agencia/agente.",
   "requestFramePermissions": [
     "camera"
   ]

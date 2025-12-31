@@ -14,10 +14,12 @@ export interface ClientConfig {
 }
 
 interface LoginViewProps {
-  onLogin: (client: ClientConfig) => void;
+  brandColor: string;
+  lang: 'es' | 'en';
+  onToggleLang: () => void;
 }
 
-const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
+const LoginView: React.FC<LoginViewProps> = ({ brandColor, lang, onToggleLang }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -53,7 +55,8 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
         role: profile.role || 'employee'
       };
 
-      onLogin(clientConfig);
+      // App.tsx handles state via supabase.auth.onAuthStateChange
+      // No need to call onLogin here anymore as we rely on the global observer
     } catch (err: any) {
       console.error('Login error:', err);
 
@@ -81,16 +84,23 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
           </div>
         </div>
 
-        <div className="text-center mb-10">
+        <div className="flex justify-between items-center mb-10">
           <h1 className="text-2xl font-black text-white italic tracking-tighter uppercase">
-            GESTIÓN DE STOCK <span className="text-amber-500">OS</span>
+            INMUEBLE <span className="text-amber-500">IA PRO</span>
           </h1>
-          <p className="text-white text-[10px] font-black uppercase tracking-[0.3em] mt-2 italic opacity-60">Terminal Multi-Cliente</p>
+          <button
+            type="button"
+            onClick={onToggleLang}
+            className="text-[10px] font-bold px-2 py-1 bg-white/5 hover:bg-white/10 rounded border border-white/10 text-white/60 uppercase tracking-widest transition-colors"
+          >
+            {lang}
+          </button>
         </div>
+        <p className="text-white text-[10px] font-black uppercase tracking-[0.3em] -mt-8 mb-8 italic opacity-60 text-center">Plataforma Inmobiliaria</p>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-1.5">
-            <label className="text-[10px] font-black text-white uppercase tracking-widest ml-4">ID de Empresa</label>
+            <label className="text-[10px] font-black text-white uppercase tracking-widest ml-4">ID de Agencia</label>
             <div className="relative group">
               <User className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 group-focus-within:text-amber-500 transition-colors" />
               <input
@@ -99,7 +109,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full bg-black/40 border border-white/5 rounded-2xl py-4 pl-14 pr-6 text-white text-sm focus:outline-none focus:border-amber-500/50 focus:bg-black/60 transition-all placeholder:text-white/20"
-                placeholder="CLIENT_ID"
+                placeholder="AGENCIA_ID"
                 required
               />
             </div>
@@ -132,7 +142,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
             disabled={loading}
             className="w-full bg-amber-500 hover:bg-amber-400 disabled:bg-zinc-800 disabled:text-zinc-600 text-black font-black py-4 rounded-2xl transition-all shadow-xl shadow-amber-500/20 uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-3 active:scale-[0.98]"
           >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'CONECTAR TERMINAL'}
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'INICIAR SESIÓN'}
           </button>
         </form>
       </div>

@@ -1,0 +1,622 @@
+
+import React, { useState, useMemo } from 'react';
+import {
+    Building2,
+    Search,
+    Filter,
+    Grid3X3,
+    List,
+    MapPin,
+    Bed,
+    Bath,
+    Car,
+    Ruler,
+    DollarSign,
+    Eye,
+    Heart,
+    Share2,
+    Edit2,
+    Trash2,
+    Plus,
+    Sparkles,
+    X,
+    ChevronLeft,
+    ChevronRight,
+    MessageCircle
+} from 'lucide-react';
+import { translations } from '../translations';
+import { Property, PropertyType, OperationType, PropertyStatus } from '../types';
+import { generatePropertyListing } from '../services/gemini';
+
+interface PropertiesViewProps {
+    properties: Property[];
+    onEditProperty: (property: Property) => void;
+    onDeleteProperty: (id: string) => void;
+    onViewProperty: (property: Property) => void;
+    lang: 'es' | 'en';
+    brandColor: string;
+    businessName: string;
+    location: string;
+}
+
+const PropertiesView: React.FC<PropertiesViewProps> = ({
+    properties,
+    onEditProperty,
+    onDeleteProperty,
+    onViewProperty,
+    lang,
+    brandColor,
+    businessName,
+    location
+}) => {
+    const t = translations[lang];
+
+    const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [typeFilter, setTypeFilter] = useState<PropertyType | 'ALL'>('ALL');
+    const [operationFilter, setOperationFilter] = useState<OperationType | 'ALL'>('ALL');
+    const [statusFilter, setStatusFilter] = useState<PropertyStatus | 'ALL'>('ALL');
+    const [priceRange, setPriceRange] = useState<{ min: number; max: number }>({ min: 0, max: 999999999 });
+    const [sortBy, setSortBy] = useState<'price' | 'date' | 'views'>('date');
+
+    const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+    const [showDetailModal, setShowDetailModal] = useState(false);
+    const [generatingAd, setGeneratingAd] = useState(false);
+    const [adText, setAdText] = useState('');
+
+    // Filter and sort properties
+    const filteredProperties = useMemo(() => {
+        let result = properties.filter(prop => {
+            const matchesSearch =
+                prop.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                prop.address?.colony?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                prop.address?.city?.toLowerCase().includes(searchQuery.toLowerCase());
+
+            const matchesType = typeFilter === 'ALL' || prop.type === typeFilter;
+            const matchesOperation = operationFilter === 'ALL' || prop.operation === operationFilter;
+            const matchesStatus = statusFilter === 'ALL' || prop.status === statusFilter;
+
+            const price = prop.operation === 'RENTA' ? prop.rentPrice : prop.salePrice;
+            const matchesPrice = (price || 0) >= priceRange.min && (price || 0) <= priceRange.max;
+
+            return matchesSearch && matchesType && matchesOperation && matchesStatus && matchesPrice;
+        });
+
+        // Sort
+        result.sort((a, b) => {
+            if (sortBy === 'price') {
+                const priceA = a.operation === 'RENTA' ? a.rentPrice : a.salePrice;
+                const priceB = b.operation === 'RENTA' ? b.rentPrice : b.salePrice;
+                return (priceB || 0) - (priceA || 0);
+            } else if (sortBy === 'views') {
+                return (b.views || 0) - (a.views || 0);
+            } else {
+                return new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime();
+            }
+        });
+
+        return result;
+    }, [properties, searchQuery, typeFilter, operationFilter, statusFilter, priceRange, sortBy]);
+
+    // Stats
+    const stats = {
+        total: properties.length,
+        available: properties.filter(p => p.status === PropertyStatus.DISPONIBLE).length,
+        sale: properties.filter(p => p.operation === OperationType.VENTA).length,
+        rent: properties.filter(p => p.operation === OperationType.RENTA).length
+    };
+
+    // Status colors
+    const getStatusColor = (status: PropertyStatus) => {
+        const colors: Record<PropertyStatus, string> = {
+            [PropertyStatus.DISPONIBLE]: '#22c55e',
+            [PropertyStatus.APARTADA]: '#f59e0b',
+            [PropertyStatus.VENDIDA]: '#3b82f6',
+            [PropertyStatus.RENTADA]: '#8b5cf6'
+        };
+        return colors[status];
+    };
+
+    // Generate ad
+    const handleGenerateAd = async (property: Property) => {
+        setGeneratingAd(true);
+        try {
+            const ad = await generatePropertyListing(property, lang, businessName, location);
+            setAdText(ad);
+        } catch (err) {
+            console.error('Error generating ad:', err);
+            setAdText('Error al generar anuncio');
+        } finally {
+            setGeneratingAd(false);
+        }
+    };
+
+    // Copy ad to clipboard
+    const copyAd = () => {
+        navigator.clipboard.writeText(adText);
+    };
+
+    // Property Card
+    const PropertyCard: React.FC<{ property: Property }> = ({ property }) => {
+        const price = property.operation === 'RENTA' ? property.rentPrice : property.salePrice;
+
+        return (
+            <div
+                className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden hover:border-zinc-600 transition-all cursor-pointer group"
+                onClick={() => {
+                    setSelectedProperty(property);
+                    setShowDetailModal(true);
+                }}
+            >
+                {/* Image */}
+                <div className="relative aspect-[4/3] bg-zinc-800">
+                    {property.images?.[0] ? (
+                        <img
+                            src={property.images[0]}
+                            alt={property.title}
+                            className="w-full h-full object-cover"
+                        />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                            <Building2 className="text-zinc-600" size={48} />
+                        </div>
+                    )}
+
+                    {/* Badges */}
+                    <div className="absolute top-3 left-3 flex gap-2">
+                        <span
+                            className="px-2 py-1 rounded text-xs font-bold text-white"
+                            style={{ backgroundColor: property.operation === 'VENTA' ? '#3b82f6' : '#8b5cf6' }}
+                        >
+                            {t.operations[property.operation as keyof typeof t.operations]}
+                        </span>
+                        <span
+                            className="px-2 py-1 rounded text-xs font-bold"
+                            style={{ backgroundColor: getStatusColor(property.status), color: '#fff' }}
+                        >
+                            {t.status[property.status as keyof typeof t.status]}
+                        </span>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                            onClick={e => { e.stopPropagation(); }}
+                            className="p-2 bg-black/50 rounded-full text-white hover:bg-black/70"
+                        >
+                            <Heart size={18} />
+                        </button>
+                        <button
+                            onClick={e => { e.stopPropagation(); }}
+                            className="p-2 bg-black/50 rounded-full text-white hover:bg-black/70"
+                        >
+                            <Share2 size={18} />
+                        </button>
+                    </div>
+
+                    {/* Image count */}
+                    {property.images?.length > 1 && (
+                        <div className="absolute bottom-3 right-3 px-2 py-1 bg-black/50 rounded text-white text-xs">
+                            📷 {property.images.length}
+                        </div>
+                    )}
+                </div>
+
+                {/* Content */}
+                <div className="p-4">
+                    <div className="flex items-start justify-between mb-2">
+                        <h3 className="text-white font-semibold line-clamp-1">{property.title}</h3>
+                        <span className="text-xs px-2 py-0.5 rounded bg-zinc-800 text-zinc-400">
+                            {t.property_types[property.type as keyof typeof t.property_types]}
+                        </span>
+                    </div>
+
+                    <p className="text-zinc-400 text-sm flex items-center gap-1 mb-3">
+                        <MapPin size={14} />
+                        {property.address?.colony}, {property.address?.city}
+                    </p>
+
+                    <div className="flex items-center gap-3 text-zinc-500 text-sm mb-3">
+                        {property.specs?.bedrooms > 0 && (
+                            <span className="flex items-center gap-1">
+                                <Bed size={14} /> {property.specs.bedrooms}
+                            </span>
+                        )}
+                        {property.specs?.bathrooms > 0 && (
+                            <span className="flex items-center gap-1">
+                                <Bath size={14} /> {property.specs.bathrooms}
+                            </span>
+                        )}
+                        {property.specs?.parking > 0 && (
+                            <span className="flex items-center gap-1">
+                                <Car size={14} /> {property.specs.parking}
+                            </span>
+                        )}
+                        {property.specs?.m2Built > 0 && (
+                            <span className="flex items-center gap-1">
+                                <Ruler size={14} /> {property.specs.m2Built} m²
+                            </span>
+                        )}
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                        <span className="text-xl font-bold" style={{ color: brandColor }}>
+                            ${price?.toLocaleString()}
+                            {property.operation === 'RENTA' && <span className="text-sm font-normal text-zinc-500">/mes</span>}
+                        </span>
+                        <div className="flex items-center gap-1 text-zinc-500 text-sm">
+                            <Eye size={14} /> {property.views || 0}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    // Property Row (list view)
+    const PropertyRow: React.FC<{ property: Property }> = ({ property }) => {
+        const price = property.operation === 'RENTA' ? property.rentPrice : property.salePrice;
+
+        return (
+            <div
+                className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 flex items-center gap-4 hover:border-zinc-600 transition-all cursor-pointer"
+                onClick={() => {
+                    setSelectedProperty(property);
+                    setShowDetailModal(true);
+                }}
+            >
+                <div className="w-24 h-24 rounded-lg bg-zinc-800 flex-shrink-0 overflow-hidden">
+                    {property.images?.[0] ? (
+                        <img src={property.images[0]} alt={property.title} className="w-full h-full object-cover" />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                            <Building2 className="text-zinc-600" size={32} />
+                        </div>
+                    )}
+                </div>
+
+                <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                        <h3 className="text-white font-semibold truncate">{property.title}</h3>
+                        <span
+                            className="px-2 py-0.5 rounded text-xs font-bold"
+                            style={{ backgroundColor: getStatusColor(property.status), color: '#fff' }}
+                        >
+                            {t.status[property.status as keyof typeof t.status]}
+                        </span>
+                    </div>
+                    <p className="text-zinc-400 text-sm flex items-center gap-1">
+                        <MapPin size={14} />
+                        {property.address?.colony}, {property.address?.city}
+                    </p>
+                    <div className="flex items-center gap-3 text-zinc-500 text-sm mt-2">
+                        <span className="flex items-center gap-1"><Bed size={14} /> {property.specs?.bedrooms}</span>
+                        <span className="flex items-center gap-1"><Bath size={14} /> {property.specs?.bathrooms}</span>
+                        <span className="flex items-center gap-1"><Ruler size={14} /> {property.specs?.m2Built} m²</span>
+                    </div>
+                </div>
+
+                <div className="text-right">
+                    <span className="text-xl font-bold" style={{ color: brandColor }}>
+                        ${price?.toLocaleString()}
+                    </span>
+                    <p className="text-zinc-500 text-sm">
+                        {t.operations[property.operation as keyof typeof t.operations]}
+                    </p>
+                </div>
+
+                <div className="flex gap-2">
+                    <button
+                        onClick={e => { e.stopPropagation(); onEditProperty(property); }}
+                        className="p-2 bg-zinc-800 rounded-lg hover:bg-zinc-700 text-zinc-400"
+                    >
+                        <Edit2 size={18} />
+                    </button>
+                    <button
+                        onClick={e => { e.stopPropagation(); onDeleteProperty(property.id); }}
+                        className="p-2 bg-zinc-800 rounded-lg hover:bg-red-500/20 text-red-400"
+                    >
+                        <Trash2 size={18} />
+                    </button>
+                </div>
+            </div>
+        );
+    };
+
+    return (
+        <div className="p-4 lg:p-6 space-y-6">
+            {/* Header */}
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div className="flex items-center gap-3">
+                    <div
+                        className="w-12 h-12 rounded-xl flex items-center justify-center"
+                        style={{ backgroundColor: brandColor + '20' }}
+                    >
+                        <Building2 size={24} style={{ color: brandColor }} />
+                    </div>
+                    <div>
+                        <h1 className="text-2xl font-bold text-white">{t.property_catalog}</h1>
+                        <p className="text-zinc-400 text-sm">{stats.available} de {stats.total} disponibles</p>
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                    <div className="flex bg-zinc-800 rounded-lg p-1">
+                        <button
+                            onClick={() => setViewMode('grid')}
+                            className={`p-2 rounded ${viewMode === 'grid' ? 'bg-zinc-700 text-white' : 'text-zinc-400'}`}
+                        >
+                            <Grid3X3 size={20} />
+                        </button>
+                        <button
+                            onClick={() => setViewMode('list')}
+                            className={`p-2 rounded ${viewMode === 'list' ? 'bg-zinc-700 text-white' : 'text-zinc-400'}`}
+                        >
+                            <List size={20} />
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Stats Cards */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+                    <p className="text-zinc-400 text-sm">Total</p>
+                    <p className="text-3xl font-bold text-white mt-1">{stats.total}</p>
+                </div>
+                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+                    <p className="text-zinc-400 text-sm">Disponibles</p>
+                    <p className="text-3xl font-bold text-green-400 mt-1">{stats.available}</p>
+                </div>
+                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+                    <p className="text-zinc-400 text-sm">En Venta</p>
+                    <p className="text-3xl font-bold text-blue-400 mt-1">{stats.sale}</p>
+                </div>
+                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+                    <p className="text-zinc-400 text-sm">En Renta</p>
+                    <p className="text-3xl font-bold text-purple-400 mt-1">{stats.rent}</p>
+                </div>
+            </div>
+
+            {/* Filters */}
+            <div className="flex flex-wrap gap-3">
+                <div className="relative flex-1 min-w-[200px]">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={20} />
+                    <input
+                        type="text"
+                        placeholder={t.search_properties}
+                        value={searchQuery}
+                        onChange={e => setSearchQuery(e.target.value)}
+                        className="w-full bg-zinc-900 border border-zinc-800 rounded-xl pl-10 pr-4 py-3 text-white"
+                    />
+                </div>
+                <select
+                    value={typeFilter}
+                    onChange={e => setTypeFilter(e.target.value as PropertyType | 'ALL')}
+                    className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white"
+                >
+                    <option value="ALL">{t.filter_by_type}</option>
+                    {Object.values(PropertyType).map(type => (
+                        <option key={type} value={type}>{t.property_types[type as keyof typeof t.property_types]}</option>
+                    ))}
+                </select>
+                <select
+                    value={operationFilter}
+                    onChange={e => setOperationFilter(e.target.value as OperationType | 'ALL')}
+                    className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white"
+                >
+                    <option value="ALL">{t.filter_by_operation}</option>
+                    {Object.values(OperationType).map(op => (
+                        <option key={op} value={op}>{t.operations[op as keyof typeof t.operations]}</option>
+                    ))}
+                </select>
+                <select
+                    value={sortBy}
+                    onChange={e => setSortBy(e.target.value as 'price' | 'date' | 'views')}
+                    className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white"
+                >
+                    <option value="date">Más recientes</option>
+                    <option value="price">Mayor precio</option>
+                    <option value="views">Más vistas</option>
+                </select>
+            </div>
+
+            {/* Properties Grid/List */}
+            {filteredProperties.length === 0 ? (
+                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-12 text-center">
+                    <Building2 className="mx-auto text-zinc-600 mb-4" size={64} />
+                    <p className="text-zinc-400 text-lg">{t.no_results}</p>
+                    <p className="text-zinc-500 text-sm mt-2">Intenta con otros filtros</p>
+                </div>
+            ) : viewMode === 'grid' ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {filteredProperties.map(property => (
+                        <PropertyCard key={property.id} property={property} />
+                    ))}
+                </div>
+            ) : (
+                <div className="space-y-3">
+                    {filteredProperties.map(property => (
+                        <PropertyRow key={property.id} property={property} />
+                    ))}
+                </div>
+            )}
+
+            {/* Detail Modal */}
+            {showDetailModal && selectedProperty && (
+                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+                    <div className="bg-zinc-900 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+                        {/* Gallery */}
+                        <div className="relative aspect-video bg-zinc-800">
+                            {selectedProperty.images?.[0] ? (
+                                <img
+                                    src={selectedProperty.images[0]}
+                                    alt={selectedProperty.title}
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                    <Building2 className="text-zinc-600" size={80} />
+                                </div>
+                            )}
+                            <button
+                                onClick={() => setShowDetailModal(false)}
+                                className="absolute top-4 right-4 p-2 bg-black/50 rounded-full text-white hover:bg-black/70"
+                            >
+                                <X size={24} />
+                            </button>
+                            <div className="absolute bottom-4 left-4 flex gap-2">
+                                <span
+                                    className="px-3 py-1.5 rounded-full text-sm font-bold text-white"
+                                    style={{ backgroundColor: selectedProperty.operation === 'VENTA' ? '#3b82f6' : '#8b5cf6' }}
+                                >
+                                    {t.operations[selectedProperty.operation as keyof typeof t.operations]}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="p-6">
+                            {/* Header */}
+                            <div className="flex items-start justify-between mb-4">
+                                <div>
+                                    <h2 className="text-2xl font-bold text-white">{selectedProperty.title}</h2>
+                                    <p className="text-zinc-400 flex items-center gap-2 mt-1">
+                                        <MapPin size={16} />
+                                        {selectedProperty.address?.street} {selectedProperty.address?.exteriorNumber},
+                                        {selectedProperty.address?.colony}, {selectedProperty.address?.city}
+                                    </p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-3xl font-bold" style={{ color: brandColor }}>
+                                        ${(selectedProperty.operation === 'RENTA' ? selectedProperty.rentPrice : selectedProperty.salePrice)?.toLocaleString()}
+                                    </p>
+                                    {selectedProperty.operation === 'RENTA' && (
+                                        <p className="text-zinc-500">/mes</p>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Specs */}
+                            <div className="grid grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+                                <div className="bg-zinc-800 rounded-lg p-3 text-center">
+                                    <Bed className="mx-auto text-zinc-400 mb-1" size={24} />
+                                    <p className="text-xl font-bold text-white">{selectedProperty.specs?.bedrooms}</p>
+                                    <p className="text-zinc-500 text-xs">{t.bedrooms}</p>
+                                </div>
+                                <div className="bg-zinc-800 rounded-lg p-3 text-center">
+                                    <Bath className="mx-auto text-zinc-400 mb-1" size={24} />
+                                    <p className="text-xl font-bold text-white">{selectedProperty.specs?.bathrooms}</p>
+                                    <p className="text-zinc-500 text-xs">{t.bathrooms}</p>
+                                </div>
+                                <div className="bg-zinc-800 rounded-lg p-3 text-center">
+                                    <Car className="mx-auto text-zinc-400 mb-1" size={24} />
+                                    <p className="text-xl font-bold text-white">{selectedProperty.specs?.parking}</p>
+                                    <p className="text-zinc-500 text-xs">{t.parking}</p>
+                                </div>
+                                <div className="bg-zinc-800 rounded-lg p-3 text-center">
+                                    <Ruler className="mx-auto text-zinc-400 mb-1" size={24} />
+                                    <p className="text-xl font-bold text-white">{selectedProperty.specs?.m2Built}</p>
+                                    <p className="text-zinc-500 text-xs">{t.m2_built}</p>
+                                </div>
+                                <div className="bg-zinc-800 rounded-lg p-3 text-center">
+                                    <Building2 className="mx-auto text-zinc-400 mb-1" size={24} />
+                                    <p className="text-xl font-bold text-white">{selectedProperty.specs?.floors}</p>
+                                    <p className="text-zinc-500 text-xs">{t.floors}</p>
+                                </div>
+                                <div className="bg-zinc-800 rounded-lg p-3 text-center">
+                                    <Ruler className="mx-auto text-zinc-400 mb-1" size={24} />
+                                    <p className="text-xl font-bold text-white">{selectedProperty.specs?.m2Total}</p>
+                                    <p className="text-zinc-500 text-xs">{t.m2_total}</p>
+                                </div>
+                            </div>
+
+                            {/* Description */}
+                            {selectedProperty.description && (
+                                <div className="mb-6">
+                                    <h3 className="text-white font-semibold mb-2">{t.description}</h3>
+                                    <p className="text-zinc-400">{selectedProperty.description}</p>
+                                </div>
+                            )}
+
+                            {/* Amenities */}
+                            {selectedProperty.amenities?.length > 0 && (
+                                <div className="mb-6">
+                                    <h3 className="text-white font-semibold mb-2">Amenidades</h3>
+                                    <div className="flex flex-wrap gap-2">
+                                        {selectedProperty.amenities.map((amenity, idx) => (
+                                            <span
+                                                key={idx}
+                                                className="px-3 py-1 rounded-full text-sm"
+                                                style={{ backgroundColor: brandColor + '20', color: brandColor }}
+                                            >
+                                                {amenity}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Generate Ad Section */}
+                            <div className="bg-zinc-800 rounded-xl p-4 mb-6">
+                                <div className="flex items-center justify-between mb-3">
+                                    <h3 className="text-white font-semibold flex items-center gap-2">
+                                        <Sparkles size={20} style={{ color: brandColor }} />
+                                        Generar Anuncio con IA
+                                    </h3>
+                                    <button
+                                        onClick={() => handleGenerateAd(selectedProperty)}
+                                        disabled={generatingAd}
+                                        className="px-4 py-2 rounded-lg font-semibold flex items-center gap-2 disabled:opacity-50"
+                                        style={{ backgroundColor: brandColor, color: '#000' }}
+                                    >
+                                        {generatingAd ? 'Generando...' : 'Generar'}
+                                    </button>
+                                </div>
+                                {adText && (
+                                    <div className="bg-zinc-900 rounded-lg p-4">
+                                        <p className="text-zinc-300 whitespace-pre-wrap text-sm">{adText}</p>
+                                        <button
+                                            onClick={copyAd}
+                                            className="mt-3 text-sm text-zinc-400 hover:text-white flex items-center gap-1"
+                                        >
+                                            📋 Copiar anuncio
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Actions */}
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => onEditProperty(selectedProperty)}
+                                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-zinc-800 rounded-xl text-white font-semibold hover:bg-zinc-700"
+                                >
+                                    <Edit2 size={20} />
+                                    {t.edit}
+                                </button>
+                                <button
+                                    className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold"
+                                    style={{ backgroundColor: brandColor, color: '#000' }}
+                                >
+                                    <MessageCircle size={20} />
+                                    Contactar
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        onDeleteProperty(selectedProperty.id);
+                                        setShowDetailModal(false);
+                                    }}
+                                    className="px-4 py-3 bg-red-500/20 rounded-xl text-red-400 hover:bg-red-500/30"
+                                >
+                                    <Trash2 size={20} />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default PropertiesView;

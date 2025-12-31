@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INVENTARIO IA PRO - Especificaciones</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            line-height: 1.6;
+            padding: 40px;
+        }
+
+        @media print {
+            body {
+                background: #fff;
+                color: #000;
+                padding: 20px;
+            }
+
+            .mermaid {
+                background: #f5f5f5;
+                padding: 20px;
+                border-radius: 8px;
+            }
+
+            h1,
+            h2,
+            h3 {
+                color: #000 !important;
+            }
+
+            table {
+                border-color: #000 !important;
+            }
+
+            td,
+            th {
+                border-color: #ccc !important;
+                color: #000 !important;
+            }
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #f59e0b;
+            margin-bottom: 10px;
+            font-weight: 900;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            color: #f59e0b;
+            margin: 40px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #222;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            color: #888;
+            margin: 25px 0 15px;
+        }
+
+        p {
+            margin: 10px 0;
+            color: #ccc;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+        }
+
+        .contact {
+            background: linear-gradient(135deg, #f59e0b20, #f59e0b05);
+            border: 1px solid #f59e0b30;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: #111;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #222;
+        }
+
+        th {
+            background: #1a1a1a;
+            color: #f59e0b;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #151515;
+        }
+
+        .mermaid {
+            background: #111;
+            padding: 30px;
+            border-radius: 16px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        img {
+            max-width: 100%;
+            border-radius: 16px;
+            margin: 20px 0;
+            border: 1px solid #222;
+        }
+
+        code {
+            background: #1a1a1a;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            color: #f59e0b;
+        }
+
+        pre {
+            background: #111;
+            padding: 20px;
+            border-radius: 12px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+        }
+
+        .highlight {
+            color: #22c55e;
+        }
+
+        ul,
+        ol {
+            margin: 15px 0 15px 25px;
+        }
+
+        li {
+            margin: 8px 0;
+            color: #bbb;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #222;
+            margin: 40px 0;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid #222;
+            color: #666;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #22c55e20;
+            color: #22c55e;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🧠 INVENTARIO IA PRO</h1>
+        <p class="subtitle">Documento de Especificaciones Técnicas y Funcionales<br><strong>Versión 1.0 | Diciembre
+                2025</strong></p>
+
+        <div class="contact">
+            <strong>Desarrollado por:</strong> IA.AGUS<br>
+            <strong>Contacto comercial:</strong> +52 871 143 9941
+        </div>
+
+        <hr>
+
+        <h2>1. Resumen Ejecutivo</h2>
+        <p><strong>INVENTARIO IA PRO</strong> es una plataforma empresarial de gestión de inventario potenciada por
+            Inteligencia Artificial de última generación (Google Gemini Pro Vision). Diseñada para empresas que manejan
+            grandes volúmenes de productos físicos.</p>
+
+        <h2>2. Arquitectura del Sistema</h2>
+        <div class="mermaid">
+            flowchart TB
+            subgraph Frontend["Frontend (React 19)"]
+            UI[Interfaz de Usuario]
+            Camera[Módulo Cámara]
+            Charts[Visualizaciones]
+            end
+
+            subgraph Backend["Backend Services"]
+            Supabase[Supabase Auth]
+            GAS[Google Apps Script]
+            Sheets[(Google Sheets)]
+            end
+
+            subgraph AI["Motor de IA"]
+            Gemini[Google Gemini 2.0 Flash]
+            end
+
+            UI --> Camera
+            Camera --> Gemini
+            Gemini --> UI
+            UI --> Supabase
+            UI --> GAS
+            GAS --> Sheets
+        </div>
+
+        <h2>3. Flujo de Análisis con IA</h2>
+        <div class="mermaid">
+            flowchart LR
+            A[📷 Capturar Imagen] --> B[Añadir a Cola]
+            B --> C[Presionar ANALIZAR]
+            C --> D{Gemini Vision API}
+            D --> E[Identificar Producto]
+            D --> F[Detectar Vehículo]
+            D --> G[Evaluar Condición]
+            D --> H[Estimar Precio]
+            E --> I[Generar Ficha Técnica]
+            F --> I
+            G --> I
+            H --> I
+            I --> J[✅ Guardar en Inventario]
+        </div>
+
+        <h3>Proceso de Análisis:</h3>
+        <ol>
+            <li><strong>Captura:</strong> El usuario toma foto o sube archivo de imagen/video</li>
+            <li><strong>Procesamiento:</strong> Gemini Vision API analiza el contenido visual</li>
+            <li><strong>Identificación:</strong> Detecta tipo de producto, marca, modelo</li>
+            <li><strong>Compatibilidad:</strong> Identifica vehículos compatibles (año, marca, modelo)</li>
+            <li><strong>Evaluación:</strong> Determina condición (Nuevo/Usado/Dañado)</li>
+            <li><strong>Precio:</strong> Sugiere precio de mercado basado en datos regionales</li>
+            <li><strong>Guardado:</strong> Almacena ficha técnica completa en inventario</li>
+        </ol>
+
+        <h2>4. Flujo de Venta</h2>
+        <div class="mermaid">
+            flowchart TD
+            A[Seleccionar Producto] --> B[Presionar $ Venta]
+            B --> C[Ingresar Precio Final]
+            C --> D[Confirmar]
+            D --> E{Actualizar Estado}
+            E --> F[Mover a VENTAS]
+            E --> G[Remover de INVENTARIO]
+            E --> H[Sync con Nube]
+
+            I[¿Error o Devolución?] --> J[Presionar DEVOLUCIÓN]
+            J --> K[Confirmar Cancelación]
+            K --> L[Regresar a INVENTARIO]
+        </div>
+
+        <h2>5. Control de Acceso (RBAC)</h2>
+        <div class="mermaid">
+            flowchart TB
+            subgraph Admin["👑 ROL: ADMIN"]
+            A1[Dashboard Completo]
+            A2[Ventas e Ingresos]
+            A3[Gráficas Financieras]
+            A4[Resumen por Vehículo]
+            end
+
+            subgraph Employee["👤 ROL: EMPLOYEE"]
+            E1[Inventario]
+            E2[Análisis con IA]
+            E3[Etiquetas]
+            E4[Búsqueda]
+            end
+
+            Admin --> Employee
+        </div>
+
+        <h2>6. Stack Tecnológico</h2>
+        <table>
+            <tr>
+                <th>Capa</th>
+                <th>Tecnología</th>
+            </tr>
+            <tr>
+                <td>Frontend</td>
+                <td>React 19 + TypeScript + Tailwind CSS 4</td>
+            </tr>
+            <tr>
+                <td>Autenticación</td>
+                <td>Supabase Auth (JWT)</td>
+            </tr>
+            <tr>
+                <td>Motor IA</td>
+                <td>Google Gemini 2.0 Flash Vision</td>
+            </tr>
+            <tr>
+                <td>Base de Datos</td>
+                <td>Google Sheets + Apps Script</td>
+            </tr>
+            <tr>
+                <td>Hosting</td>
+                <td>Vercel CDN Global</td>
+            </tr>
+            <tr>
+                <td>PDF/Impresión</td>
+                <td>jsPDF + html2canvas</td>
+            </tr>
+        </table>
+
+        <h2>7. Branding Dinámico</h2>
+        <p>El sistema adapta automáticamente los colores a cada cliente:</p>
+        <table>
+            <tr>
+                <th>Cliente</th>
+                <th>Color</th>
+                <th>Resultado</th>
+            </tr>
+            <tr>
+                <td>Automotriz Torreón</td>
+                <td>🟠 Naranja</td>
+                <td>Botones naranjas, texto negro</td>
+            </tr>
+            <tr>
+                <td>Autopartes Prieto</td>
+                <td>🔵 Azul</td>
+                <td>Botones azules, texto blanco</td>
+            </tr>
+        </table>
+
+        <h2>8. Compatibilidad</h2>
+        <p>
+            <span class="badge">✅ iPhone / iPad</span>
+            <span class="badge">✅ Android</span>
+            <span class="badge">✅ Desktop</span>
+            <span class="badge">✅ Impresoras Térmicas</span>
+        </p>
+
+        <h2>9. Demo en Vivo</h2>
+        <div class="contact">
+            🔗 <strong>Link:</strong> <a href="https://autopartenon.vercel.app/"
+                style="color: #f59e0b;">autopartenon.vercel.app</a><br><br>
+            <strong>Credenciales:</strong><br>
+            Usuario: <code>prieto</code><br>
+            Contraseña: <code>EPZ1944</code>
+        </div>
+
+        <hr>
+
+        <div class="footer">
+            <p><strong>IA.AGUS</strong><br>
+                📞 +52 871 143 9941<br><br>
+                <em>Software de Inventario Inteligente con IA Real</em><br><br>
+                © 2025 IA.AGUS - Todos los derechos reservados
+            </p>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            themeVariables: {
+                primaryColor: '#f59e0b',
+                primaryTextColor: '#000',
+                primaryBorderColor: '#f59e0b',
+                lineColor: '#666',
+                secondaryColor: '#1a1a1a',
+                tertiaryColor: '#111'
+            }
+        });
+    </script>
+</body>
+
+</html>
