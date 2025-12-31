@@ -30,7 +30,7 @@ export interface BusinessProfile {
 // ============ AUTH ============
 
 export const signInWithBusinessId = async (businessId: string, password: string) => {
-    const email = `${businessId.toLowerCase()} @inmuebleiapro.local`;
+    const email = `${businessId.toLowerCase()}@inmuebleiapro.local`;
 
     const { data, error } = await supabase.auth.signInWithPassword({
         email,

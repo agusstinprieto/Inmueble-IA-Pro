@@ -8,7 +8,7 @@ const GOOGLE_SCRIPT_URL = import.meta.env.VITE_GOOGLE_SHEETS_URL || '';
  */
 export const appendPropertyToSheets = async (property: Property): Promise<boolean> => {
     if (!GOOGLE_SCRIPT_URL) {
-        console.warn('VITE_GOOGLE_SHEETS_URL no configurada.');
+        console.warn('⚠️ VITE_GOOGLE_SHEETS_URL no configurada.');
         return false;
     }
 
@@ -30,6 +30,9 @@ export const appendPropertyToSheets = async (property: Property): Promise<boolea
             }
         };
 
+        console.log('📤 Enviando a Sheets:', payload);
+        console.log('🔗 URL:', GOOGLE_SCRIPT_URL);
+
         const response = await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
@@ -39,9 +42,10 @@ export const appendPropertyToSheets = async (property: Property): Promise<boolea
             body: JSON.stringify(payload)
         });
 
+        console.log('✅ Enviado a Sheets (no-cors mode)');
         return true; // mode no-cors no permite leer la respuesta, pero asume éxito si no hay error
     } catch (error) {
-        console.error('Error appending property to Sheets:', error);
+        console.error('❌ Error appending property to Sheets:', error);
         return false;
     }
 };
