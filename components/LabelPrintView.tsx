@@ -73,12 +73,12 @@ const LabelPrintView: React.FC<LabelPrintViewProps> = ({ parts, businessName, la
                             <h3 className="text-2xl font-black uppercase italic tracking-tighter leading-none">
                                 {t.print_label}
                             </h3>
-                            <p className="text-[11px] font-black text-zinc-500 uppercase tracking-[0.2em] mt-1">
+                            <p className="text-[11px] font-black text-white uppercase tracking-[0.2em] mt-1">
                                 {parts.length} {lang === 'es' ? 'Etiquetas Listas' : 'Labels Ready'}
                             </p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="p-3 text-zinc-500 hover:text-white bg-white/5 rounded-2xl transition-all hover:scale-110 active:scale-90">
+                    <button onClick={onClose} className="p-3 text-white hover:text-white bg-white/5 rounded-2xl transition-all hover:scale-110 active:scale-90">
                         <X className="w-6 h-6" />
                     </button>
                 </div>
@@ -88,7 +88,7 @@ const LabelPrintView: React.FC<LabelPrintViewProps> = ({ parts, businessName, la
                         <div key={p.id} className="flex flex-col items-center">
                             <div className="w-full flex justify-between items-end mb-3 px-2">
                                 <span className="text-[10px] font-black text-amber-500/50 uppercase tracking-widest">{lang === 'es' ? 'Vista Previa' : 'Preview'} {idx + 1}/{parts.length}</span>
-                                <span className="text-[9px] font-mono text-zinc-600 uppercase tracking-tighter">REF: {p.id}</span>
+                                <span className="text-[9px] font-mono text-white uppercase tracking-tighter">REF: {p.id}</span>
                             </div>
                             <div
                                 id={`label-to-print-${idx}`}
@@ -108,14 +108,14 @@ const LabelPrintView: React.FC<LabelPrintViewProps> = ({ parts, businessName, la
                             >
                                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
                                     <div>
-                                        <h4 style={{ fontSize: '12px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#71717a', marginBottom: '6px', margin: 0 }}>{businessName}</h4>
+                                        <h4 style={{ fontSize: '12px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#000000', marginBottom: '6px', margin: 0 }}>{businessName}</h4>
                                         <h2 style={{ fontSize: '18px', fontWeight: 900, textTransform: 'uppercase', lineHeight: 1.1, margin: 0, color: '#000000' }}>{p.name}</h2>
                                     </div>
                                     <div style={{ marginTop: '10px' }}>
                                         <p style={{ fontSize: '12px', fontWeight: 800, textTransform: 'uppercase', margin: 0, color: '#18181b' }}>{p.vehicleInfo.year} {p.vehicleInfo.make}</p>
-                                        <p style={{ fontSize: '11px', fontWeight: 600, color: '#4b5563', textTransform: 'uppercase', letterSpacing: '-0.01em', margin: 0, marginTop: '2px' }}>{p.vehicleInfo.model}</p>
+                                        <p style={{ fontSize: '11px', fontWeight: 600, color: '#000000', textTransform: 'uppercase', letterSpacing: '-0.01em', margin: 0, marginTop: '2px' }}>{p.vehicleInfo.model}</p>
                                         {p.vehicleInfo.vin && (
-                                            <p style={{ fontSize: '8px', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace', marginTop: '6px', color: '#9ca3af', margin: 0 }}>VIN: {p.vehicleInfo.vin}</p>
+                                            <p style={{ fontSize: '8px', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace', marginTop: '6px', color: '#000000', margin: 0 }}>VIN: {p.vehicleInfo.vin}</p>
                                         )}
                                     </div>
                                     <p style={{ fontSize: '24px', fontWeight: 950, marginTop: '10px', margin: 0, color: '#000000', letterSpacing: '-0.05em' }}>${p.suggestedPrice.toLocaleString()}</p>
@@ -130,7 +130,7 @@ const LabelPrintView: React.FC<LabelPrintViewProps> = ({ parts, businessName, la
                                             includeMargin={false}
                                         />
                                     </div>
-                                    <p style={{ fontSize: '8px', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace', marginTop: '10px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0, fontWeight: 700 }}>ID: {p.id}</p>
+                                    <p style={{ fontSize: '8px', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace', marginTop: '10px', color: '#000000', textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0, fontWeight: 700 }}>ID: {p.id}</p>
                                 </div>
                             </div>
                         </div>
@@ -153,7 +153,7 @@ const LabelPrintView: React.FC<LabelPrintViewProps> = ({ parts, businessName, la
                     )}
                     <button
                         onClick={onClose}
-                        className="w-full py-2 text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em] hover:text-white transition-colors"
+                        className="w-full py-2 text-white text-[10px] font-black uppercase tracking-[0.3em] hover:text-white transition-colors"
                     >
                         {lang === 'es' ? 'VOLVER AL INVENTARIO' : 'BACK TO INVENTORY'}
                     </button>
