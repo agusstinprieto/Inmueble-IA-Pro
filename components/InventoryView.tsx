@@ -509,14 +509,14 @@ const InventoryView: React.FC<InventoryViewProps> = ({
                     ADMINISTRACIÓN POR LOTE
                   </h3>
                 </div>
-                <button onClick={() => setIsBatchModalOpen(false)} className="p-2 text-zinc-500 hover:text-white bg-white/5 rounded-xl transition-all">
+                <button onClick={() => setIsBatchModalOpen(false)} className="p-2 text-white hover:text-white bg-white/5 rounded-xl transition-all">
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               <div className="flex-1 overflow-y-auto custom-scrollbar space-y-4 pr-2">
                 {vehicles.length === 0 ? (
-                  <div className="py-20 text-center text-zinc-700 italic text-sm">No hay vehículos con piezas disponibles.</div>
+                  <div className="py-20 text-center text-white italic text-sm">No hay vehículos con piezas disponibles.</div>
                 ) : vehicles.map(v => (
                   <div key={v.key} className="bg-black/40 border border-white/5 rounded-3xl p-6 hover:border-amber-500/10 transition-all group">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
@@ -524,7 +524,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
                         <h4 className="text-white font-black text-sm uppercase tracking-tight group-hover:text-amber-500 transition-colors">
                           {v.year} {v.make} {v.model}
                         </h4>
-                        <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mt-1 flex items-center gap-2">
+                        <p className="text-[9px] font-black text-white uppercase tracking-widest mt-1 flex items-center gap-2">
                           <Package className="w-3 h-3" /> {v.partsCount} piezas disponibles • VIN: {v.vin || 'N/A'}
                         </p>
                       </div>
@@ -561,7 +561,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
             <div className="bg-zinc-900 border border-red-500/30 w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl scale-in-center">
               <div className="flex justify-center mb-6"><div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center border border-red-500/20"><AlertCircle className="w-8 h-8 text-red-500" /></div></div>
               <h3 className="text-xl font-black text-white text-center uppercase italic tracking-tighter mb-2">¿ELIMINAR EL LOTE COMPLETO?</h3>
-              <p className="text-zinc-400 text-center text-sm mb-8">Se eliminarán permanentemente las {vehicles.find(v => v.key === selectedVehicleKey)?.partsCount} piezas de este vehículo.</p>
+              <p className="text-white text-center text-sm mb-8">Se eliminarán permanentemente las {vehicles.find(v => v.key === selectedVehicleKey)?.partsCount} piezas de este vehículo.</p>
               <div className="flex gap-4">
                 <button onClick={() => { setSelectedVehicleKey(null); setBatchActionType(null); }} className="flex-1 py-4 bg-zinc-800 text-white text-[10px] font-black rounded-2xl uppercase tracking-widest">CANCELAR</button>
                 <button onClick={confirmBatchAction} className="flex-1 py-4 bg-red-600 text-white text-[10px] font-black rounded-2xl uppercase tracking-widest flex items-center justify-center gap-2">
@@ -587,10 +587,10 @@ const InventoryView: React.FC<InventoryViewProps> = ({
                 {loadingInsights[insightPart.id] ? (
                   <div className="flex flex-col items-center justify-center py-12">
                     <Loader2 className="w-8 h-8 text-amber-500 animate-spin mb-4" />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 text-center">Consultando mercado real...</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-white text-center">Consultando mercado real...</span>
                   </div>
                 ) : (
-                  <div className="text-sm text-zinc-300 leading-relaxed font-black uppercase tracking-tight whitespace-pre-wrap">
+                  <div className="text-sm text-white leading-relaxed font-black uppercase tracking-tight whitespace-pre-wrap">
                     {insights[insightPart.id] || "No se pudo obtener información de mercado."}
                   </div>
                 )}
