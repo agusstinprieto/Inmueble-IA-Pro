@@ -54,7 +54,7 @@ const SmartSearchView: React.FC<SmartSearchViewProps> = ({ lang, location }) => 
     <div className="p-8 max-w-5xl mx-auto text-white">
       <header className="mb-8">
         <h2 className="text-3xl font-bold">{t.smart_search}</h2>
-        <p className="text-zinc-400 mt-2">{t.searching_near} {location}.</p>
+        <p className="text-white mt-2">{t.searching_near} {location}.</p>
       </header>
 
       <form onSubmit={handleSearch} className="mb-12">
@@ -80,16 +80,16 @@ const SmartSearchView: React.FC<SmartSearchViewProps> = ({ lang, location }) => 
       {loading && (
         <div className="flex flex-col items-center justify-center py-20 animate-pulse">
           <div className="w-12 h-12 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin mb-4"></div>
-          <p className="text-zinc-400 font-medium">{t.scanning_market} {location}...</p>
+          <p className="text-white font-black uppercase tracking-widest text-[10px]">{t.scanning_market} {location}...</p>
         </div>
       )}
 
       {results && (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 leading-relaxed text-zinc-300 whitespace-pre-wrap">
+          <div className="bg-zinc-900 border border-white/5 rounded-3xl p-8 leading-relaxed text-white whitespace-pre-wrap font-black uppercase tracking-tight text-sm">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.5)]"></div>
-              <span className="text-[11px] font-black uppercase text-zinc-500 tracking-widest">Market Status: {location}</span>
+              <span className="text-[11px] font-black uppercase text-white tracking-widest">Market Status: {location}</span>
             </div>
             {results.text}
           </div>

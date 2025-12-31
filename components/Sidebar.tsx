@@ -47,7 +47,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       {onClose && (
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 p-2 text-zinc-500 hover:text-white bg-white/5 rounded-xl md:hidden z-10"
+          className="absolute top-6 right-6 p-2 text-white hover:text-white bg-white/5 rounded-xl md:hidden z-10"
         >
           <X className="w-5 h-5" />
         </button>
@@ -69,7 +69,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             onClick={() => onNavigate(item.id)}
             className={`w-full text-left px-5 py-4 rounded-2xl flex items-center gap-4 transition-all relative group overflow-hidden ${activeView === item.id
               ? 'text-white font-black'
-              : 'text-zinc-500 hover:text-white hover:bg-white/5'
+              : 'text-white hover:text-white hover:bg-white/5'
               }`}
             style={activeView === item.id ? { backgroundColor: 'rgba(var(--brand-color-rgb), 0.1)', color: 'var(--brand-color)' } : {}}
           >
@@ -92,8 +92,8 @@ const Sidebar: React.FC<SidebarProps> = ({
           className="w-full flex items-center justify-between px-4 py-3 bg-white/5 border border-white/5 rounded-xl hover:bg-white/10 transition-all group"
         >
           <div className="flex items-center gap-3">
-            <Globe className="w-3.5 h-3.5 text-zinc-500 group-hover:text-[var(--brand-color)] transition-colors" />
-            <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">
+            <Globe className="w-3.5 h-3.5 text-white group-hover:text-[var(--brand-color)] transition-colors" />
+            <span className="text-[9px] font-black text-white uppercase tracking-widest">
               {lang === 'es' ? 'Español' : 'English'}
             </span>
           </div>
@@ -108,7 +108,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           </span>
         </button>
 
-        <div className="flex items-center gap-3 text-zinc-600 text-[9px] font-black uppercase tracking-widest truncate">
+        <div className="flex items-center gap-3 text-white text-[9px] font-black uppercase tracking-widest truncate">
           <Globe className="w-3 h-3 shrink-0" /> {location}
         </div>
 

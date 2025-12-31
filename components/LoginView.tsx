@@ -83,20 +83,20 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
           <h1 className="text-2xl font-black text-white italic tracking-tighter uppercase">
             GESTIÓN DE STOCK <span className="text-amber-500">OS</span>
           </h1>
-          <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em] mt-2">Terminal Multi-Cliente</p>
+          <p className="text-white text-[10px] font-black uppercase tracking-[0.3em] mt-2 italic opacity-60">Terminal Multi-Cliente</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-1.5">
-            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-4">ID de Empresa</label>
+            <label className="text-[10px] font-black text-white uppercase tracking-widest ml-4">ID de Empresa</label>
             <div className="relative group">
-              <User className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 group-focus-within:text-amber-500 transition-colors" />
+              <User className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 group-focus-within:text-amber-500 transition-colors" />
               <input
                 autoFocus
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full bg-black/40 border border-white/5 rounded-2xl py-4 pl-14 pr-6 text-white text-sm focus:outline-none focus:border-amber-500/50 focus:bg-black/60 transition-all placeholder:text-zinc-800"
+                className="w-full bg-black/40 border border-white/5 rounded-2xl py-4 pl-14 pr-6 text-white text-sm focus:outline-none focus:border-amber-500/50 focus:bg-black/60 transition-all placeholder:text-white/20"
                 placeholder="CLIENT_ID"
                 required
               />
@@ -104,14 +104,14 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-4">Clave de Seguridad</label>
+            <label className="text-[10px] font-black text-white uppercase tracking-widest ml-4">Clave de Seguridad</label>
             <div className="relative group">
-              <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 group-focus-within:text-amber-500 transition-colors" />
+              <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 group-focus-within:text-amber-500 transition-colors" />
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-black/40 border border-white/5 rounded-2xl py-4 pl-14 pr-6 text-white text-sm focus:outline-none focus:border-amber-500/50 focus:bg-black/60 transition-all placeholder:text-zinc-800"
+                className="w-full bg-black/40 border border-white/5 rounded-2xl py-4 pl-14 pr-6 text-white text-sm focus:outline-none focus:border-amber-500/50 focus:bg-black/60 transition-all placeholder:text-white/20"
                 placeholder="••••••••"
                 required
               />

@@ -94,7 +94,7 @@ ${t.no_returns}
               <ReceiptText className="text-amber-500 w-6 h-6 md:w-8 md:h-8" />
               {t.sales}
             </h2>
-            <p className="text-zinc-500 text-[11px] font-black uppercase tracking-[0.2em] mt-1 italic opacity-60">Terminal: {businessName}</p>
+            <p className="text-white text-[11px] font-black uppercase tracking-[0.2em] mt-1 italic opacity-60">Terminal: {businessName}</p>
           </div>
         </header>
 
@@ -106,19 +106,19 @@ ${t.no_returns}
             <div className="space-y-3 max-h-[60vh] lg:max-h-none overflow-y-auto pr-2 custom-scrollbar">
               {salesHistory.length === 0 ? (
                 <div className="bg-zinc-900/20 border border-dashed border-zinc-800 rounded-3xl p-12 text-center">
-                  <Package className="w-12 h-12 text-zinc-800 mx-auto mb-4 opacity-20" />
-                  <p className="text-zinc-600 text-[10px] font-black uppercase tracking-widest leading-loose">No hay registros de ventas recientes.</p>
+                  <Package className="w-12 h-12 text-white mx-auto mb-4 opacity-20" />
+                  <p className="text-white text-[10px] font-black uppercase tracking-widest leading-loose">No hay registros de ventas recientes.</p>
                 </div>
               ) : (
                 salesHistory.map(part => (
                   <div key={part.id} className={`p-4 md:p-5 rounded-2xl border transition-all cursor-pointer flex justify-between items-center group relative overflow-hidden ${selectedPart?.id === part.id ? 'bg-amber-500/10 border-amber-500/50' : 'bg-zinc-900/40 border-white/5 hover:border-white/10'}`} onClick={() => setSelectedPart(part)}>
                     <div className="space-y-1 pr-4">
                       <h4 className="text-white font-black text-sm uppercase tracking-tight group-hover:text-amber-500 transition-colors">{part.name}</h4>
-                      <p className="text-zinc-500 text-[11px] font-black uppercase tracking-wider opacity-60">{part.vehicleInfo.year} {part.vehicleInfo.make} {part.vehicleInfo.model}</p>
+                      <p className="text-white text-[11px] font-black uppercase tracking-wider opacity-60">{part.vehicleInfo.year} {part.vehicleInfo.make} {part.vehicleInfo.model}</p>
                     </div>
                     <div className="text-right flex flex-col items-end gap-2 shrink-0">
                       <p className="text-xl text-green-500 font-mono font-black">${getDisplayPrice(part).toLocaleString()}</p>
-                      <ChevronRight className={`w-4 h-4 transition-transform ${selectedPart?.id === part.id ? 'translate-x-1 text-amber-500' : 'text-zinc-700'}`} />
+                      <ChevronRight className={`w-4 h-4 transition-transform ${selectedPart?.id === part.id ? 'translate-x-1 text-amber-500' : 'text-white'}`} />
                     </div>
                   </div>
                 ))
@@ -189,7 +189,7 @@ ${t.no_returns}
                 </div>
               </div>
             ) : (
-              <div className="bg-zinc-900/10 border border-dashed border-zinc-800 h-64 md:h-[600px] rounded-[3rem] flex flex-col items-center justify-center p-8 text-center text-zinc-700 transition-all">
+              <div className="bg-zinc-900/10 border border-dashed border-zinc-800 h-64 md:h-[600px] rounded-[3rem] flex flex-col items-center justify-center p-8 text-center text-white transition-all">
                 <div className="w-16 h-16 bg-zinc-900/50 rounded-full flex items-center justify-center mb-6 border border-white/5 shadow-inner">
                   <Share2 className="w-6 h-6 opacity-30" />
                 </div>

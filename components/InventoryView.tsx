@@ -217,7 +217,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
                     ANUNCIO PARA {businessName}
                   </h3>
                 </div>
-                <button onClick={() => setAdPart(null)} className="p-2 text-zinc-500 hover:text-white bg-white/5 rounded-xl transition-all">
+                <button onClick={() => setAdPart(null)} className="p-2 text-white hover:text-white bg-white/5 rounded-xl transition-all">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -226,10 +226,10 @@ const InventoryView: React.FC<InventoryViewProps> = ({
                 {isGeneratingAd ? (
                   <div className="h-full flex flex-col items-center justify-center py-12">
                     <Loader2 className="w-10 h-10 text-amber-500 animate-spin mb-4" />
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 animate-pulse">{t.generating_ad}</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white animate-pulse">{t.generating_ad}</p>
                   </div>
                 ) : (
-                  <div className="whitespace-pre-wrap font-mono text-xs text-zinc-300 leading-relaxed">
+                  <div className="whitespace-pre-wrap font-mono text-xs text-white leading-relaxed">
                     {generatedAd}
                   </div>
                 )}
@@ -254,7 +254,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div className="max-w-full text-white">
               <h2 className="text-xl md:text-3xl font-black tracking-tighter uppercase italic leading-tight">{t.inventory}: {businessName}</h2>
-              <p className="text-zinc-500 text-[9px] md:text-[10px] font-bold uppercase tracking-[0.2em] mt-1">{t.synced_cloud} {location}</p>
+              <p className="text-white text-[9px] md:text-[10px] font-bold uppercase tracking-[0.2em] mt-1">{t.synced_cloud} {location}</p>
             </div>
 
             <button
@@ -267,7 +267,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
 
           <div className="flex flex-col md:flex-row gap-4 w-full justify-between items-center bg-black/20 p-4 rounded-[2rem] border border-white/5">
             <div className="relative flex-1 w-full md:max-w-md">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white" />
               <input
                 type="text"
                 placeholder={t.search_placeholder}
@@ -278,10 +278,10 @@ const InventoryView: React.FC<InventoryViewProps> = ({
             </div>
 
             <div className="flex bg-zinc-900 border border-white/5 p-1 rounded-xl shrink-0">
-              <button onClick={() => toggleViewMode('grid')} className={`p-2.5 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-amber-500 text-black shadow-lg shadow-amber-500/20' : 'text-zinc-500 hover:text-white'}`}>
+              <button onClick={() => toggleViewMode('grid')} className={`p-2.5 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-amber-500 text-black shadow-lg shadow-amber-500/20' : 'text-white hover:text-white'}`}>
                 <LayoutGrid className="w-4 h-4" />
               </button>
-              <button onClick={() => toggleViewMode('list')} className={`p-2.5 rounded-lg transition-all ${viewMode === 'list' ? 'bg-amber-500 text-black shadow-lg shadow-amber-500/20' : 'text-zinc-500 hover:text-white'}`}>
+              <button onClick={() => toggleViewMode('list')} className={`p-2.5 rounded-lg transition-all ${viewMode === 'list' ? 'bg-amber-500 text-black shadow-lg shadow-amber-500/20' : 'text-white hover:text-white'}`}>
                 <List className="w-4 h-4" />
               </button>
             </div>
@@ -296,7 +296,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
                   {part.imageUrl ? (
                     <img src={part.imageUrl} alt={part.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                   ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center text-zinc-800 gap-2">
+                    <div className="w-full h-full flex flex-col items-center justify-center text-white gap-2">
                       <Car className="w-12 h-12 opacity-20" />
                       <span className="text-[8px] font-black uppercase tracking-widest opacity-30">No Image</span>
                     </div>
@@ -326,16 +326,16 @@ const InventoryView: React.FC<InventoryViewProps> = ({
 
                 <div className="p-6 space-y-4">
                   <div className="flex justify-between items-start gap-2">
-                    <span className="inline-block text-[8px] font-black bg-zinc-800 text-zinc-400 px-3 py-1.5 rounded-lg border border-white/5 uppercase tracking-widest truncate">
+                    <span className="inline-block text-[8px] font-black bg-zinc-800 text-white px-3 py-1.5 rounded-lg border border-white/5 uppercase tracking-widest truncate">
                       {(t.categories as any)[part.category] || part.category}
                     </span>
-                    <button onClick={() => setPartsToPrint([part])} className="text-zinc-600 hover:text-white transition-colors" title={t.print_label}>
+                    <button onClick={() => setPartsToPrint([part])} className="text-white hover:text-white transition-colors" title={t.print_label}>
                       <Printer className="w-4 h-4" />
                     </button>
                   </div>
                   <div className="min-h-[3rem]">
                     <h3 className="text-sm md:text-base font-black text-white leading-tight uppercase tracking-tight group-hover:text-amber-500 transition-colors line-clamp-2">{part.name}</h3>
-                    <div className="flex items-center gap-2 text-zinc-500 mt-3 overflow-hidden">
+                    <div className="flex items-center gap-2 text-white mt-3 overflow-hidden">
                       <Car className="w-3.5 h-3.5 opacity-40 shrink-0" />
                       <p className="text-[10px] font-bold uppercase tracking-wide truncate">
                         {part.vehicleInfo.year} {part.vehicleInfo.make} {part.vehicleInfo.model}
@@ -355,7 +355,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
                     <button onClick={() => handleCreateAd(part)} className="p-4 bg-zinc-800 hover:bg-zinc-700 text-white rounded-2xl transition-all" title={t.create_ad}>
                       <Megaphone className="w-4 h-4" />
                     </button>
-                    <button onClick={() => setPartToDelete(part)} className="p-4 bg-zinc-800 hover:bg-red-500/20 text-zinc-500 hover:text-red-500 rounded-2xl transition-all">
+                    <button onClick={() => setPartToDelete(part)} className="p-4 bg-zinc-800 hover:bg-red-500/20 text-white hover:text-red-500 rounded-2xl transition-all">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
@@ -369,10 +369,10 @@ const InventoryView: React.FC<InventoryViewProps> = ({
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-black/20">
-                    <th className="px-6 py-4 text-[9px] font-black text-zinc-600 uppercase tracking-widest whitespace-nowrap">Parte / Descripción</th>
-                    <th className="px-6 py-4 text-[9px] font-black text-zinc-600 uppercase tracking-widest whitespace-nowrap">Vehículo</th>
-                    <th className="px-6 py-4 text-[9px] font-black text-zinc-600 uppercase tracking-widest whitespace-nowrap text-right">Precio</th>
-                    <th className="px-6 py-4 text-[9px] font-black text-zinc-600 uppercase tracking-widest whitespace-nowrap text-center">Acciones</th>
+                    <th className="px-6 py-4 text-[9px] font-black text-white uppercase tracking-widest whitespace-nowrap">Parte / Descripción</th>
+                    <th className="px-6 py-4 text-[9px] font-black text-white uppercase tracking-widest whitespace-nowrap">Vehículo</th>
+                    <th className="px-6 py-4 text-[9px] font-black text-white uppercase tracking-widest whitespace-nowrap text-right">Precio</th>
+                    <th className="px-6 py-4 text-[9px] font-black text-white uppercase tracking-widest whitespace-nowrap text-center">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
@@ -385,14 +385,14 @@ const InventoryView: React.FC<InventoryViewProps> = ({
                           </div>
                           <div className="flex flex-col">
                             <span className="text-sm font-black text-white uppercase truncate max-w-[200px]">{part.name}</span>
-                            <span className="text-[9px] text-zinc-600 uppercase font-black tracking-widest">{(t.categories as any)[part.category] || part.category}</span>
+                            <span className="text-[9px] text-white uppercase font-black tracking-widest">{(t.categories as any)[part.category] || part.category}</span>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-5">
                         <div className="flex flex-col">
-                          <span className="text-[11px] font-black text-zinc-400 uppercase tracking-tight">{part.vehicleInfo.year} {part.vehicleInfo.make}</span>
-                          <span className="text-[9px] text-zinc-600 uppercase font-bold tracking-widest">{part.vehicleInfo.model}</span>
+                          <span className="text-[11px] font-black text-white uppercase tracking-tight">{part.vehicleInfo.year} {part.vehicleInfo.make}</span>
+                          <span className="text-[9px] text-white uppercase font-bold tracking-widest">{part.vehicleInfo.model}</span>
                         </div>
                       </td>
                       <td className="px-6 py-5 text-right flex flex-col items-end gap-1">
@@ -401,13 +401,13 @@ const InventoryView: React.FC<InventoryViewProps> = ({
                       </td>
                       <td className="px-6 py-5">
                         <div className="flex items-center justify-center gap-2">
-                          <button onClick={() => fetchMarketInsight(part)} className="p-2 text-zinc-500 hover:text-amber-500 transition-all" title="Market Insight">
+                          <button onClick={() => fetchMarketInsight(part)} className="p-2 text-white hover:text-amber-500 transition-all" title="Market Insight">
                             <Zap className={`w-4 h-4 ${loadingInsights[part.id] ? 'animate-pulse' : ''}`} />
                           </button>
-                          <button onClick={() => handleGetStrategy(part)} className="p-2 text-zinc-500 hover:text-green-500 transition-all" title="AI Strategy">
+                          <button onClick={() => handleGetStrategy(part)} className="p-2 text-white hover:text-green-500 transition-all" title="AI Strategy">
                             <TrendingUp className="w-4 h-4" />
                           </button>
-                          <button onClick={() => setPartsToPrint([part])} className="p-2 text-zinc-500 hover:text-white transition-all">
+                          <button onClick={() => setPartsToPrint([part])} className="p-2 text-white hover:text-white transition-all">
                             <Printer className="w-4 h-4" />
                           </button>
                           <button onClick={() => setPartToSell(part)} className="p-2 text-green-500 hover:bg-green-500/10 rounded-xl transition-all" title={t.register_sale}>
@@ -416,7 +416,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
                           <button onClick={() => handleCreateAd(part)} className="p-2 text-amber-500 hover:bg-amber-500/10 rounded-xl transition-all" title={t.create_ad}>
                             <Megaphone className="w-4 h-4" />
                           </button>
-                          <button onClick={() => setPartToDelete(part)} className="p-2 text-zinc-600 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all">
+                          <button onClick={() => setPartToDelete(part)} className="p-2 text-white hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all">
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
@@ -438,16 +438,16 @@ const InventoryView: React.FC<InventoryViewProps> = ({
                   <Sparkles className="w-6 h-6 text-green-500" />
                   <h3 className="text-xl font-black uppercase italic tracking-tighter">ESTRATEGIA IA: {strategyPart.name}</h3>
                 </div>
-                <button onClick={() => setStrategyPart(null)} className="p-2 text-zinc-500 hover:text-white transition-all"><X className="w-5 h-5" /></button>
+                <button onClick={() => setStrategyPart(null)} className="p-2 text-white hover:text-white transition-all"><X className="w-5 h-5" /></button>
               </div>
               <div className="bg-black/60 border border-white/5 rounded-3xl p-8 overflow-y-auto max-h-[60vh] custom-scrollbar">
                 {isGeneratingStrategy ? (
                   <div className="flex flex-col items-center justify-center py-12">
                     <Loader2 className="w-8 h-8 text-green-500 animate-spin mb-4" />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Diseñando estrategia de venta...</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-white">Diseñando estrategia de venta...</span>
                   </div>
                 ) : (
-                  <div className="text-sm text-zinc-300 leading-relaxed font-black uppercase tracking-tight whitespace-pre-wrap">{generatedStrategy}</div>
+                  <div className="text-sm text-white leading-relaxed font-black uppercase tracking-tight whitespace-pre-wrap">{generatedStrategy}</div>
                 )}
               </div>
             </div>
@@ -488,7 +488,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
             <div className="bg-zinc-900 border border-red-500/30 w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl scale-in-center overflow-hidden">
               <div className="flex justify-center mb-6"><div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center border border-red-500/20"><AlertCircle className="w-8 h-8 text-red-500" /></div></div>
               <h3 className="text-xl font-black text-white text-center uppercase italic tracking-tighter mb-2">¿ELIMINAR PIEZA?</h3>
-              <p className="text-zinc-400 text-center text-sm mb-8">Mover "{partToDelete.name}" a ELIMINADOS de {businessName}.</p>
+              <p className="text-white text-center text-sm mb-8">Mover "{partToDelete.name}" a ELIMINADOS de {businessName}.</p>
               <div className="flex gap-4">
                 <button onClick={() => setPartToDelete(null)} className="flex-1 py-4 bg-zinc-800 text-white text-[10px] font-black rounded-2xl uppercase tracking-widest">CANCELAR</button>
                 <button onClick={confirmDelete} className="flex-1 py-4 bg-red-600 text-white text-[10px] font-black rounded-2xl uppercase tracking-widest flex items-center justify-center gap-2">
@@ -585,7 +585,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
                   <Zap className="w-6 h-6 text-amber-500" />
                   <h3 className="text-xl font-black uppercase italic tracking-tighter">ANÁLISIS DE MERCADO: {insightPart.name}</h3>
                 </div>
-                <button onClick={() => setInsightPart(null)} className="p-2 text-zinc-500 hover:text-white transition-all"><X className="w-5 h-5" /></button>
+                <button onClick={() => setInsightPart(null)} className="p-2 text-white hover:text-white transition-all"><X className="w-5 h-5" /></button>
               </div>
               <div className="bg-black/60 border border-white/5 rounded-3xl p-8 overflow-y-auto max-h-[60vh] custom-scrollbar">
                 {loadingInsights[insightPart.id] ? (
@@ -611,7 +611,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
                 <p className="text-green-500 text-[10px] font-black uppercase tracking-widest mb-1 truncate">
                   {vehicles.find(v => v.key === selectedVehicleKey)?.year} {vehicles.find(v => v.key === selectedVehicleKey)?.make} {vehicles.find(v => v.key === selectedVehicleKey)?.model}
                 </p>
-                <p className="text-zinc-500 text-[8px] uppercase tracking-widest">{vehicles.find(v => v.key === selectedVehicleKey)?.partsCount} piezas en total</p>
+                <p className="text-white text-[8px] uppercase tracking-widest">{vehicles.find(v => v.key === selectedVehicleKey)?.partsCount} piezas en total</p>
                 <div className="relative mt-6">
                   <span className="absolute left-6 top-1/2 -translate-y-1/2 text-green-500 font-mono text-2xl font-black">$</span>
                   <input autoFocus type="number" value={batchSalePrice} onChange={(e) => setBatchSalePrice(e.target.value)} className="w-full bg-zinc-950 border border-white/10 rounded-2xl py-5 pl-12 pr-6 text-white text-3xl font-mono font-black focus:outline-none focus:border-green-500 transition-all text-center" />

@@ -288,14 +288,14 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ onAddParts, lang, businessN
                     </div>
                   ))}
                   <div className="flex gap-2">
-                    <div onClick={() => fileInputRef.current?.click()} className="w-20 h-20 rounded-xl border-2 border-dashed border-zinc-700 flex items-center justify-center cursor-pointer hover:bg-white/5"><Plus className="text-zinc-500" /></div>
+                    <div onClick={() => fileInputRef.current?.click()} className="w-20 h-20 rounded-xl border-2 border-dashed border-zinc-700 flex items-center justify-center cursor-pointer hover:bg-white/5"><Plus className="text-white" /></div>
                     <div onClick={startCamera} className="w-20 h-20 rounded-xl border-2 border-dashed border-amber-500/30 flex items-center justify-center cursor-pointer hover:bg-amber-500/10"><Camera className="text-amber-500" /></div>
                   </div>
                 </div>
               ) : (
                 <div className="p-4 flex flex-col items-center text-center">
-                  <Upload className="w-12 h-12 text-zinc-700 mb-4" />
-                  <p className="text-xs font-black uppercase text-zinc-500 tracking-widest mb-6">{t.click_upload}</p>
+                  <Upload className="w-12 h-12 text-white/20 mb-4" />
+                  <p className="text-xs font-black uppercase text-white tracking-widest mb-6 opacity-60">{t.click_upload}</p>
                   <div className="flex flex-col sm:flex-row gap-3 md:gap-4 w-full px-6 sm:px-0 sm:w-auto mt-4">
                     <button
                       onClick={startCamera}
@@ -313,7 +313,7 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ onAddParts, lang, businessN
             <button
               onClick={startMediaAnalysis}
               disabled={analyzing || mediaItems.length === 0}
-              className="mt-8 w-full bg-amber-500 hover:brightness-110 disabled:bg-zinc-800 disabled:text-zinc-600 font-black py-6 rounded-3xl flex justify-center items-center gap-4 transition-all uppercase tracking-[0.3em] text-[12px] shadow-2xl shadow-amber-500/20 disabled:shadow-none"
+              className="mt-8 w-full bg-amber-500 hover:brightness-110 disabled:bg-zinc-800 disabled:text-white font-black py-6 rounded-3xl flex justify-center items-center gap-4 transition-all uppercase tracking-[0.3em] text-[12px] shadow-2xl shadow-amber-500/20 disabled:shadow-none"
               style={{ color: (analyzing || mediaItems.length === 0) ? undefined : 'var(--brand-text-color)' }}
             >
               {analyzing ? <Loader2 className="w-5 h-5 animate-spin" /> : <RefreshCw className="w-5 h-5" />}
@@ -327,10 +327,10 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ onAddParts, lang, businessN
           <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-zinc-900/80 border border-white/5 p-8 rounded-3xl">
             <div>
               <h3 className="text-white font-black text-xl uppercase tracking-tight italic">RESULTADOS MULTI-VEHÍCULO</h3>
-              <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mt-1">Se detectaron {Array.from(new Set(pendingParts.map(p => `${p.vehicleInfo.make} ${p.vehicleInfo.model}`))).length} modelos distintos</p>
+              <p className="text-white text-[10px] font-black uppercase tracking-widest mt-1 opacity-60">Se detectaron {Array.from(new Set(pendingParts.map(p => `${p.vehicleInfo.make} ${p.vehicleInfo.model}`))).length} modelos distintos</p>
             </div>
             <div className="flex gap-4 w-full md:w-auto">
-              <button onClick={() => setPendingParts(null)} className="flex-1 md:flex-none px-8 py-5 bg-zinc-800 text-zinc-400 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-zinc-700 transition-all">DESCARTAR</button>
+              <button onClick={() => setPendingParts(null)} className="flex-1 md:flex-none px-8 py-5 bg-zinc-800 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-zinc-700 transition-all">DESCARTAR</button>
               <button
                 onClick={handleConfirmSave}
                 className="flex-1 md:flex-none px-8 py-5 bg-amber-500 hover:brightness-110 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-xl shadow-amber-500/10 flex items-center justify-center gap-3 active:scale-95 transition-all"
@@ -344,19 +344,19 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ onAddParts, lang, businessN
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {pendingParts.map((part) => (
               <div key={part.id} className="bg-zinc-900 border border-white/5 rounded-3xl p-6 relative hover:border-amber-500/30 transition-all flex flex-col h-full">
-                <button onClick={() => setPendingParts(prev => prev ? prev.filter(p => p.id !== part.id) : null)} className="absolute top-4 right-4 p-2 bg-black/40 text-zinc-600 hover:text-red-500 rounded-xl"><Trash2 className="w-4 h-4" /></button>
+                <button onClick={() => setPendingParts(prev => prev ? prev.filter(p => p.id !== part.id) : null)} className="absolute top-4 right-4 p-2 bg-black/40 text-white hover:text-red-500 rounded-xl"><Trash2 className="w-4 h-4" /></button>
                 <div className="mb-3">
                   <span className="text-[8px] font-black bg-zinc-800 text-amber-500 px-2 py-1 rounded-md border border-white/5 uppercase tracking-widest inline-block">{part.vehicleInfo.year} {part.vehicleInfo.make}</span>
                 </div>
                 <h4 className="text-white font-black text-sm uppercase mb-4 line-clamp-2">{part.name}</h4>
                 <div className="grid grid-cols-2 gap-4 border-t border-white/5 pt-4 mt-auto">
                   <div>
-                    <p className="text-[8px] text-zinc-500 font-black uppercase mb-1">Precio</p>
+                    <p className="text-[8px] text-white font-black uppercase mb-1">Precio</p>
                     <p className="text-lg font-mono font-black text-green-500">${part.suggestedPrice}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-[8px] text-zinc-500 font-black uppercase mb-1">VIN Detectado</p>
-                    <p className="text-[10px] font-mono font-black text-zinc-400 truncate">{part.vehicleInfo.vin || 'N/A'}</p>
+                    <p className="text-[8px] text-white font-black uppercase mb-1">VIN Detectado</p>
+                    <p className="text-[10px] font-mono font-black text-white truncate">{part.vehicleInfo.vin || 'N/A'}</p>
                   </div>
                 </div>
               </div>

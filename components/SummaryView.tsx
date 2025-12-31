@@ -111,7 +111,7 @@ const SummaryView: React.FC<SummaryViewProps> = ({ inventory, location, lang }) 
             <BarChart3 className="w-8 h-8 text-amber-500" />
             {t.summary}
           </h2>
-          <p className="text-zinc-500 text-[10px] font-bold uppercase mt-1 tracking-widest">{location} Terminal Finance</p>
+          <p className="text-white text-[10px] font-bold uppercase mt-1 tracking-widest">{location} Terminal Finance</p>
         </div>
         <button
           onClick={handleExportCSV}
@@ -128,17 +128,17 @@ const SummaryView: React.FC<SummaryViewProps> = ({ inventory, location, lang }) 
             <p className="text-[11px] font-black text-amber-500/60 uppercase tracking-[0.4em] mb-3">{t.inventory_value} (TOTAL)</p>
             <p className="text-5xl md:text-7xl font-black text-white italic tracking-tighter">
               ${totalValue.toLocaleString()}
-              <span className="text-zinc-700 text-2xl md:text-3xl ml-4 not-italic">{currency}</span>
+              <span className="text-white text-2xl md:text-3xl ml-4 not-italic">{currency}</span>
             </p>
           </div>
 
           <div className="flex gap-4">
             <div className="bg-black/40 border border-white/5 p-6 rounded-3xl text-center min-w-[140px]">
-              <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-1">{t.pieces}</p>
+              <p className="text-[10px] font-black text-white uppercase tracking-widest mb-1">{t.pieces}</p>
               <p className="text-2xl font-black text-white italic">{totalItems}</p>
             </div>
             <div className="bg-black/40 border border-white/5 p-6 rounded-3xl text-center min-w-[140px]">
-              <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-1">{t.avg_per_part}</p>
+              <p className="text-[10px] font-black text-white uppercase tracking-widest mb-1">{t.avg_per_part}</p>
               <p className="text-2xl font-black text-green-500 italic">${Math.round(avgValue).toLocaleString()}</p>
             </div>
           </div>
@@ -166,7 +166,7 @@ const SummaryView: React.FC<SummaryViewProps> = ({ inventory, location, lang }) 
                 </div>
                 <div className="text-right">
                   <p className="text-white font-mono font-black text-sm">${item.value.toLocaleString()}</p>
-                  <p className="text-zinc-600 font-mono text-[9px] font-bold">{item.percentage.toFixed(1)}%</p>
+                  <p className="text-white font-mono text-[9px] font-bold">{item.percentage.toFixed(1)}%</p>
                 </div>
               </div>
             ))}
@@ -183,7 +183,7 @@ const SummaryView: React.FC<SummaryViewProps> = ({ inventory, location, lang }) 
                 <div className="w-full h-full p-4 relative">
                   {renderPieChart()}
                   <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                    <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">{t.capital}</p>
+                    <p className="text-[10px] font-black text-white uppercase tracking-widest">{t.capital}</p>
                     <p className="text-xl font-black text-white italic">100%</p>
                   </div>
                 </div>
@@ -191,16 +191,16 @@ const SummaryView: React.FC<SummaryViewProps> = ({ inventory, location, lang }) 
                   {categorySummary.slice(0, 5).map((item, index) => (
                     <div key={item.category} className="flex items-center gap-2">
                       <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: colors[index % colors.length] }}></div>
-                      <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">{item.label}</span>
+                      <span className="text-[9px] font-black text-white uppercase tracking-widest">{item.label}</span>
                     </div>
                   ))}
                   {categorySummary.length > 5 && (
-                    <span className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">+ {categorySummary.length - 5} {t.more}</span>
+                    <span className="text-[9px] font-black text-white uppercase tracking-widest">+ {categorySummary.length - 5} {t.more}</span>
                   )}
                 </div>
               </>
             ) : (
-              <div className="flex flex-col items-center text-zinc-700">
+              <div className="flex flex-col items-center text-white">
                 <Package className="w-12 h-12 opacity-20 mb-4" />
                 <p className="text-[10px] font-black uppercase tracking-widest italic">{t.empty_inventory}</p>
               </div>
