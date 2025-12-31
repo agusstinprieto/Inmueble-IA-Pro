@@ -63,7 +63,7 @@ const LabelPrintView: React.FC<LabelPrintViewProps> = ({ parts, businessName, la
 
     return (
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md text-white no-print">
-            <div className="bg-zinc-900 border border-white/5 w-full max-w-2xl rounded-[3rem] p-8 md:p-12 shadow-2xl scale-in-center flex flex-col max-h-[92vh]">
+            <div className="bg-zinc-900 border border-white/5 w-full max-w-2xl rounded-[2.5rem] md:rounded-[3rem] p-6 md:p-12 shadow-2xl scale-in-center flex flex-col max-h-[92vh]">
                 <div className="flex justify-between items-center mb-10 shrink-0">
                     <div className="flex items-center gap-4">
                         <div className="p-3 bg-amber-500/10 rounded-2xl border border-amber-500/20">
@@ -86,9 +86,9 @@ const LabelPrintView: React.FC<LabelPrintViewProps> = ({ parts, businessName, la
                 <div className="flex-1 overflow-y-auto custom-scrollbar space-y-12 py-4 px-4 mb-10">
                     {parts.map((p, idx) => (
                         <div key={p.id} className="flex flex-col items-center">
-                            <div className="w-full flex justify-between items-end mb-3 px-2">
-                                <span className="text-[10px] font-black text-amber-500/50 uppercase tracking-widest">{lang === 'es' ? 'Vista Previa' : 'Preview'} {idx + 1}/{parts.length}</span>
-                                <span className="text-[9px] font-mono text-white uppercase tracking-tighter">REF: {p.id}</span>
+                            <div className="w-full flex justify-between items-end mb-4 px-1">
+                                <span className="text-[11px] font-black text-amber-500 uppercase tracking-widest">{lang === 'es' ? 'Vista Previa' : 'Preview'} {idx + 1}/{parts.length}</span>
+                                <span className="text-[10px] font-mono text-white/50 uppercase tracking-tighter">REF: {p.id}</span>
                             </div>
                             <div
                                 id={`label-to-print-${idx}`}
@@ -103,8 +103,11 @@ const LabelPrintView: React.FC<LabelPrintViewProps> = ({ parts, businessName, la
                                     display: 'flex',
                                     flexDirection: 'row',
                                     borderRadius: '12px',
-                                    boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)'
+                                    boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+                                    transform: 'scale(0.85)',
+                                    transformOrigin: 'center'
                                 }}
+                                className="md:transform-none"
                             >
                                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
                                     <div>

@@ -502,10 +502,12 @@ const InventoryView: React.FC<InventoryViewProps> = ({
         {isBatchModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm text-white overflow-hidden">
             <div className="bg-zinc-900 border border-white/5 w-full max-w-2xl rounded-[2.5rem] p-8 md:p-12 shadow-2xl scale-in-center max-h-[90vh] flex flex-col">
-              <div className="flex justify-between items-center mb-8 shrink-0">
+              <div className="flex justify-between items-center mb-6 md:mb-10 shrink-0">
                 <div className="flex items-center gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-amber-500" />
-                  <h3 className="text-xl font-black uppercase italic tracking-tighter text-white">
+                  <div className="p-2 bg-amber-500/10 rounded-xl">
+                    <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-amber-500" />
+                  </div>
+                  <h3 className="text-lg md:text-xl font-black uppercase italic tracking-tighter text-white">
                     ADMINISTRACIÓN POR LOTE
                   </h3>
                 </div>
@@ -528,25 +530,27 @@ const InventoryView: React.FC<InventoryViewProps> = ({
                           <Package className="w-3 h-3" /> {v.partsCount} piezas disponibles • VIN: {v.vin || 'N/A'}
                         </p>
                       </div>
-                      <div className="flex gap-3 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
+                      <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
                         <button
                           onClick={() => { setPartsToPrint(v.parts); setIsBatchModalOpen(false); }}
-                          className="flex-1 md:flex-none px-4 py-2 bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-amber-500 hover:text-black transition-all flex items-center gap-2 whitespace-nowrap"
+                          className="w-full md:w-auto px-4 py-3 bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[11px] font-black uppercase tracking-widest rounded-xl hover:bg-amber-500 hover:text-black transition-all flex items-center justify-center gap-2 whitespace-nowrap active:scale-95"
                         >
-                          <Printer className="w-3 h-3" /> Imprimir Todas
+                          <Printer className="w-4 h-4" /> Imprimir Todas
                         </button>
-                        <button
-                          onClick={() => { setSelectedVehicleKey(v.key); setBatchActionType('DELETE'); }}
-                          className="flex-1 md:flex-none px-4 py-2 bg-red-950/30 border border-red-500/20 text-red-500 text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-red-500 hover:text-white transition-all whitespace-nowrap"
-                        >
-                          Baja Total
-                        </button>
-                        <button
-                          onClick={() => { setSelectedVehicleKey(v.key); setBatchActionType('SELL'); setBatchSalePrice('0'); }}
-                          className="flex-1 md:flex-none px-4 py-2 bg-green-950/30 border border-green-500/20 text-green-500 text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-green-500 hover:text-white transition-all text-center whitespace-nowrap"
-                        >
-                          Venta Lote
-                        </button>
+                        <div className="flex gap-2 w-full">
+                          <button
+                            onClick={() => { setSelectedVehicleKey(v.key); setBatchActionType('DELETE'); }}
+                            className="flex-1 px-4 py-3 bg-red-950/30 border border-red-500/20 text-red-500 text-[11px] font-black uppercase tracking-widest rounded-xl hover:bg-red-500 hover:text-white transition-all whitespace-nowrap active:scale-95"
+                          >
+                            Baja Total
+                          </button>
+                          <button
+                            onClick={() => { setSelectedVehicleKey(v.key); setBatchActionType('SELL'); setBatchSalePrice('0'); }}
+                            className="flex-1 px-4 py-3 bg-green-950/30 border border-green-500/20 text-green-500 text-[11px] font-black uppercase tracking-widest rounded-xl hover:bg-green-500 hover:text-white transition-all text-center whitespace-nowrap active:scale-95"
+                          >
+                            Venta Lote
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
