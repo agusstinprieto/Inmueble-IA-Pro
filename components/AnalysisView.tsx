@@ -26,7 +26,7 @@ const MAX_IA_DIMENSION = 640;
 const QUALITY = 0.5;
 
 const AnalysisView: React.FC<AnalysisViewProps> = ({ onAddParts, lang, businessName, location }) => {
-  const t = translations[lang];
+  const t = translations[lang] || translations.es;
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [analyzing, setAnalyzing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
