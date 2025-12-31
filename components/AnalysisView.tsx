@@ -299,10 +299,9 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ onAddParts, lang, businessN
                   <div className="flex flex-col sm:flex-row gap-3 md:gap-4 w-full px-6 sm:px-0 sm:w-auto mt-4">
                     <button
                       onClick={startCamera}
-                      className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all shadow-lg"
-                      style={{ backgroundColor: 'var(--brand-color)', color: 'var(--brand-text-color)', boxShadow: '0 10px 40px -10px rgba(var(--brand-color-rgb), 0.1)' }}
+                      className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-5 bg-amber-500 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-amber-500/10 text-black"
                     >
-                      <Camera className="w-4 h-4" style={{ color: 'var(--brand-text-color)' }} />{t.take_photo}
+                      <Camera className="w-4 h-4 text-black" />{t.take_photo}
                     </button>
                     <button onClick={() => fileInputRef.current?.click()} className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-5 bg-zinc-800 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-zinc-700 active:scale-95 transition-all outline outline-1 outline-white/5 shadow-xl"><ImageIcon className="w-4 h-4" />Archivos</button>
                   </div>
@@ -313,14 +312,9 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ onAddParts, lang, businessN
             <button
               onClick={startMediaAnalysis}
               disabled={analyzing || mediaItems.length === 0}
-              className="mt-8 w-full hover:brightness-110 disabled:bg-zinc-800 disabled:text-white/20 font-black py-6 rounded-3xl flex justify-center items-center gap-4 transition-all uppercase tracking-[0.3em] text-[12px] shadow-2xl disabled:shadow-none"
-              style={{
-                backgroundColor: analyzing || mediaItems.length === 0 ? undefined : 'var(--brand-color)',
-                color: analyzing || mediaItems.length === 0 ? undefined : 'var(--brand-text-color)',
-                boxShadow: analyzing || mediaItems.length === 0 ? undefined : '0 20px 60px -15px rgba(var(--brand-color-rgb), 0.2)'
-              }}
+              className="mt-8 w-full bg-amber-500 hover:brightness-110 disabled:bg-zinc-800 disabled:text-white/20 font-black py-6 rounded-3xl flex justify-center items-center gap-4 transition-all uppercase tracking-[0.3em] text-[12px] shadow-2xl shadow-amber-500/20 disabled:shadow-none text-black"
             >
-              {analyzing ? <Loader2 className="w-5 h-5 animate-spin" style={{ color: 'var(--brand-text-color)' }} /> : <RefreshCw className="w-5 h-5" style={{ color: 'var(--brand-text-color)' }} />}
+              {analyzing ? <Loader2 className="w-5 h-5 animate-spin text-black" /> : <RefreshCw className="w-5 h-5 text-black" />}
               {lang === 'es' ? 'ANALIZAR TODO EL LOTE' : 'ANALYZE ALL MEDIA'}
             </button>
           </div>
@@ -337,10 +331,9 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ onAddParts, lang, businessN
               <button onClick={() => setPendingParts(null)} className="flex-1 md:flex-none px-8 py-5 bg-zinc-800 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-zinc-700 transition-all">DESCARTAR</button>
               <button
                 onClick={handleConfirmSave}
-                className="flex-1 md:flex-none px-8 py-5 hover:brightness-110 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-all"
-                style={{ backgroundColor: 'var(--brand-color)', color: 'var(--brand-text-color)', boxShadow: '0 10px 40px -10px rgba(var(--brand-color-rgb), 0.1)' }}
+                className="flex-1 md:flex-none px-8 py-5 bg-amber-500 hover:brightness-110 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-xl shadow-amber-500/10 flex items-center justify-center gap-3 active:scale-95 transition-all text-black"
               >
-                <Save className="w-4 h-4" style={{ color: 'var(--brand-text-color)' }} />CONFIRMAR TODO
+                <Save className="w-4 h-4 text-black" />CONFIRMAR TODO
               </button>
             </div>
           </div>
