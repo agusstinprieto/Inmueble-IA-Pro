@@ -239,9 +239,10 @@ const InventoryView: React.FC<InventoryViewProps> = ({
                 <div className="flex gap-4 shrink-0">
                   <button
                     onClick={handleCopyAd}
-                    className={`flex-1 py-5 rounded-2xl flex items-center justify-center gap-3 text-[11px] font-black uppercase tracking-widest transition-all ${isCopied ? 'bg-green-600 text-white' : 'bg-amber-500 text-black hover:brightness-110'}`}
+                    className={`flex-1 py-5 rounded-2xl flex items-center justify-center gap-3 text-[11px] font-black uppercase tracking-widest transition-all hover:brightness-110 ${isCopied ? 'bg-green-600 text-white' : ''}`}
+                    style={!isCopied ? { backgroundColor: 'var(--brand-color)', color: 'var(--brand-text-color)' } : {}}
                   >
-                    {isCopied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5 text-black" />}
+                    {isCopied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" style={{ color: 'var(--brand-text-color)' }} />}
                     {isCopied ? (lang === 'es' ? 'COPIADO' : 'COPIED') : t.copy_ad}
                   </button>
                 </div>
@@ -478,9 +479,10 @@ const InventoryView: React.FC<InventoryViewProps> = ({
               <div className="flex gap-4">
                 <button onClick={() => setPartToSell(null)} className="flex-1 py-4 bg-zinc-800 text-white text-[10px] font-black rounded-2xl uppercase tracking-widest">CANCELAR</button>
                 <button onClick={confirmSell}
-                  className="flex-1 py-4 bg-amber-500 text-black text-[10px] font-black rounded-2xl uppercase tracking-widest flex items-center justify-center gap-2 hover:brightness-110 transition-all"
+                  className="flex-1 py-4 text-[10px] font-black rounded-2xl uppercase tracking-widest flex items-center justify-center gap-2 hover:brightness-110 transition-all"
+                  style={{ backgroundColor: 'var(--brand-color)', color: 'var(--brand-text-color)' }}
                 >
-                  {isProcessing && <Loader2 className="w-3 h-3 animate-spin text-black" />} CONFIRMAR
+                  {isProcessing && <Loader2 className="w-3 h-3 animate-spin" style={{ color: 'var(--brand-text-color)' }} />} CONFIRMAR
                 </button>
               </div>
             </div>
