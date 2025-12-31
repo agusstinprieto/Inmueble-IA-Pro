@@ -20,6 +20,7 @@ interface SidebarProps {
   location: string;
   lang: 'es' | 'en';
   onToggleLang: () => void;
+  role: 'admin' | 'employee';
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -29,7 +30,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   businessName,
   location,
   lang,
-  onToggleLang
+  onToggleLang,
+  role
 }) => {
   const t = translations[lang] || translations.es;
 
@@ -40,7 +42,10 @@ const Sidebar: React.FC<SidebarProps> = ({
     { id: 'inventory', label: t.inventory, icon: <Package className="w-4 h-4" /> },
     { id: 'sales', label: t.sales, icon: <FileText className="w-4 h-4" /> },
     { id: 'search', label: t.smart_search, icon: <Search className="w-4 h-4" /> }
-  ];
+  ].filter(item => {
+    if (role === 'employee' && (item.id === 'summary' || item.id === 'sales')) return false;
+    return true;
+  });
 
   return (
     <aside className="w-72 md:w-64 h-screen bg-[#0f0f0f] border-r border-white/5 flex flex-col shrink-0 overflow-hidden relative shadow-2xl md:shadow-none">

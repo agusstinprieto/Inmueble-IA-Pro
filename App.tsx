@@ -70,7 +70,8 @@ const App: React.FC = () => {
               name: profile.business_name,
               location: profile.location,
               scriptUrl: profile.script_url,
-              brandingColor: profile.branding_color || '#f59e0b'
+              brandingColor: profile.branding_color || '#f59e0b',
+              role: profile.role || 'employee'
             });
           }
         }
@@ -440,6 +441,7 @@ const App: React.FC = () => {
           location={activeClient.location}
           lang={lang}
           onToggleLang={toggleLang}
+          role={activeClient.role}
         />
       </div>
 
@@ -486,24 +488,28 @@ const App: React.FC = () => {
                 <p className="text-white text-[11px] font-black uppercase mt-1 tracking-[0.2em] opacity-60 truncate">{t.control_terminal} • {activeClient.location}</p>
               </header>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+              <div className={`grid grid-cols-1 ${activeClient.role === 'admin' ? 'md:grid-cols-3' : 'md:grid-cols-1'} gap-4 md:gap-6`}>
                 <div className="bg-zinc-900/50 border border-white/5 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden group hover:border-white/10 transition-colors">
                   <p className="text-[10px] font-black text-white uppercase tracking-widest mb-3 truncate group-hover:text-amber-500 transition-colors opacity-60">{t.available_stock}</p>
                   <p className="text-3xl md:text-4xl lg:text-5xl font-black text-white italic truncate">{inventory.length}</p>
                 </div>
-                <div className="bg-zinc-900/50 border border-white/5 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden group hover:border-white/10 transition-colors">
-                  <p className="text-[10px] font-black text-white uppercase tracking-widest mb-3 truncate group-hover:text-green-500 transition-colors opacity-60">{t.total_revenue}</p>
-                  <p className="text-3xl md:text-4xl lg:text-5xl font-black text-green-500 italic truncate">${salesRecords.reduce((acc, p) => acc + (p.finalPrice || 0), 0).toLocaleString()}</p>
-                </div>
-                <div className="bg-zinc-900/50 border border-white/5 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden group hover:border-white/10 transition-colors">
-                  <p className="text-[10px] font-black text-white uppercase tracking-widest mb-3 truncate group-hover:text-blue-400 transition-colors opacity-60">{t.inventory_value}</p>
-                  <p className="text-3xl md:text-4xl lg:text-5xl font-black text-blue-400 italic truncate">${inventory.reduce((acc, p) => acc + (p.suggestedPrice || 0), 0).toLocaleString()}</p>
-                </div>
+                {activeClient.role === 'admin' && (
+                  <>
+                    <div className="bg-zinc-900/50 border border-white/5 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden group hover:border-white/10 transition-colors">
+                      <p className="text-[10px] font-black text-white uppercase tracking-widest mb-3 truncate group-hover:text-green-500 transition-colors opacity-60">{t.total_revenue}</p>
+                      <p className="text-3xl md:text-4xl lg:text-5xl font-black text-green-500 italic truncate">${salesRecords.reduce((acc, p) => acc + (p.finalPrice || 0), 0).toLocaleString()}</p>
+                    </div>
+                    <div className="bg-zinc-900/50 border border-white/5 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden group hover:border-white/10 transition-colors">
+                      <p className="text-[10px] font-black text-white uppercase tracking-widest mb-3 truncate group-hover:text-blue-400 transition-colors opacity-60">{t.inventory_value}</p>
+                      <p className="text-3xl md:text-4xl lg:text-5xl font-black text-blue-400 italic truncate">${inventory.reduce((acc, p) => acc + (p.suggestedPrice || 0), 0).toLocaleString()}</p>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           )}
 
-          {activeView === 'summary' && <SummaryView inventory={inventory} lang={lang} location={activeClient.location} />}
+          {activeView === 'summary' && activeClient.role === 'admin' && <SummaryView inventory={inventory} lang={lang} location={activeClient.location} />}
           {activeView === 'analysis' && <AnalysisView onAddParts={handleAddParts} lang={lang} businessName={activeClient.name} location={activeClient.location} />}
           {activeView === 'inventory' && (
             <InventoryView
@@ -517,7 +523,7 @@ const App: React.FC = () => {
               location={activeClient.location}
             />
           )}
-          {activeView === 'sales' && <SalesView salesHistory={salesRecords} onRefresh={() => syncAll(true)} lang={lang} businessName={activeClient.name} location={activeClient.location} />}
+          {activeView === 'sales' && activeClient.role === 'admin' && <SalesView salesHistory={salesRecords} onRefresh={() => syncAll(true)} lang={lang} businessName={activeClient.name} location={activeClient.location} />}
           {activeView === 'search' && <SmartSearchView lang={lang} location={activeClient.location} />}
         </div>
 

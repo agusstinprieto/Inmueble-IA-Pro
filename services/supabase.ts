@@ -21,6 +21,7 @@ export interface BusinessProfile {
     location: string;
     script_url: string;
     branding_color: string;
+    role: 'admin' | 'employee';
 }
 
 // Auth helper functions

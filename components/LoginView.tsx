@@ -10,6 +10,7 @@ export interface ClientConfig {
   location: string;
   scriptUrl: string;
   brandingColor: string;
+  role: 'admin' | 'employee';
 }
 
 interface LoginViewProps {
@@ -48,7 +49,8 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
         name: profile.business_name,
         location: profile.location,
         scriptUrl: profile.script_url,
-        brandingColor: profile.branding_color || '#f59e0b'
+        brandingColor: profile.branding_color || '#f59e0b',
+        role: profile.role || 'employee'
       };
 
       onLogin(clientConfig);
