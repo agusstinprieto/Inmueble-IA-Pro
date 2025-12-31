@@ -52,7 +52,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
   const [strategyPart, setStrategyPart] = useState<Part | null>(null);
   const [generatedStrategy, setGeneratedStrategy] = useState('');
   const [isGeneratingStrategy, setIsGeneratingStrategy] = useState(false);
-  const [partToPrint, setPartToPrint] = useState<Part | null>(null);
+  const [partsToPrint, setPartsToPrint] = useState<Part[] | null>(null);
 
   useEffect(() => {
     if (partToSell) {
@@ -329,7 +329,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
                     <span className="inline-block text-[8px] font-black bg-zinc-800 text-zinc-400 px-3 py-1.5 rounded-lg border border-white/5 uppercase tracking-widest truncate">
                       {(t.categories as any)[part.category] || part.category}
                     </span>
-                    <button onClick={() => setPartToPrint(part)} className="text-zinc-600 hover:text-white transition-colors" title={t.print_label}>
+                    <button onClick={() => setPartsToPrint([part])} className="text-zinc-600 hover:text-white transition-colors" title={t.print_label}>
                       <Printer className="w-4 h-4" />
                     </button>
                   </div>
@@ -407,7 +407,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
                           <button onClick={() => handleGetStrategy(part)} className="p-2 text-zinc-500 hover:text-green-500 transition-all" title="AI Strategy">
                             <TrendingUp className="w-4 h-4" />
                           </button>
-                          <button onClick={() => setPartToPrint(part)} className="p-2 text-zinc-500 hover:text-white transition-all">
+                          <button onClick={() => setPartsToPrint([part])} className="p-2 text-zinc-500 hover:text-white transition-all">
                             <Printer className="w-4 h-4" />
                           </button>
                           <button onClick={() => setPartToSell(part)} className="p-2 text-green-500 hover:bg-green-500/10 rounded-xl transition-all" title={t.register_sale}>
@@ -454,10 +454,10 @@ const InventoryView: React.FC<InventoryViewProps> = ({
           </div>
         )}
 
-        {partToPrint && (
+        {partsToPrint && (
           <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
-            <div className="bg-zinc-900 border border-white/5 w-fit rounded-[2.5rem] p-1 shadow-2xl scale-in-center">
-              <LabelPrintView part={partToPrint} onClose={() => setPartToPrint(null)} businessName={businessName} lang={lang} />
+            <div className="bg-zinc-900 border border-white/5 w-fit rounded-[2.5rem] p-1 shadow-2xl scale-in-center overflow-hidden">
+              <LabelPrintView parts={partsToPrint} onClose={() => setPartsToPrint(null)} businessName={businessName} lang={lang} />
             </div>
           </div>
         )}
@@ -528,16 +528,22 @@ const InventoryView: React.FC<InventoryViewProps> = ({
                           <Package className="w-3 h-3" /> {v.partsCount} piezas disponibles • VIN: {v.vin || 'N/A'}
                         </p>
                       </div>
-                      <div className="flex gap-3 w-full md:w-auto">
+                      <div className="flex gap-3 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
+                        <button
+                          onClick={() => { setPartsToPrint(v.parts); setIsBatchModalOpen(false); }}
+                          className="flex-1 md:flex-none px-4 py-2 bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-amber-500 hover:text-black transition-all flex items-center gap-2 whitespace-nowrap"
+                        >
+                          <Printer className="w-3 h-3" /> Imprimir Todas
+                        </button>
                         <button
                           onClick={() => { setSelectedVehicleKey(v.key); setBatchActionType('DELETE'); }}
-                          className="flex-1 md:flex-none px-4 py-2 bg-red-950/30 border border-red-500/20 text-red-500 text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-red-500 hover:text-white transition-all"
+                          className="flex-1 md:flex-none px-4 py-2 bg-red-950/30 border border-red-500/20 text-red-500 text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-red-500 hover:text-white transition-all whitespace-nowrap"
                         >
                           Baja Total
                         </button>
                         <button
                           onClick={() => { setSelectedVehicleKey(v.key); setBatchActionType('SELL'); setBatchSalePrice('0'); }}
-                          className="flex-1 md:flex-none px-4 py-2 bg-green-950/30 border border-green-500/20 text-green-500 text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-green-500 hover:text-white transition-all text-center"
+                          className="flex-1 md:flex-none px-4 py-2 bg-green-950/30 border border-green-500/20 text-green-500 text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-green-500 hover:text-white transition-all text-center whitespace-nowrap"
                         >
                           Venta Lote
                         </button>
