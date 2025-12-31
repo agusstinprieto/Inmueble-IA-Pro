@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { QRCodeSVG } from 'qrcode.react';
+import { QRCodeCanvas } from 'qrcode.react';
 import { Part } from '../types';
 import { translations } from '../translations';
 import { X, Printer, Package, Download, Loader2 } from 'lucide-react';
@@ -23,14 +23,19 @@ const LabelPrintView: React.FC<LabelPrintViewProps> = ({ part, businessName, lan
     };
 
     const handleDownloadPDF = async () => {
-        if (!printRef.current) return;
+        const element = document.getElementById('label-to-print');
+        if (!element) return;
+
         setIsExporting(true);
+        console.log("Starting Label PDF Export for ID:", part.id);
+
         try {
-            const canvas = await html2canvas(printRef.current, {
-                scale: 4, // Higher scale for print quality
+            const canvas = await html2canvas(element, {
+                scale: 3, // slightly lower to be safer, yet still high quality
                 backgroundColor: '#ffffff',
-                logging: false,
-                useCORS: true
+                logging: true,
+                useCORS: true,
+                allowTaint: true
             });
             const imgData = canvas.toDataURL('image/png');
             const pdf = new jsPDF({
@@ -41,9 +46,10 @@ const LabelPrintView: React.FC<LabelPrintViewProps> = ({ part, businessName, lan
 
             pdf.addImage(imgData, 'PNG', 0, 0, 4, 2);
             pdf.save(`Label_${part.id}.pdf`);
+            console.log("Label PDF Export SUCCESS");
         } catch (error) {
             console.error("Label PDF error:", error);
-            alert(lang === 'es' ? "Error al generar PDF" : "Error generating PDF");
+            alert(`${lang === 'es' ? "Error al generar PDF" : "Error generating PDF"}: ${String(error)}`);
         } finally {
             setIsExporting(false);
         }
@@ -87,11 +93,11 @@ const LabelPrintView: React.FC<LabelPrintViewProps> = ({ part, businessName, lan
                             <p className="text-lg font-black mt-2">${part.suggestedPrice.toLocaleString()}</p>
                         </div>
 
-                        <div className="ml-4 flex flex-col items-end justify-center">
-                            <div className="p-2 border-2 border-zinc-100 rounded-lg bg-white">
-                                <QRCodeSVG
+                        <div className="ml-4 flex flex-col items-end justify-center h-full">
+                            <div className="p-2 border-2 border-zinc-100 rounded-lg bg-white shrink-0">
+                                <QRCodeCanvas
                                     value={part.id}
-                                    size={100}
+                                    size={90}
                                     level="H"
                                     includeMargin={false}
                                 />
