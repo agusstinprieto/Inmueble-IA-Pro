@@ -37,6 +37,118 @@ const hexToRgb = (hex: string) => {
     '245, 158, 11';
 };
 
+// Sales Analytics Chart Component
+const SalesChart: React.FC<{ salesRecords: Part[]; lang: 'es' | 'en' }> = ({ salesRecords, lang }) => {
+  const [period, setPeriod] = useState<'day' | 'week' | 'month' | 'year'>('week');
+
+  const getChartData = () => {
+    const now = new Date();
+    const data: { label: string; value: number }[] = [];
+
+    if (period === 'day') {
+      // Last 7 days
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - i);
+        const dayStr = date.toLocaleDateString(lang === 'es' ? 'es-MX' : 'en-US', { weekday: 'short' });
+        const total = salesRecords
+          .filter(s => {
+            const saleDate = new Date(s.dateAdded);
+            return saleDate.toDateString() === date.toDateString();
+          })
+          .reduce((acc, s) => acc + (s.finalPrice || 0), 0);
+        data.push({ label: dayStr, value: total });
+      }
+    } else if (period === 'week') {
+      // Last 4 weeks
+      for (let i = 3; i >= 0; i--) {
+        const weekStart = new Date(now);
+        weekStart.setDate(weekStart.getDate() - (i * 7) - weekStart.getDay());
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+        const label = `${lang === 'es' ? 'Sem' : 'Wk'} ${4 - i}`;
+        const total = salesRecords
+          .filter(s => {
+            const saleDate = new Date(s.dateAdded);
+            return saleDate >= weekStart && saleDate <= weekEnd;
+          })
+          .reduce((acc, s) => acc + (s.finalPrice || 0), 0);
+        data.push({ label, value: total });
+      }
+    } else if (period === 'month') {
+      // Last 6 months
+      for (let i = 5; i >= 0; i--) {
+        const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const label = date.toLocaleDateString(lang === 'es' ? 'es-MX' : 'en-US', { month: 'short' });
+        const total = salesRecords
+          .filter(s => {
+            const saleDate = new Date(s.dateAdded);
+            return saleDate.getMonth() === date.getMonth() && saleDate.getFullYear() === date.getFullYear();
+          })
+          .reduce((acc, s) => acc + (s.finalPrice || 0), 0);
+        data.push({ label, value: total });
+      }
+    } else {
+      // Last 3 years
+      for (let i = 2; i >= 0; i--) {
+        const year = now.getFullYear() - i;
+        const total = salesRecords
+          .filter(s => new Date(s.dateAdded).getFullYear() === year)
+          .reduce((acc, s) => acc + (s.finalPrice || 0), 0);
+        data.push({ label: String(year), value: total });
+      }
+    }
+    return data;
+  };
+
+  const chartData = getChartData();
+  const maxValue = Math.max(...chartData.map(d => d.value), 1);
+
+  return (
+    <div className="bg-zinc-900/50 border border-white/5 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <p className="text-[10px] font-black text-white uppercase tracking-widest">
+          📊 {lang === 'es' ? 'Análisis de Ventas' : 'Sales Analytics'}
+        </p>
+        <div className="flex gap-1 bg-black/30 p-1 rounded-xl">
+          {(['day', 'week', 'month', 'year'] as const).map(p => (
+            <button
+              key={p}
+              onClick={() => setPeriod(p)}
+              className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${period === p
+                  ? 'bg-amber-500 text-black'
+                  : 'text-white/50 hover:text-white hover:bg-white/5'
+                }`}
+            >
+              {p === 'day' ? (lang === 'es' ? 'Día' : 'Day') :
+                p === 'week' ? (lang === 'es' ? 'Sem' : 'Week') :
+                  p === 'month' ? (lang === 'es' ? 'Mes' : 'Month') :
+                    (lang === 'es' ? 'Año' : 'Year')}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex items-end gap-2 h-40 mt-4">
+        {chartData.map((d, idx) => (
+          <div key={idx} className="flex-1 flex flex-col items-center gap-2">
+            <div className="w-full flex flex-col items-center justify-end h-32">
+              <p className="text-[8px] font-black text-green-500 mb-1">
+                {d.value > 0 ? `$${(d.value / 1000).toFixed(1)}k` : ''}
+              </p>
+              <div
+                className="w-full bg-gradient-to-t from-green-600 to-green-400 rounded-t-lg transition-all duration-500 hover:brightness-110"
+                style={{ height: `${Math.max((d.value / maxValue) * 100, d.value > 0 ? 8 : 2)}%` }}
+              />
+            </div>
+            <p className="text-[9px] font-black text-white/50 uppercase">{d.label}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const App: React.FC = () => {
   const [activeClient, setActiveClient] = useState<ClientConfig | null>(null);
   const [activeView, setActiveView] = useState<string>('dashboard');
@@ -547,6 +659,11 @@ const App: React.FC = () => {
                   </>
                 )}
               </div>
+
+              {/* Sales Analytics Chart - Admin Only */}
+              {activeClient.role === 'admin' && salesRecords.length > 0 && (
+                <SalesChart salesRecords={salesRecords} lang={lang} />
+              )}
             </div>
           )}
 
