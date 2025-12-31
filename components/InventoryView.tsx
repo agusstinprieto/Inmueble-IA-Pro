@@ -350,9 +350,11 @@ const InventoryView: React.FC<InventoryViewProps> = ({
 
                 <div className="px-6 pb-6 mt-auto flex gap-2">
                   <button onClick={() => setPartToSell(part)}
-                    className="flex-1 py-5 bg-amber-500 hover:brightness-110 text-black text-[11px] font-black rounded-2xl transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-amber-500/10"
+                    className="p-4 hover:brightness-110 font-black rounded-2xl transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg"
+                    style={{ backgroundColor: 'var(--brand-color)', color: 'var(--brand-text-color)', boxShadow: '0 10px 40px -10px rgba(var(--brand-color-rgb), 0.1)' }}
+                    title={t.register_sale}
                   >
-                    <DollarSign className="w-4 h-4 text-black" /> {t.register_sale}
+                    <DollarSign className="w-5 h-5" style={{ color: 'var(--brand-text-color)' }} />
                   </button>
                   <div className="flex flex-col gap-2">
                     <button onClick={() => handleCreateAd(part)} className="p-4 bg-zinc-800 hover:bg-zinc-700 text-white rounded-2xl transition-all" title={t.create_ad}>

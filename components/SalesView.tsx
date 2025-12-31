@@ -11,9 +11,10 @@ interface SalesViewProps {
   lang: 'es' | 'en';
   businessName: string;
   location: string;
+  onReturnPart: (part: Part) => void;
 }
 
-const SalesView: React.FC<SalesViewProps> = ({ salesHistory = [], onRefresh, lang, businessName, location }) => {
+const SalesView: React.FC<SalesViewProps> = ({ salesHistory = [], onRefresh, lang, businessName, location, onReturnPart }) => {
   const t = translations[lang] || translations.es;
   const [selectedPart, setSelectedPart] = useState<Part | null>(null);
   const [clientName, setClientName] = useState('');
@@ -153,6 +154,17 @@ ${t.no_returns}
                   </button>
                   <button onClick={handleWhatsApp} className="flex-1 bg-green-600/20 hover:bg-green-600/30 text-green-500 py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-3 transition-all border border-green-500/20">
                     <MessageSquare className="w-4 h-4" /> WhatsApp
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (window.confirm(lang === 'es' ? '¿Estás seguro de cancelar esta venta? La pieza volverá al inventario.' : 'Are you sure you want to cancel this sale? Item will return to inventory.')) {
+                        onReturnPart(selectedPart);
+                        setSelectedPart(null);
+                      }
+                    }}
+                    className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-500 py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-3 transition-all border border-red-500/20"
+                  >
+                    <LogOut className="w-4 h-4 rotate-180" /> {lang === 'es' ? 'DEVOLUCIÓN' : 'RETURN'}
                   </button>
                 </div>
 

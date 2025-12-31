@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { translations } from '../translations';
 import { searchPartsExternally } from '../services/gemini';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Copy, Check } from 'lucide-react';
 
 declare global {
   interface Window {
@@ -20,6 +20,15 @@ const SmartSearchView: React.FC<SmartSearchViewProps> = ({ lang, location }) => 
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<{ text: string; sources: any[] } | null>(null);
+  const [isCopied, setIsCopied] = useState(false);
+
+  const handleCopyResults = () => {
+    if (results?.text) {
+      navigator.clipboard.writeText(results.text);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    }
+  };
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,10 +99,19 @@ const SmartSearchView: React.FC<SmartSearchViewProps> = ({ lang, location }) => 
 
       {results && (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="bg-zinc-900 border border-white/5 rounded-3xl p-8 leading-relaxed text-white whitespace-pre-wrap font-black uppercase tracking-tight text-sm">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.5)]"></div>
-              <span className="text-[11px] font-black uppercase text-white tracking-widest">Market Status: {location}</span>
+          <div className="bg-zinc-900 border border-white/5 rounded-3xl p-8 leading-relaxed text-white whitespace-pre-wrap font-black uppercase tracking-tight text-sm relative">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.5)]"></div>
+                <span className="text-[11px] font-black uppercase text-white tracking-widest">Market Status: {location}</span>
+              </div>
+              <button
+                onClick={handleCopyResults}
+                className={`p-2 rounded-xl transition-all ${isCopied ? 'bg-green-600 text-white' : 'bg-white/10 hover:bg-white/20 text-white'}`}
+                title={lang === 'es' ? 'Copiar resultados' : 'Copy results'}
+              >
+                {isCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              </button>
             </div>
             {results.text}
           </div>

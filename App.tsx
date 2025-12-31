@@ -360,6 +360,44 @@ const App: React.FC = () => {
     setTimeout(() => syncAll(true), 1000);
   };
 
+  const handleReturnPart = async (part: Part) => {
+    lastUserActionTimestamp.current = Date.now();
+    // 1. Remove from Sales
+    setSalesRecords(prev => prev.filter(p => p.id !== part.id));
+
+    // 2. Add back to Inventory
+    const returnedPart = { ...part, status: PartStatus.AVAILABLE, finalPrice: undefined };
+    setInventory(prev => [returnedPart, ...prev]);
+
+    // 3. Send to Cloud
+    await sendActionToCloud({
+      action: "RETURN",
+      targetSheet: "VENTAS",
+      id: part.id,
+      marca: part.vehicleInfo.make,
+      modelo: part.vehicleInfo.model,
+      anio: part.vehicleInfo.year,
+      parte: part.name,
+      categoria: part.category,
+      status: "RETURNED"
+    });
+
+    // 4. Ensure it exists in INVENTARIO
+    await sendActionToCloud({
+      action: "ADD",
+      targetSheet: "INVENTARIO",
+      ...returnedPart,
+      marca: returnedPart.vehicleInfo.make,
+      modelo: returnedPart.vehicleInfo.model,
+      anio: returnedPart.vehicleInfo.year,
+      parte: returnedPart.name,
+      precio: returnedPart.suggestedPrice
+    });
+
+    setTimeout(() => syncAll(true), 3000);
+  };
+
+
   const handleAddParts = useCallback(async (newParts: Part[]) => {
     lastUserActionTimestamp.current = Date.now();
     setInventory(prev => [...newParts, ...prev]);
@@ -526,7 +564,7 @@ const App: React.FC = () => {
               location={activeClient.location}
             />
           )}
-          {activeView === 'sales' && activeClient.role === 'admin' && <SalesView salesHistory={salesRecords} onRefresh={() => syncAll(true)} lang={lang} businessName={activeClient.name} location={activeClient.location} />}
+          {activeView === 'sales' && activeClient.role === 'admin' && <SalesView salesHistory={salesRecords} onRefresh={() => syncAll(true)} lang={lang} businessName={activeClient.name} location={activeClient.location} onReturnPart={handleReturnPart} />}
           {activeView === 'search' && <SmartSearchView lang={lang} location={activeClient.location} />}
         </div>
 
