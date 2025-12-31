@@ -70,31 +70,40 @@ const LabelPrintView: React.FC<LabelPrintViewProps> = ({ part, businessName, lan
                     </button>
                 </div>
 
-                {/* Print Content Area */}
-                <div className="flex-1 flex flex-col items-center justify-center mb-8">
+                {/* Print Content Area - USING HEX COLORS ONLY TO AVOID OKLCH ERROR */}
+                <div className="flex-1 flex flex-col items-center justify-center mb-8 overflow-hidden">
                     <div
                         id="label-to-print"
-                        ref={printRef}
-                        className="bg-white text-black p-6 rounded-lg shadow-xl print:shadow-none print:m-0 print:p-8 flex"
-                        style={{ width: '4in', height: '2in' }}
+                        style={{
+                            width: '4in',
+                            height: '2in',
+                            minWidth: '4in',
+                            minHeight: '2in',
+                            backgroundColor: '#ffffff',
+                            color: '#000000',
+                            padding: '24px',
+                            display: 'flex',
+                            flexDirection: 'row',
+                            borderRadius: '8px'
+                        }}
                     >
-                        <div className="flex-1 flex flex-col justify-between">
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
                             <div>
-                                <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-1">{businessName}</h4>
-                                <h2 className="text-sm font-black uppercase leading-tight line-clamp-2">{part.name}</h2>
+                                <h4 style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#71717a', marginBottom: '4px', margin: 0 }}>{businessName}</h4>
+                                <h2 style={{ fontSize: '14px', fontWeight: 900, textTransform: 'uppercase', lineHeight: 1.2, margin: 0 }}>{part.name}</h2>
                             </div>
-                            <div className="mt-2">
-                                <p className="text-[10px] font-bold uppercase">{part.vehicleInfo.year} {part.vehicleInfo.make}</p>
-                                <p className="text-[9px] font-medium text-zinc-600 uppercase tracking-tight">{part.vehicleInfo.model}</p>
+                            <div style={{ marginTop: '8px' }}>
+                                <p style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', margin: 0 }}>{part.vehicleInfo.year} {part.vehicleInfo.make}</p>
+                                <p style={{ fontSize: '9px', fontWeight: 500, color: '#52525b', textTransform: 'uppercase', letterSpacing: '-0.025em', margin: 0 }}>{part.vehicleInfo.model}</p>
                                 {part.vehicleInfo.vin && (
-                                    <p className="text-[7px] font-mono mt-1 opacity-60">VIN: {part.vehicleInfo.vin}</p>
+                                    <p style={{ fontSize: '7px', fontFamily: 'monospace', marginTop: '4px', opacity: 0.6, margin: 0 }}>VIN: {part.vehicleInfo.vin}</p>
                                 )}
                             </div>
-                            <p className="text-lg font-black mt-2">${part.suggestedPrice.toLocaleString()}</p>
+                            <p style={{ fontSize: '18px', fontWeight: 900, marginTop: '8px', margin: 0 }}>${part.suggestedPrice.toLocaleString()}</p>
                         </div>
 
-                        <div className="ml-4 flex flex-col items-end justify-center h-full">
-                            <div className="p-2 border-2 border-zinc-100 rounded-lg bg-white shrink-0">
+                        <div style={{ marginLeft: '16px', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center', height: '100%' }}>
+                            <div style={{ padding: '8px', border: '2px solid #f4f4f5', borderRadius: '8px', backgroundColor: '#ffffff' }}>
                                 <QRCodeCanvas
                                     value={part.id}
                                     size={90}
@@ -102,7 +111,7 @@ const LabelPrintView: React.FC<LabelPrintViewProps> = ({ part, businessName, lan
                                     includeMargin={false}
                                 />
                             </div>
-                            <p className="text-[7px] font-mono mt-2 opacity-50 uppercase tracking-tighter">ID: {part.id}</p>
+                            <p style={{ fontSize: '7px', fontFamily: 'monospace', marginTop: '8px', opacity: 0.5, textTransform: 'uppercase', letterSpacing: '-0.05em', margin: 0 }}>ID: {part.id}</p>
                         </div>
                     </div>
                 </div>
