@@ -195,6 +195,12 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!editingProperty || !e.target.files) return;
 
+        const currentCount = editingProperty.images?.length || 0;
+        if (currentCount + e.target.files.length > 10) {
+            alert('Límite de 10 fotos por propiedad alcanzado / Limit of 10 photos reached');
+            return;
+        }
+
         setIsUploading(true);
         try {
             const files = Array.from(e.target.files);
@@ -232,6 +238,12 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
 
     const handleDetailImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!selectedProperty || !e.target.files) return;
+
+        const currentCount = selectedProperty.images?.length || 0;
+        if (currentCount + e.target.files.length > 10) {
+            alert('Límite de 10 fotos por propiedad alcanzado / Limit of 10 photos reached');
+            return;
+        }
 
         setIsUploading(true);
         try {

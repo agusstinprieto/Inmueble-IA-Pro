@@ -51,6 +51,14 @@ const GalleryView: React.FC<GalleryViewProps> = ({
     const handleAddPhotos = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!selectedProperty || !e.target.files || e.target.files.length === 0) return;
 
+        const currentCount = selectedProperty.images?.length || 0;
+        if (currentCount + e.target.files.length > 10) {
+            alert(lang === 'es'
+                ? 'Límite de 10 fotos por propiedad alcanzado'
+                : 'Limit of 10 photos per property reached');
+            return;
+        }
+
         setIsUploading(true);
         try {
             console.log('Cargando fotos para:', selectedProperty.title);
