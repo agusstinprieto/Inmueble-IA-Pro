@@ -25,8 +25,8 @@ export const appendPropertyToSheets = async (property: Property): Promise<boolea
                 Tipo: property.type,
                 Operación: property.operation,
                 Precio: property.operation === 'VENTA' ? property.salePrice : property.rentPrice,
-                'M2 Terreno': property.specs.m2Total,
-                'M2 Const': property.specs.m2Built
+                'M2 Terreno': property.specs?.m2Total || 0,
+                'M2 Const': property.specs?.m2Built || 0
             }
         };
 
