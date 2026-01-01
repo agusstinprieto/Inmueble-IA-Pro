@@ -145,7 +145,7 @@ export async function analyzePropertyImages(
     throw new Error('VITE_GEMINI_API_KEY is not configured');
   }
   const ai = new GoogleGenAI({ apiKey });
-  const model = 'gemini-1.5-flash-001';
+  const model = 'gemini-2.0-flash-exp';
 
   const imageParts = base64Images.map(img => ({
     inlineData: {
@@ -237,7 +237,7 @@ export async function searchSimilarProperties(
   location: string
 ): Promise<MarketAnalysis> {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  const model = 'gemini-1.5-flash-001';
+  const model = 'gemini-2.0-flash-exp';
   const reg = getRegionalInfo(location);
 
   const prompt = `Busca propiedades similares en el mercado de ${location}:
@@ -288,7 +288,7 @@ export async function generatePropertyListing(
   location: string
 ): Promise<string> {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  const model = 'gemini-1.5-flash-001';
+  const model = 'gemini-2.0-flash-exp';
   const reg = getRegionalInfo(location);
 
   const operationText = property.operation === 'VENTA' ? 'venta' : 'renta';
@@ -344,7 +344,7 @@ export async function generateSocialAd(
   location: string
 ): Promise<string> {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  const model = 'gemini-1.5-flash-001';
+  const model = 'gemini-2.0-flash-exp';
   const reg = getRegionalInfo(location);
 
   const operationText = property.operation === 'VENTA' ? 'venta' : 'renta';
@@ -411,7 +411,7 @@ export async function analyzePropertyText(
   location: string
 ): Promise<{ properties: PropertyAnalysis[] }> {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  const model = 'gemini-1.5-flash-001';
+  const model = 'gemini-2.0-flash-exp';
 
   const response = await ai.models.generateContent({
     model,
@@ -437,7 +437,7 @@ export async function getImprovementSuggestions(
   location: string
 ): Promise<string> {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  const model = 'gemini-1.5-flash-001';
+  const model = 'gemini-2.0-flash-exp';
   const reg = getRegionalInfo(location);
 
   const prompt = `Como experto en valorización inmobiliaria, analiza esta propiedad y sugiere mejoras para aumentar su valor:
@@ -476,7 +476,7 @@ export async function generatePropertyDescription(
   lang: 'es' | 'en'
 ): Promise<string> {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  const model = 'gemini-1.5-flash-001';
+  const model = 'gemini-2.0-flash-exp';
 
   const prompt = `Genera una descripción profesional para esta propiedad:
   Tipo: ${property.type}
@@ -516,7 +516,7 @@ export async function extractPropertyFromHtml(
   if (!apiKey) return null;
 
   const ai = new GoogleGenAI({ apiKey });
-  const model = 'gemini-1.5-flash-001';
+  const model = 'gemini-2.0-flash-exp';
 
   // Clean HTML to reduce noise
   const cleanHtml = html
