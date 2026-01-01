@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 import { createClient } from '@supabase/supabase-js';
-import { Property, Client, Contract, Sale, FollowUp, Agent } from '../types';
+import { Property, Client, Contract, Sale, FollowUp, Agent, Profile, Agency, UserRole } from '../types';
 import { appendPropertyToSheets, appendClientToSheets } from './sheets';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -16,21 +16,15 @@ export const supabase = createClient(
 );
 
 // ============ TYPES ============
-
-export interface BusinessProfile {
-    id: string;
-    business_id: string;
-    business_name: string;
-    location: string;
-    script_url: string;
-    branding_color: string;
-    role: 'admin' | 'employee';
-}
+// Simplified versions for the service layer if needed, 
+// but we'll use the ones from types.ts mainly.
 
 // ============ AUTH ============
 
 export const signInWithBusinessId = async (businessId: string, password: string) => {
-    const email = `${businessId.toLowerCase()}@inmuebleiapro.local`;
+    // Note: In SaaS, businessId might be simpler or we use direct email. 
+    // Staying compatible with the current "demo" email logic for now.
+    const email = businessId.includes('@') ? businessId : `${businessId.toLowerCase()}@inmuebleiapro.local`;
 
     const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -51,7 +45,7 @@ export const getCurrentSession = async () => {
     return session;
 };
 
-export const getBusinessProfile = async (userId: string): Promise<BusinessProfile | null> => {
+export const getUserProfile = async (userId: string): Promise<Profile | null> => {
     const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -63,19 +57,52 @@ export const getBusinessProfile = async (userId: string): Promise<BusinessProfil
         return null;
     }
 
-    return data;
+    // Map DB to Type
+    return {
+        id: data.id,
+        email: data.email,
+        name: data.name,
+        role: data.role as UserRole,
+        agencyId: data.agency_id,
+        branchId: data.branch_id,
+        photoUrl: data.photo_url
+    };
 };
 
-export const updateBusinessProfile = async (userId: string, profile: Partial<BusinessProfile>): Promise<boolean> => {
+export const getAgencyProfile = async (agencyId: string): Promise<Agency | null> => {
+    const { data, error } = await supabase
+        .from('agencies')
+        .select('*')
+        .eq('id', agencyId)
+        .single();
+
+    if (error) {
+        console.error('Error fetching agency:', error);
+        return null;
+    }
+
+    return {
+        id: data.id,
+        ownerId: data.owner_id,
+        name: data.name,
+        logoUrl: data.logo_url,
+        brandColor: data.brand_color,
+        planType: data.plan_type as any,
+        status: data.status as any,
+        dateCreated: data.created_at
+    };
+};
+
+export const updateUserProfile = async (userId: string, profile: Partial<Profile>): Promise<boolean> => {
     try {
         const { error } = await supabase
             .from('profiles')
             .update({
-                business_name: profile.business_name,
-                location: profile.location,
-                branding_color: profile.branding_color,
-                script_url: profile.script_url,
-                role: profile.role
+                name: profile.name,
+                photo_url: profile.photoUrl,
+                role: profile.role,
+                agency_id: profile.agencyId,
+                branch_id: profile.branchId
             })
             .eq('id', userId);
 
@@ -83,6 +110,27 @@ export const updateBusinessProfile = async (userId: string, profile: Partial<Bus
         return true;
     } catch (error) {
         console.error('Error updating profile:', error);
+        return false;
+    }
+};
+
+export const updateAgencyProfile = async (agencyId: string, agency: Partial<Agency>): Promise<boolean> => {
+    try {
+        const { error } = await supabase
+            .from('agencies')
+            .update({
+                name: agency.name,
+                logo_url: agency.logoUrl,
+                brand_color: agency.brandColor,
+                plan_type: agency.planType,
+                status: agency.status
+            })
+            .eq('id', agencyId);
+
+        if (error) throw error;
+        return true;
+    } catch (error) {
+        console.error('Error updating agency:', error);
         return false;
     }
 };
@@ -159,11 +207,14 @@ export const uploadPropertyImages = async (
 
 // ============ PROPERTIES CRUD ============
 
-export const getProperties = async (): Promise<Property[]> => {
-    const { data, error } = await supabase
-        .from('properties')
-        .select('*')
-        .order('created_at', { ascending: false });
+export const getProperties = async (agencyId?: string): Promise<Property[]> => {
+    let query = supabase.from('properties').select('*');
+
+    if (agencyId) {
+        query = query.eq('agency_id', agencyId);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false });
 
     if (error) {
         console.error('Error fetching properties:', error);
@@ -173,13 +224,17 @@ export const getProperties = async (): Promise<Property[]> => {
     return data?.map(mapDbToProperty) || [];
 };
 
-export const addProperty = async (property: Partial<Property>): Promise<Property | null> => {
+export const addProperty = async (property: Partial<Property>, agencyId?: string, branchId?: string): Promise<Property | null> => {
     const session = await getCurrentSession();
     if (!session) return null;
 
     const { data, error } = await supabase
         .from('properties')
-        .insert(mapPropertyToDb(property, session.user.id))
+        .insert({
+            ...mapPropertyToDb(property, session.user.id),
+            agency_id: agencyId || property.agencyId,
+            branch_id: branchId
+        })
         .select()
         .single();
 
@@ -228,11 +283,14 @@ export const deleteProperty = async (id: string): Promise<boolean> => {
 
 // ============ AGENTS CRUD ============
 
-export const getAgents = async (): Promise<Agent[]> => {
-    const { data, error } = await supabase
-        .from('agents')
-        .select('*')
-        .order('name', { ascending: true });
+export const getAgents = async (agencyId?: string): Promise<Agent[]> => {
+    let query = supabase.from('agents').select('*');
+
+    if (agencyId) {
+        query = query.eq('agency_id', agencyId);
+    }
+
+    const { data, error } = await query.order('name', { ascending: true });
 
     if (error) {
         console.error('Error fetching agents:', error);
@@ -242,13 +300,16 @@ export const getAgents = async (): Promise<Agent[]> => {
     return data?.map(mapDbToAgent) || [];
 };
 
-export const addAgent = async (agent: Partial<Agent>): Promise<Agent | null> => {
+export const addAgent = async (agent: Partial<Agent>, agencyId?: string): Promise<Agent | null> => {
     const session = await getCurrentSession();
     if (!session) return null;
 
     const { data, error } = await supabase
         .from('agents')
-        .insert(mapAgentToDb(agent, session.user.id))
+        .insert({
+            ...mapAgentToDb(agent, session.user.id),
+            agency_id: agencyId || agent.agencyId
+        })
         .select()
         .single();
 
@@ -292,14 +353,17 @@ export const deleteAgent = async (id: string): Promise<boolean> => {
 
 // ============ CLIENTS CRUD ============
 
-export const getClients = async (): Promise<Client[]> => {
-    const { data, error } = await supabase
-        .from('clients')
-        .select(`
-            *,
-    follow_ups(*)
-        `)
-        .order('created_at', { ascending: false });
+export const getClients = async (agencyId?: string): Promise<Client[]> => {
+    let query = supabase.from('clients').select(`
+        *,
+        follow_ups(*)
+    `);
+
+    if (agencyId) {
+        query = query.eq('agency_id', agencyId);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false });
 
     if (error) {
         console.error('Error fetching clients:', error);
@@ -309,13 +373,16 @@ export const getClients = async (): Promise<Client[]> => {
     return data?.map(mapDbToClient) || [];
 };
 
-export const addClient = async (client: Partial<Client>): Promise<Client | null> => {
+export const addClient = async (client: Partial<Client>, agencyId?: string): Promise<Client | null> => {
     const session = await getCurrentSession();
     if (!session) return null;
 
     const { data, error } = await supabase
         .from('clients')
-        .insert(mapClientToDb(client, session.user.id))
+        .insert({
+            ...mapClientToDb(client, session.user.id),
+            agency_id: agencyId || client.agencyId
+        })
         .select()
         .single();
 
@@ -410,11 +477,14 @@ export const deletePropertyImage = async (url: string): Promise<boolean> => {
 
 // ============ SALES CRUD ============
 
-export const getSales = async (): Promise<Sale[]> => {
-    const { data, error } = await supabase
-        .from('sales')
-        .select('*')
-        .order('created_at', { ascending: false });
+export const getSales = async (agencyId?: string): Promise<Sale[]> => {
+    let query = supabase.from('sales').select('*');
+
+    if (agencyId) {
+        query = query.eq('agency_id', agencyId);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false });
 
     if (error) {
         console.error('Error fetching sales:', error);
@@ -424,13 +494,16 @@ export const getSales = async (): Promise<Sale[]> => {
     return data?.map(mapDbToSale) || [];
 };
 
-export const addSale = async (sale: Partial<Sale>): Promise<Sale | null> => {
+export const addSale = async (sale: Partial<Sale>, agencyId?: string): Promise<Sale | null> => {
     const session = await getCurrentSession();
     if (!session) return null;
 
     const { data, error } = await supabase
         .from('sales')
-        .insert(mapSaleToDb(sale, session.user.id))
+        .insert({
+            ...mapSaleToDb(sale, session.user.id),
+            agency_id: agencyId
+        })
         .select()
         .single();
 
@@ -444,11 +517,14 @@ export const addSale = async (sale: Partial<Sale>): Promise<Sale | null> => {
 
 // ============ CONTRACTS CRUD ============
 
-export const getContracts = async (): Promise<Contract[]> => {
-    const { data, error } = await supabase
-        .from('contracts')
-        .select('*')
-        .order('created_at', { ascending: false });
+export const getContracts = async (agencyId?: string): Promise<Contract[]> => {
+    let query = supabase.from('contracts').select('*');
+
+    if (agencyId) {
+        query = query.eq('agency_id', agencyId);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false });
 
     if (error) {
         console.error('Error fetching contracts:', error);
@@ -458,13 +534,16 @@ export const getContracts = async (): Promise<Contract[]> => {
     return data?.map(mapDbToContract) || [];
 };
 
-export const addContract = async (contract: Partial<Contract>): Promise<Contract | null> => {
+export const addContract = async (contract: Partial<Contract>, agencyId?: string): Promise<Contract | null> => {
     const session = await getCurrentSession();
     if (!session) return null;
 
     const { data, error } = await supabase
         .from('contracts')
-        .insert(mapContractToDb(contract, session.user.id))
+        .insert({
+            ...mapContractToDb(contract, session.user.id),
+            agency_id: agencyId || contract.agentId // Fallback to agentId if agencyId not provided
+        })
         .select()
         .single();
 
@@ -588,6 +667,8 @@ function mapDbToClient(db: any): Client {
         status: db.status,
         source: db.source,
         agentId: db.agent_id,
+        agencyId: db.agency_id,
+        branchId: db.branch_id,
         followUps: (db.follow_ups || []).map((fu: any) => ({
             id: fu.id,
             date: fu.created_at,
@@ -615,7 +696,9 @@ function mapClientToDb(client: Partial<Client>, userId?: string): any {
         notes: client.notes,
         status: client.status,
         source: client.source,
-        agent_id: client.agentId
+        agent_id: client.agentId,
+        agency_id: client.agencyId,
+        branch_id: client.branchId
     };
 }
 
@@ -661,6 +744,8 @@ function mapDbToSale(db: any): Sale {
         type: db.type,
         finalPrice: parseFloat(db.final_price) || 0,
         commission: parseFloat(db.commission) || 0,
+        agencyId: db.agency_id,
+        branchId: db.branch_id,
         dateClosed: db.created_at,
         contractId: db.contract_id
     };
@@ -675,7 +760,9 @@ function mapSaleToDb(sale: Partial<Sale>, userId?: string): any {
         type: sale.type,
         final_price: sale.finalPrice,
         commission: sale.commission,
-        contract_id: sale.contractId
+        contract_id: sale.contractId,
+        agency_id: sale.agencyId,
+        branch_id: sale.branchId
     };
 }
 
@@ -692,7 +779,9 @@ function mapDbToContract(db: any): Contract {
         amount: db.amount,
         deposit: db.deposit,
         terms: db.terms,
-        signed: db.signed
+        signed: db.signed,
+        agencyId: db.agency_id,
+        branchId: db.branch_id
     };
 }
 
@@ -709,6 +798,8 @@ function mapContractToDb(contract: Partial<Contract>, userId?: string): any {
         deposit: contract.deposit,
         terms: contract.terms,
         signed: contract.signed,
-        user_id: userId
+        user_id: userId,
+        agency_id: contract.agencyId,
+        branch_id: contract.branchId
     };
 }

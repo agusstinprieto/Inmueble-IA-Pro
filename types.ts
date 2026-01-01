@@ -107,8 +107,10 @@ export interface Client {
   budgetMax: number;
   preferredZones: string[];
   notes: string;
-  agentId: string;
   status: ClientStatus;
+  agentId: string;
+  agencyId: string;
+  branchId?: string;
   followUps: FollowUp[];
   viewedProperties: string[];
   dateAdded: string;
@@ -140,17 +142,38 @@ export interface Agent {
   active: boolean;
 }
 
+// ============ SAAS B2B TYPES ============
+
+export type UserRole = 'super_admin' | 'agency_owner' | 'branch_manager' | 'agent';
+
+export interface Profile {
+  id: string;
+  email: string;
+  name?: string;
+  role: UserRole;
+  agencyId?: string;
+  branchId?: string;
+  photoUrl?: string;
+}
+
 export interface Agency {
   id: string;
+  ownerId: string;
   name: string;
-  logo?: string;
-  phone: string;
-  email: string;
-  address: Address;
-  agents: string[];
-  properties: string[];
-  primaryColor: string;
+  logoUrl?: string;
+  brandColor: string;
+  planType: 'FREE' | 'PRO' | 'ENTERPRISE';
+  status: 'ACTIVE' | 'INACTIVE';
   dateCreated: string;
+}
+
+export interface Branch {
+  id: string;
+  agencyId: string;
+  name: string;
+  address?: string;
+  phone?: string;
+  managerId?: string;
 }
 
 export interface Sale {
@@ -161,6 +184,8 @@ export interface Sale {
   type: OperationType;
   finalPrice: number;
   commission: number;
+  agencyId: string;
+  branchId?: string;
   dateClosed: string;
   contractId?: string;
 }
@@ -178,6 +203,8 @@ export interface Contract {
   terms: string;
   pdfUrl?: string;
   signed: boolean;
+  agencyId: string;
+  branchId?: string;
   dateCreated: string;
 }
 

@@ -21,7 +21,7 @@ import PublicPortalView from './components/PublicPortalView';
 import PublicPropertyDetail from './components/PublicPropertyDetail';
 import { translations } from './translations';
 import {
-  supabase, getBusinessProfile, signOut, addProperty, getProperties, uploadPropertyImages, updateProperty, deleteProperty, updateBusinessProfile, getAgents, addAgent, updateAgent, deleteAgent, addSale, updateClient,
+  supabase, getUserProfile, getAgencyProfile, signOut, addProperty, getProperties, uploadPropertyImages, updateProperty, deleteProperty, updateUserProfile, updateAgencyProfile, getAgents, addAgent, updateAgent, deleteAgent, addSale, updateClient,
   getClients,
   addClient,
   deleteClient,
@@ -37,7 +37,10 @@ import {
   Sale,
   PropertyStatus,
   ClientStatus,
-  Agent
+  Agent,
+  Profile,
+  Agency,
+  UserRole
 } from './types';
 import { Loader2, RefreshCw, Wifi, CloudOff } from 'lucide-react';
 
@@ -59,12 +62,12 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
 
-  // Business config - with localStorage cache for instant load
+  // Business / SaaS state
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [agency, setAgency] = useState<Agency | null>(null);
   const [businessName, setBusinessName] = useState(() => localStorage.getItem('inmueble_businessName') || 'INMUEBLE IA PRO');
-  const [location, setLocation] = useState(() => localStorage.getItem('inmueble_location') || 'Torreón, Coahuila');
   const [brandColor, setBrandColor] = useState(() => localStorage.getItem('inmueble_brandColor') || '#f59e0b');
-  const [scriptUrl, setScriptUrl] = useState(() => localStorage.getItem('inmueble_scriptUrl') || '');
-  const [userRole, setUserRole] = useState<'admin' | 'employee'>('admin');
+  const [userRole, setUserRole] = useState<UserRole>('agent');
 
   // App state
   const [lang, setLang] = useState<'es' | 'en'>('es');
@@ -135,13 +138,31 @@ function App() {
       if (session) {
         setUserId(session.user.id);
         setIsAuthenticated(true);
+
+        // Load Profile and Agency
+        const userProfile = await getUserProfile(session.user.id);
+        if (userProfile) {
+          setProfile(userProfile);
+          setUserRole(userProfile.role);
+
+          if (userProfile.agencyId) {
+            const agencyData = await getAgencyProfile(userProfile.agencyId);
+            if (agencyData) {
+              setAgency(agencyData);
+              setBusinessName(agencyData.name);
+              setBrandColor(agencyData.brandColor);
+
+              // Persist for instant load next time
+              localStorage.setItem('inmueble_businessName', agencyData.name);
+              localStorage.setItem('inmueble_brandColor', agencyData.brandColor);
+            }
+          }
+        }
       }
     } catch (error) {
       console.error('Session check error:', error);
     } finally {
-      // Intentar cargar propiedades públicas independientemente de la sesión
       loadPublicData();
-      // Small delay to ensure smooth transition
       setTimeout(() => setIsLoading(false), 500);
     }
   };
@@ -158,50 +179,37 @@ function App() {
   // Load data when authenticated
   useEffect(() => {
     if (isAuthenticated && userId) {
-      loadProfile(userId);
+      loadUserData();
     }
-  }, [isAuthenticated, userId]);
+  }, [isAuthenticated, userId, profile?.agencyId]);
 
-  const loadProfile = async (uid: string) => {
+  const loadUserData = async () => {
+    if (!isAuthenticated || !userId) return;
+
+    setIsSyncing(true);
     try {
-      const profile = await getBusinessProfile(uid);
-      if (profile) {
-        setBusinessName(profile.business_name);
-        setLocation(profile.location);
-        setBrandColor(profile.branding_color || '#f59e0b');
-        setScriptUrl(profile.script_url);
-        setUserRole(profile.role);
+      // Data is filtered by agency in the service layer if agencyId is provided
+      const agencyId = profile?.agencyId;
 
-        // Sync to localStorage for instant load on next visit
-        localStorage.setItem('inmueble_businessName', profile.business_name);
-        localStorage.setItem('inmueble_location', profile.location);
-        localStorage.setItem('inmueble_brandColor', profile.branding_color || '#f59e0b');
-        localStorage.setItem('inmueble_scriptUrl', profile.script_url || '');
-      }
-      // Load data after profile
-      await loadData();
-    } catch (err) {
-      console.error('loadProfile error:', err);
-    }
-  };
-
-  const loadData = async () => {
-    try {
       const [props, ags, cls, conts, sls] = await Promise.all([
-        getProperties(),
-        getAgents(),
-        getClients(),
-        getContracts(),
-        getSales()
+        getProperties(agencyId),
+        getAgents(agencyId),
+        getClients(agencyId),
+        getContracts(agencyId),
+        getSales(agencyId)
       ]);
+
       setProperties(props);
       setAgents(ags);
       setClients(cls);
       setContracts(conts);
       setSales(sls);
-      console.log(`✅ Loaded ${props.length} props, ${ags.length} agents, ${cls.length} clients`);
+      setLastSync(new Date());
+      console.log(`✅ Loaded data for agency: ${agencyId || 'Personal'}`);
     } catch (err) {
       console.error('loadData error:', err);
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -210,10 +218,15 @@ function App() {
       await signOut();
       setIsAuthenticated(false);
       setUserId(null);
+      setProfile(null);
+      setAgency(null);
       setProperties([]);
       setClients([]);
       setContracts([]);
       setSales([]);
+      setAgents([]);
+      localStorage.removeItem('inmueble_businessName');
+      localStorage.removeItem('inmueble_brandColor');
     } catch (error) {
       console.error('Logout error:', error);
     }
@@ -226,22 +239,20 @@ function App() {
 
     setIsSyncing(true);
     try {
-      // Load all data from Supabase
-      await loadData();
+      await loadUserData();
       setLastSync(new Date());
-      console.log('✅ Sincronización completada');
     } catch (error) {
       console.error('Sync error:', error);
     } finally {
       setIsSyncing(false);
     }
-  }, [isSyncing]);
+  }, [isSyncing, isAuthenticated, userId]);
 
   useEffect(() => {
-    if (isAuthenticated && scriptUrl) {
+    if (isAuthenticated && userId) {
       syncWithCloud();
     }
-  }, [isAuthenticated, scriptUrl]);
+  }, [isAuthenticated, userId]);
 
   // Online status
   useEffect(() => {
@@ -283,7 +294,7 @@ function App() {
       } as Partial<Property>;
 
       // Guardar en Supabase (esto automáticamente sincroniza con Sheets)
-      const savedProperty = await addProperty(newProperty);
+      const savedProperty = await addProperty(newProperty, profile?.agencyId, profile?.branchId);
 
       if (savedProperty) {
         // Actualizar el estado local con la propiedad guardada
@@ -328,7 +339,7 @@ function App() {
         agentId: userId || undefined
       };
 
-      const newClient = await addClient(clientToSave);
+      const newClient = await addClient(clientToSave, profile?.agencyId);
       if (newClient) {
         setClients(prev => [newClient, ...prev]);
         console.log('✅ Cliente guardado en BD');
@@ -367,7 +378,7 @@ function App() {
   // ============ AGENTS HANDLERS ============
 
   const handleAddAgent = async (agent: Partial<Agent>) => {
-    const newAgent = await addAgent(agent);
+    const newAgent = await addAgent(agent, profile?.agencyId);
     if (newAgent) {
       setAgents(prev => [...prev, newAgent]);
     }
@@ -389,7 +400,7 @@ function App() {
 
   const handleAddContract = async (contract: Partial<Contract>) => {
     try {
-      const newContract = await addContract(contract);
+      const newContract = await addContract(contract, profile?.agencyId);
       if (newContract) {
         setContracts(prev => [newContract, ...prev]);
         console.log('✅ Contrato guardado en BD');
@@ -417,7 +428,11 @@ function App() {
   // Handle new sale
   const handleAddSale = async (sale: Sale) => {
     try {
-      setSales(prev => [sale, ...prev]);
+      const newSale = await addSale(sale, profile?.agencyId);
+      if (newSale) {
+        setSales(prev => [newSale, ...prev]);
+        console.log('✅ Venta guardada en BD');
+      }
 
       // Update property status
       const property = properties.find(p => p.id === sale.propertyId);
@@ -693,32 +708,31 @@ function App() {
           <SettingsView
             businessName={businessName}
             setBusinessName={setBusinessName}
-            location={location}
-            setLocation={setLocation}
             brandColor={brandColor}
             setBrandColor={setBrandColor}
             lang={lang}
             setLang={setLang}
-            scriptUrl={scriptUrl}
-            setScriptUrl={setScriptUrl}
             onSync={syncWithCloud}
             onSaveProfile={async () => {
-              if (userId) {
-                const success = await updateBusinessProfile(userId, {
-                  business_name: businessName,
-                  location: location,
-                  branding_color: brandColor,
-                  script_url: scriptUrl,
-                  role: userRole
+              if (!userId) return false;
+
+              const profileSuccess = await updateUserProfile(userId, {
+                name: businessName, // Using businessName for profile name for now if not set
+                photoUrl: profile?.photoUrl
+              });
+
+              let agencySuccess = true;
+              if (profile?.agencyId && profile.role === 'agency_owner') {
+                agencySuccess = await updateAgencyProfile(profile.agencyId, {
+                  name: businessName,
+                  brandColor: brandColor
                 });
-                if (success) {
-                  // Sync to localStorage immediately on save
-                  localStorage.setItem('inmueble_businessName', businessName);
-                  localStorage.setItem('inmueble_location', location);
-                  localStorage.setItem('inmueble_brandColor', brandColor);
-                  localStorage.setItem('inmueble_scriptUrl', scriptUrl);
-                }
-                return success;
+              }
+
+              if (profileSuccess && agencySuccess) {
+                localStorage.setItem('inmueble_businessName', businessName);
+                localStorage.setItem('inmueble_brandColor', brandColor);
+                return true;
               }
               return false;
             }}

@@ -34,30 +34,72 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOiJI...tu_clave_aqui
 
 ## Paso 4: Ejecutar SQL en Supabase
 
-Ve a **SQL Editor** en Supabase y ejecuta este script:
+Ve a **SQL Editor** en Supabase y ejecuta este script.
+> [!IMPORTANT]
+> Copia **SOLO** el código de adentro. **NO** copies las líneas que tienen ` ```sql ` o ` ``` `.
 
 ```sql
 -- =============================================
--- INMUEBLE IA PRO - Database Schema
+-- INMUEBLE IA PRO - RESET & INIT SCRIPT (SaaS B2B)
 -- =============================================
+-- ⚠️ ADVERTENCIA: ESTE SCRIPT BORRARÁ LOS DATOS EXISTENTES
+-- PARA APLICAR LA NUEVA ARQUITECTURA LIMPIA.
 
--- 1. TABLA PROFILES (usuarios/agencias)
-CREATE TABLE IF NOT EXISTS profiles (
+-- 1. LIMPIEZA (DROP CASCADE)
+DROP TABLE IF EXISTS sales CASCADE;
+DROP TABLE IF EXISTS contracts CASCADE;
+DROP TABLE IF EXISTS start_contracts CASCADE; -- Por si acaso
+DROP TABLE IF EXISTS follow_ups CASCADE;
+DROP TABLE IF EXISTS clients CASCADE;
+DROP TABLE IF EXISTS properties CASCADE;
+DROP TABLE IF EXISTS agents CASCADE; -- Tabla Legacy
+DROP TABLE IF EXISTS profiles CASCADE;
+DROP TABLE IF EXISTS branches CASCADE;
+DROP TABLE IF EXISTS agencies CASCADE;
+
+-- 2. TABLA AGENCIES (Empresa/Cliente)
+CREATE TABLE agencies (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  owner_id UUID REFERENCES auth.users(id),
+  name TEXT NOT NULL,
+  logo_url TEXT,
+  brand_color TEXT DEFAULT '#f59e0b',
+  plan_type TEXT DEFAULT 'FREE', -- FREE, PRO, ENTERPRISE
+  status TEXT DEFAULT 'ACTIVE',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 3. TABLA BRANCHES (Sucursales)
+CREATE TABLE branches (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  agency_id UUID REFERENCES agencies(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  address TEXT,
+  phone TEXT,
+  manager_id UUID REFERENCES auth.users(id),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 4. TABLA PROFILES (Perfil de Usuario)
+CREATE TABLE profiles (
   id UUID REFERENCES auth.users(id) PRIMARY KEY,
-  business_id TEXT UNIQUE NOT NULL,
-  business_name TEXT NOT NULL,
-  location TEXT DEFAULT '',
-  script_url TEXT DEFAULT '',
-  branding_color TEXT DEFAULT '#f59e0b',
-  role TEXT DEFAULT 'employee' CHECK (role IN ('admin', 'employee')),
+  agency_id UUID REFERENCES agencies(id) ON DELETE SET NULL,
+  branch_id UUID REFERENCES branches(id) ON DELETE SET NULL,
+  role TEXT DEFAULT 'agency_owner' CHECK (role IN ('super_admin', 'agency_owner', 'branch_manager', 'agent')),
+  name TEXT,
+  email TEXT,
+  photo_url TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 2. TABLA PROPERTIES (propiedades)
-CREATE TABLE IF NOT EXISTS properties (
+-- 5. TABLA PROPERTIES (Inventario)
+CREATE TABLE properties (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES auth.users(id),
+  agency_id UUID REFERENCES agencies(id) ON DELETE CASCADE,
+  branch_id UUID REFERENCES branches(id) ON DELETE SET NULL,
+  agent_id UUID REFERENCES auth.users(id),
+  
   title TEXT NOT NULL,
   type TEXT NOT NULL,
   operation TEXT NOT NULL,
@@ -70,193 +112,151 @@ CREATE TABLE IF NOT EXISTS properties (
   city TEXT,
   state TEXT,
   zip_code TEXT,
-  latitude DECIMAL(10, 8),
-  longitude DECIMAL(11, 8),
-  m2_total INTEGER DEFAULT 0,
-  m2_built INTEGER DEFAULT 0,
-  bedrooms INTEGER DEFAULT 0,
-  bathrooms INTEGER DEFAULT 0,
-  parking INTEGER DEFAULT 0,
-  floors INTEGER DEFAULT 1,
   amenities TEXT[] DEFAULT '{}',
   images TEXT[] DEFAULT '{}',
   sale_price DECIMAL(12, 2) DEFAULT 0,
   rent_price DECIMAL(12, 2) DEFAULT 0,
+  currency TEXT DEFAULT 'MXN',
+  
   views INTEGER DEFAULT 0,
   favorites INTEGER DEFAULT 0,
-  agent_id UUID,
-  agency_id UUID,
   virtual_tour_url TEXT,
+  
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 3. TABLA CLIENTS (clientes/leads)
-CREATE TABLE IF NOT EXISTS clients (
+-- 6. TABLA CLIENTS (CRM)
+CREATE TABLE clients (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES auth.users(id),
+  agency_id UUID REFERENCES agencies(id) ON DELETE CASCADE,
+  branch_id UUID REFERENCES branches(id) ON DELETE SET NULL,
+  agent_id UUID REFERENCES auth.users(id),
+  
   name TEXT NOT NULL,
   phone TEXT NOT NULL,
   email TEXT,
   interest TEXT DEFAULT 'VENTA',
+  status TEXT DEFAULT 'NUEVO',
   preferred_types TEXT[] DEFAULT '{}',
   budget_min DECIMAL(12, 2) DEFAULT 0,
   budget_max DECIMAL(12, 2) DEFAULT 0,
-  preferred_zones TEXT[] DEFAULT '{}',
-  notes TEXT,
-  status TEXT DEFAULT 'NUEVO',
   source TEXT,
-  agent_id UUID,
+  notes TEXT,
+  
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 4. TABLA FOLLOW_UPS (seguimientos)
-CREATE TABLE IF NOT EXISTS follow_ups (
+-- 7. TABLA CONTRACTS
+CREATE TABLE contracts (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  client_id UUID REFERENCES clients(id) ON DELETE CASCADE,
-  type TEXT NOT NULL,
-  notes TEXT,
-  scheduled_date TIMESTAMP WITH TIME ZONE,
-  completed BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- 5. TABLA CONTRACTS (contratos)
-CREATE TABLE IF NOT EXISTS contracts (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES auth.users(id),
+  agency_id UUID REFERENCES agencies(id) ON DELETE CASCADE,
   property_id UUID REFERENCES properties(id),
   client_id UUID REFERENCES clients(id),
+  agent_id UUID REFERENCES auth.users(id),
+  
   type TEXT NOT NULL,
   start_date DATE,
   end_date DATE,
   amount DECIMAL(12, 2),
-  deposit DECIMAL(12, 2),
-  terms TEXT,
   signed BOOLEAN DEFAULT FALSE,
-  agent_id UUID,
+  
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 6. TABLA SALES (ventas/rentas cerradas)
-CREATE TABLE IF NOT EXISTS sales (
+-- 8. TABLA SALES
+CREATE TABLE sales (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  agency_id UUID REFERENCES agencies(id) ON DELETE CASCADE,
   property_id UUID REFERENCES properties(id),
   client_id UUID REFERENCES clients(id),
+  agent_id UUID REFERENCES auth.users(id),
   contract_id UUID REFERENCES contracts(id),
+  
   final_price DECIMAL(12, 2),
   commission DECIMAL(12, 2),
-  date_closed TIMESTAMP WITH TIME ZONE,
-  agent_id UUID,
+  date_closed TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 7. TABLA AGENTS (agentes inmobiliarios)
-CREATE TABLE IF NOT EXISTS agents (
+-- 9. TABLA FOLLOW_UPS
+CREATE TABLE follow_ups (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES auth.users(id), -- Dueño de la agencia/cuenta
-  name TEXT NOT NULL,
-  phone TEXT,
-  email TEXT,
-  photo TEXT,
-  agency_id TEXT DEFAULT 'demo',
-  properties TEXT[] DEFAULT '{}',
-  clients TEXT[] DEFAULT '{}',
-  sales TEXT[] DEFAULT '{}',
-  commission DECIMAL(5, 2) DEFAULT 0,
-  active BOOLEAN DEFAULT TRUE,
+  client_id UUID REFERENCES clients(id) ON DELETE CASCADE,
+  type TEXT NOT NULL,
+  notes TEXT,
+  completed BOOLEAN DEFAULT FALSE,
+  scheduled_date TIMESTAMP WITH TIME ZONE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- =============================================
--- ROW LEVEL SECURITY (RLS)
+-- RLS POLICIES (Seguridad)
 -- =============================================
 
--- Habilitar RLS en todas las tablas
+ALTER TABLE agencies ENABLE ROW LEVEL SECURITY;
+ALTER TABLE branches ENABLE ROW LEVEL SECURITY;
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE properties ENABLE ROW LEVEL SECURITY;
 ALTER TABLE clients ENABLE ROW LEVEL SECURITY;
-ALTER TABLE follow_ups ENABLE ROW LEVEL SECURITY;
 ALTER TABLE contracts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sales ENABLE ROW LEVEL SECURITY;
-ALTER TABLE agents ENABLE ROW LEVEL SECURITY;
+ALTER TABLE follow_ups ENABLE ROW LEVEL SECURITY;
 
--- Políticas para PROFILES
-CREATE POLICY "Users can view own profile" ON profiles
-  FOR SELECT USING (auth.uid() = id);
-
+-- 1. PROFILES (Basico)
+CREATE POLICY "Public profiles can be read by auth users" ON profiles
+  FOR SELECT USING (auth.role() = 'authenticated');
+  
 CREATE POLICY "Users can update own profile" ON profiles
   FOR UPDATE USING (auth.uid() = id);
 
--- Políticas para PROPERTIES
-CREATE POLICY "Users can view own properties" ON properties
-  FOR SELECT USING (auth.uid() = user_id);
+-- 2. AGENCIES
+-- Dueños ven su agencia
+CREATE POLICY "Owners manage own agency" ON agencies
+  FOR ALL USING (owner_id = auth.uid());
+  
+-- Empleados ven su agencia asignada
+CREATE POLICY "Employees view assigned agency" ON agencies
+  FOR SELECT USING (id = (SELECT agency_id FROM profiles WHERE id = auth.uid()));
 
-CREATE POLICY "Users can insert own properties" ON properties
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can update own properties" ON properties
-  FOR UPDATE USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can delete own properties" ON properties
-  FOR DELETE USING (auth.uid() = user_id);
-
--- Políticas para CLIENTS
-CREATE POLICY "Users can view own clients" ON clients
-  FOR SELECT USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can insert own clients" ON clients
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can update own clients" ON clients
-  FOR UPDATE USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can delete own clients" ON clients
-  FOR DELETE USING (auth.uid() = user_id);
-
--- Políticas para FOLLOW_UPS (heredan del cliente)
-CREATE POLICY "Users can manage follow_ups" ON follow_ups
-  FOR ALL USING (
-    EXISTS (SELECT 1 FROM clients WHERE clients.id = follow_ups.client_id AND clients.user_id = auth.uid())
-  );
-
--- Políticas para CONTRACTS
-CREATE POLICY "Users can manage contracts" ON contracts
-  FOR ALL USING (auth.uid() = user_id);
-
--- Políticas para SALES
-CREATE POLICY "Users can view own sales" ON sales
+-- 3. PROPERTIES
+-- Ver: Si pertenece a mi agencia
+CREATE POLICY "View Agency Properties" ON properties
   FOR SELECT USING (
-    EXISTS (SELECT 1 FROM properties WHERE properties.id = sales.property_id AND properties.user_id = auth.uid())
+    agency_id = (SELECT agency_id FROM profiles WHERE id = auth.uid()) OR
+    (SELECT role FROM profiles WHERE id = auth.uid()) = 'super_admin'
   );
 
--- Políticas para AGENTS
-CREATE POLICY "Users can manage own agents" ON agents
-  FOR ALL USING (auth.uid() = user_id);
+-- Editar: Solo si es mi propiedad o soy manager/owner
+CREATE POLICY "Manage Agency Properties" ON properties
+  FOR ALL USING (
+    agency_id = (SELECT agency_id FROM profiles WHERE id = auth.uid()) AND
+    (
+      agent_id = auth.uid() OR
+      (SELECT role FROM profiles WHERE id = auth.uid()) IN ('agency_owner', 'branch_manager')
+    )
+  );
 
 -- =============================================
--- TRIGGER: Crear perfil automáticamente
+-- TRIGGERS
 -- =============================================
 
+-- Auto-Profile creation
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.profiles (id, business_id, business_name)
-  VALUES (
-    NEW.id,
-    SPLIT_PART(NEW.email, '@', 1),
-    SPLIT_PART(NEW.email, '@', 1)
-  );
+  INSERT INTO public.profiles (id, email, role, name)
+  VALUES (NEW.id, NEW.email, 'agency_owner', SPLIT_PART(NEW.email, '@', 1));
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Trigger para nuevos usuarios
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
 ```
 
 ---
