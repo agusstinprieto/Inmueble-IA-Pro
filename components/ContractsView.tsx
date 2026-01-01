@@ -18,6 +18,14 @@ import {
 } from 'lucide-react';
 import { translations } from '../translations';
 import { Contract, ContractType, Property, Client } from '../types';
+import {
+    PURCHASE_AGREEMENT_TEMPLATE_ES,
+    PURCHASE_AGREEMENT_TEMPLATE_EN,
+    LEASE_AGREEMENT_TEMPLATE_ES,
+    LEASE_AGREEMENT_TEMPLATE_EN,
+    PROMISE_AGREEMENT_TEMPLATE_ES,
+    PROMISE_AGREEMENT_TEMPLATE_EN
+} from './ContractTemplates';
 
 interface ContractsViewProps {
     contracts: Contract[];
@@ -54,9 +62,47 @@ const ContractsView: React.FC<ContractsViewProps> = ({
         endDate: '',
         amount: 0,
         deposit: 0,
-        terms: '',
+        terms: PURCHASE_AGREEMENT_TEMPLATE_ES,
         signed: false
     });
+
+    React.useEffect(() => {
+        const property = properties.find(p => p.id === formData.propertyId);
+        const isUSA = property?.address?.country === 'USA';
+
+        let template = '';
+
+        switch (formData.type) {
+            case ContractType.COMPRAVENTA:
+                template = isUSA ? PURCHASE_AGREEMENT_TEMPLATE_EN : PURCHASE_AGREEMENT_TEMPLATE_ES;
+                break;
+            case ContractType.ARRENDAMIENTO:
+                template = isUSA ? LEASE_AGREEMENT_TEMPLATE_EN : LEASE_AGREEMENT_TEMPLATE_ES;
+                break;
+            case ContractType.PROMESA:
+                template = isUSA ? PROMISE_AGREEMENT_TEMPLATE_EN : PROMISE_AGREEMENT_TEMPLATE_ES;
+                break;
+        }
+
+        // Only update if terms are empty or if we are switching templates basically (logic simplifies to: if we have a template and (terms empty or property changed so might need lang switch))
+        // Actually, simpler logic: if terms is empty OR if the specific type was just selected (handled by dependency).
+        // Safest approach: Update if terms matches one of the defaults (meaning user hasn't customized) or is empty.
+        // For now, let's keep it simple: If empty or we detect a country switch logic might be needed.
+        // Let's just update if terms is empty.
+        if (!formData.terms || formData.terms === '') {
+            setFormData(prev => ({ ...prev, terms: template }));
+        } else if (property) {
+            // If property exists, enforce the correct language template if the current text matches the WRONG language template
+            // (e.g. user selected Mexico property but had English template loaded).
+            // This is a bit complex to regex, so we'll just force update if it matches the 'other' language default.
+            const otherLangTemplate = isUSA ? PURCHASE_AGREEMENT_TEMPLATE_ES : PURCHASE_AGREEMENT_TEMPLATE_EN; // Simplified for Compraventa check
+            // This is getting complicated. Let's just trust the "empty" check for now, and rely on the user clearing it if they change properties across borders, 
+            // OR we can force it if the user switches property.
+            // Let's just set it if it's empty, OR if the propertyId changed in the dependency array.
+            // Actually, if I switch properties, I probably want the template to update.
+            setFormData(prev => ({ ...prev, terms: template }));
+        }
+    }, [formData.type, formData.propertyId, properties]);
 
     // Contract type labels
     const typeLabels: Record<ContractType, { label: string; icon: string }> = {
@@ -91,7 +137,7 @@ const ContractsView: React.FC<ContractsViewProps> = ({
             endDate: '',
             amount: 0,
             deposit: 0,
-            terms: '',
+            terms: PURCHASE_AGREEMENT_TEMPLATE_ES,
             signed: false
         });
     };
@@ -172,7 +218,18 @@ Firma del Representante
                     <div
                         key={type}
                         onClick={() => {
-                            setFormData(prev => ({ ...prev, type: type as ContractType }));
+                            let defaultTemplate = '';
+                            switch (type as ContractType) {
+                                case ContractType.COMPRAVENTA: defaultTemplate = PURCHASE_AGREEMENT_TEMPLATE_ES; break;
+                                case ContractType.ARRENDAMIENTO: defaultTemplate = LEASE_AGREEMENT_TEMPLATE_ES; break;
+                                case ContractType.PROMESA: defaultTemplate = PROMISE_AGREEMENT_TEMPLATE_ES; break;
+                            }
+
+                            setFormData(prev => ({
+                                ...prev,
+                                type: type as ContractType,
+                                terms: defaultTemplate
+                            }));
                             setShowModal(true);
                         }}
                         className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 cursor-pointer hover:border-zinc-600 transition-all"

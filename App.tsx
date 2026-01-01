@@ -20,7 +20,7 @@ import SettingsView from './components/SettingsView';
 import PublicPortalView from './components/PublicPortalView';
 import PublicPropertyDetail from './components/PublicPropertyDetail';
 import { translations } from './translations';
-import { supabase, getBusinessProfile, signOut, addProperty, getProperties, uploadPropertyImages, updateProperty, deleteProperty, updateBusinessProfile, getAgents, addAgent, updateAgent, deleteAgent, addSale, updateClient } from './services/supabase';
+import { supabase, getBusinessProfile, signOut, addProperty, getProperties, uploadPropertyImages, updateProperty, deleteProperty, updateBusinessProfile, getAgents, addAgent, updateAgent, deleteAgent, addSale, updateClient, getClients, getContracts, getSales } from './services/supabase';
 import {
   Property,
   Client,
@@ -178,13 +178,19 @@ function App() {
 
   const loadData = async () => {
     try {
-      const [props, ags] = await Promise.all([
+      const [props, ags, cls, conts, sls] = await Promise.all([
         getProperties(),
-        getAgents()
+        getAgents(),
+        getClients(),
+        getContracts(),
+        getSales()
       ]);
       setProperties(props);
       setAgents(ags);
-      console.log(`✅ Loaded ${props.length} properties and ${ags.length} agents from Supabase`);
+      setClients(cls);
+      setContracts(conts);
+      setSales(sls);
+      console.log(`✅ Loaded ${props.length} props, ${ags.length} agents, ${cls.length} clients`);
     } catch (err) {
       console.error('loadData error:', err);
     }

@@ -442,6 +442,54 @@ export const addSale = async (sale: Partial<Sale>): Promise<Sale | null> => {
     return mapDbToSale(data);
 };
 
+// ============ CONTRACTS CRUD ============
+
+export const getContracts = async (): Promise<Contract[]> => {
+    const { data, error } = await supabase
+        .from('contracts')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching contracts:', error);
+        return [];
+    }
+
+    return data?.map(mapDbToContract) || [];
+};
+
+export const addContract = async (contract: Partial<Contract>): Promise<Contract | null> => {
+    const session = await getCurrentSession();
+    if (!session) return null;
+
+    const { data, error } = await supabase
+        .from('contracts')
+        .insert(mapContractToDb(contract, session.user.id))
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Error adding contract:', error);
+        return null;
+    }
+
+    return mapDbToContract(data);
+};
+
+export const deleteContract = async (id: string): Promise<boolean> => {
+    const { error } = await supabase
+        .from('contracts')
+        .delete()
+        .eq('id', id);
+
+    if (error) {
+        console.error('Error deleting contract:', error);
+        return false;
+    }
+
+    return true;
+};
+
 // ============ MAPPERS ============
 
 function mapDbToProperty(db: any): Property {
