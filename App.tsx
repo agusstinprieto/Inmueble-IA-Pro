@@ -20,7 +20,16 @@ import SettingsView from './components/SettingsView';
 import PublicPortalView from './components/PublicPortalView';
 import PublicPropertyDetail from './components/PublicPropertyDetail';
 import { translations } from './translations';
-import { supabase, getBusinessProfile, signOut, addProperty, getProperties, uploadPropertyImages, updateProperty, deleteProperty, updateBusinessProfile, getAgents, addAgent, updateAgent, deleteAgent, addSale, updateClient, getClients, getContracts, getSales } from './services/supabase';
+import {
+  supabase, getBusinessProfile, signOut, addProperty, getProperties, uploadPropertyImages, updateProperty, deleteProperty, updateBusinessProfile, getAgents, addAgent, updateAgent, deleteAgent, addSale, updateClient,
+  getClients,
+  addClient,
+  deleteClient,
+  getContracts,
+  addContract,
+  deleteContract,
+  getSales
+} from './services/supabase';
 import {
   Property,
   Client,
@@ -311,27 +320,41 @@ function App() {
     }
   };
 
-  const handleAddClient = (client: Partial<Client>) => {
-    const newClient = {
-      ...client,
-      id: client.id || `client_${Date.now()}`,
-      agentId: userId || '',
-      status: ClientStatus.NUEVO,
-      followUps: [],
-      viewedProperties: [],
-      dateAdded: new Date().toISOString()
-    } as Client;
-
-    setClients(prev => [newClient, ...prev]);
+  const handleAddClient = async (client: Partial<Client>) => {
+    try {
+      const newClient = await addClient(client);
+      if (newClient) {
+        setClients(prev => [newClient, ...prev]);
+        console.log('✅ Cliente guardado en BD');
+      }
+    } catch (error) {
+      console.error('❌ Error al guardar cliente:', error);
+    }
   };
 
-  const handleUpdateClient = (client: Client) => {
-    setClients(prev => prev.map(c => c.id === client.id ? client : c));
+  const handleUpdateClient = async (client: Client) => {
+    try {
+      const updated = await updateClient(client);
+      if (updated) {
+        setClients(prev => prev.map(c => c.id === client.id ? updated : c));
+        console.log('✅ Cliente actualizado en BD');
+      }
+    } catch (error) {
+      console.error('❌ Error al actualizar cliente:', error);
+    }
   };
 
-  const handleDeleteClient = (id: string) => {
+  const handleDeleteClient = async (id: string) => {
     if (!confirm(t.confirm_delete)) return;
-    setClients(prev => prev.filter(c => c.id !== id));
+    try {
+      const success = await deleteClient(id);
+      if (success) {
+        setClients(prev => prev.filter(c => c.id !== id));
+        console.log('✅ Cliente eliminado de BD');
+      }
+    } catch (error) {
+      console.error('❌ Error al eliminar cliente:', error);
+    }
   };
 
   // ============ AGENTS HANDLERS ============
@@ -357,20 +380,29 @@ function App() {
     }
   };
 
-  const handleAddContract = (contract: Partial<Contract>) => {
-    const newContract = {
-      ...contract,
-      id: contract.id || `contract_${Date.now()}`,
-      agentId: userId || '',
-      dateCreated: new Date().toISOString()
-    } as Contract;
-
-    setContracts(prev => [newContract, ...prev]);
+  const handleAddContract = async (contract: Partial<Contract>) => {
+    try {
+      const newContract = await addContract(contract);
+      if (newContract) {
+        setContracts(prev => [newContract, ...prev]);
+        console.log('✅ Contrato guardado en BD');
+      }
+    } catch (error) {
+      console.error('❌ Error al guardar contrato:', error);
+    }
   };
 
-  const handleDeleteContract = (id: string) => {
+  const handleDeleteContract = async (id: string) => {
     if (!confirm(t.confirm_delete)) return;
-    setContracts(prev => prev.filter(c => c.id !== id));
+    try {
+      const success = await deleteContract(id);
+      if (success) {
+        setContracts(prev => prev.filter(c => c.id !== id));
+        console.log('✅ Contrato eliminado de BD');
+      }
+    } catch (error) {
+      console.error('❌ Error al eliminar contrato:', error);
+    }
   };
 
   // ============ SALES HANDLERS ============
