@@ -2,39 +2,39 @@
 export const translations = {
   es: {
     // ============ NAVEGACIÓN ============
-    dashboard: "Dashboard",
-    properties: "Propiedades",
-    analyze: "Análisis IA",
+    dashboard: "DASHBOARD",
+    properties: "PROPIEDADES",
+    analyze: "ANÁLISIS IA",
     crm: "CRM",
-    clients: "Clientes",
-    contracts: "Contratos",
-    agents: "Agentes",
-    agencies: "Agencias",
-    sales: "Ventas",
-    rentals: "Rentas",
-    gallery: "Galería",
-    market_search: "Comparador",
-    valuation: "Valuación",
-    map: "Mapa",
-    virtual_tours: "Tours 360°",
-    mortgage_calc: "Calculadora",
-    analytics: "Métricas",
-    settings: "Configuración",
+    clients: "CLIENTES",
+    contracts: "CONTRATOS",
+    agents: "AGENTES",
+    agencies: "AGENCIAS",
+    sales: "VENTAS",
+    rentals: "RENTAS",
+    gallery: "GALERÍA",
+    market_search: "COMPARADOR",
+    valuation: "VALUACIÓN",
+    map: "MAPA",
+    virtual_tours: "TOURS 360°",
+    mortgage_calc: "CALCULADORA",
+    analytics: "MÉTRICAS",
+    settings: "CONFIGURACIÓN",
 
     // ============ DASHBOARD ============
-    operational_dashboard: "Dashboard Operativo",
+    operational_dashboard: "DASHBOARD OPERATIVO",
     overview_business: "Vista general del negocio inmobiliario.",
-    available_properties: "Propiedades Disponibles",
-    total_revenue: "Ingresos Totales",
-    active_clients: "Clientes Activos",
-    monthly_sales: "Ventas del Mes",
-    recent_activity: "Actividad Reciente",
+    available_properties: "PROPIEDADES DISPONIBLES",
+    total_revenue: "INGRESOS TOTALES",
+    active_clients: "CLIENTES ACTIVOS",
+    monthly_sales: "VENTAS DEL MES",
+    recent_activity: "ACTIVIDAD RECIENTE",
 
     // ============ PROPIEDADES ============
-    property_catalog: "Catálogo de Propiedades",
-    add_property: "Agregar Propiedad",
-    edit_property: "Editar Propiedad",
-    property_details: "Detalles de Propiedad",
+    property_catalog: "CATÁLOGO DE PROPIEDADES",
+    add_property: "AGREGAR PROPIEDAD",
+    edit_property: "EDITAR PROPIEDAD",
+    property_details: "DETALLES DE PROPIEDAD",
     search_properties: "Buscar propiedades...",
     filter_by_type: "Filtrar por tipo",
     filter_by_operation: "Venta / Renta",
@@ -81,7 +81,7 @@ export const translations = {
     price_per_m2: "Precio por m²",
 
     // ============ ANÁLISIS IA ============
-    multimodal_analysis: "Análisis Multimodal con IA",
+    multimodal_analysis: "ANÁLISIS MULTIMODAL IA",
     upload_property_photo: "Sube fotos de la propiedad para análisis automático.",
     click_upload: "Haz clic para subir imágenes",
     take_photo: "Capturar Foto",
@@ -104,10 +104,10 @@ export const translations = {
     },
 
     // ============ CRM / CLIENTES ============
-    client_management: "Gestión de Clientes",
-    add_client: "Agregar Cliente",
-    edit_client: "Editar Cliente",
-    client_details: "Detalles del Cliente",
+    client_management: "GESTIÓN DE CLIENTES",
+    add_client: "AGREGAR CLIENTE",
+    edit_client: "EDITAR CLIENTE",
+    client_details: "DETALLES DEL CLIENTE",
     search_clients: "Buscar clientes...",
     new_lead: "Nuevo Lead",
     follow_ups: "Seguimientos",
@@ -143,7 +143,7 @@ export const translations = {
     message_sent: "Mensaje Enviado",
 
     // ============ CONTRATOS ============
-    contract_generator: "Generador de Contratos",
+    contract_generator: "GENERADOR DE CONTRATOS",
     new_contract: "Nuevo Contrato",
     contract_templates: "Plantillas",
     sale_contract: "Contrato de Compraventa",
@@ -157,8 +157,8 @@ export const translations = {
     end_date: "Fecha de Fin",
 
     // ============ AGENTES / AGENCIAS ============
-    agent_dashboard: "Dashboard de Agentes",
-    agency_management: "Gestión de Agencias",
+    agent_dashboard: "DASHBOARD DE AGENTES",
+    agency_management: "GESTIÓN DE AGENCIAS",
     add_agent: "Agregar Agente",
     agent_profile: "Perfil del Agente",
     commission: "Comisión",
@@ -168,7 +168,7 @@ export const translations = {
     performance_metrics: "Métricas de Rendimiento",
 
     // ============ VENTAS ============
-    sales_dashboard: "Panel de Ventas",
+    sales_dashboard: "PANEL DE VENTAS",
     register_sale: "Registrar Venta",
     register_rental: "Registrar Renta",
     sale_details: "Detalles de Venta",
@@ -177,14 +177,14 @@ export const translations = {
     closing_date: "Fecha de Cierre",
 
     // ============ GALERÍA ============
-    photo_gallery: "Galería de Fotos",
+    photo_gallery: "GALERÍA DE FOTOS",
     upload_photos: "Subir Fotos",
     set_main_photo: "Establecer como Principal",
     delete_photo: "Eliminar Foto",
     reorder_photos: "Reordenar Fotos",
 
     // ============ COMPARADOR DE MERCADO ============
-    market_comparator: "Buscador de Mercado",
+    market_comparator: "BUSCADOR DE MERCADO",
     similar_properties: "Propiedades Similares",
     market_analysis: "Análisis de Mercado",
     average_price: "Precio Promedio",
@@ -193,13 +193,13 @@ export const translations = {
     import_from_portal: "Importar de Portal",
 
     // ============ MAPA ============
-    property_map: "Mapa de Propiedades",
+    property_map: "MAPA DE PROPIEDADES",
     show_on_map: "Ver en Mapa",
     nearby_properties: "Propiedades Cercanas",
     draw_zone: "Dibujar Zona",
 
     // ============ CALCULADORA HIPOTECA ============
-    mortgage_calculator: "Calculadora de Hipoteca",
+    mortgage_calculator: "CALCULADORA DE HIPOTECA",
     property_price: "Precio de la Propiedad",
     down_payment: "Enganche",
     interest_rate: "Tasa de Interés",
@@ -210,7 +210,7 @@ export const translations = {
     calculate: "Calcular",
 
     // ============ ANALYTICS ============
-    analytics_dashboard: "Dashboard de Métricas",
+    analytics_dashboard: "DASHBOARD DE MÉTRICAS",
     total_properties: "Total Propiedades",
     conversion_rate: "Tasa de Conversión",
     avg_days_to_sell: "Días Promedio en Venta",

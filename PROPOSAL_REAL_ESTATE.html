@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inmueble IA Pro - Propuesta Técnica para Bienes Raíces</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #f59e0b;
+            --primary-dark: #d97706;
+            --dark: #0a0a0a;
+            --zinc-900: #18181b;
+            --zinc-800: #27272a;
+            --zinc-400: #a1a1aa;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark);
+            color: var(--white);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Hero Section */
+        header {
+            text-align: center;
+            padding: 80px 0 40px;
+            background: radial-gradient(circle at center, rgba(245, 158, 11, 0.1) 0%, transparent 70%);
+        }
+
+        .logo {
+            font-size: 3rem;
+            font-weight: 900;
+            font-style: italic;
+            letter-spacing: -0.05em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        .tagline {
+            color: var(--zinc-400);
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 40px;
+        }
+
+        /* Info Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin: 40px 0;
+        }
+
+        .card {
+            background-color: var(--zinc-900);
+            border: 1px solid var(--zinc-800);
+            padding: 30px;
+            border-radius: 24px;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+        .card h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Features List */
+        .feature-item {
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .feature-item::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+        }
+
+        /* Tech Stack */
+        .tech-stack {
+            background: linear-gradient(135deg, var(--zinc-900) 0%, #111 100%);
+            padding: 50px;
+            border-radius: 32px;
+            margin: 60px 0;
+            border: 1px solid var(--zinc-800);
+        }
+
+        .tech-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* Contact Section */
+        .contact-box {
+            background-color: var(--primary);
+            color: var(--dark);
+            padding: 60px;
+            border-radius: 32px;
+            text-align: center;
+            margin-top: 80px;
+        }
+
+        .contact-box h2 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+        }
+
+        .contact-box p {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .btn-contact {
+            display: inline-block;
+            margin-top: 30px;
+            background-color: var(--dark);
+            color: var(--white);
+            padding: 16px 40px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: opacity 0.3s;
+        }
+
+        .btn-contact:hover {
+            opacity: 0.9;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--zinc-400);
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <header>
+            <div class="logo">INMUEBLE <span>IA PRO</span></div>
+            <p class="tagline">Tecnología de Vanguardia para Líderes Inmobiliarios</p>
+            <p style="color: var(--zinc-400); max-width: 600px; margin: 0 auto;">
+                Transforma tu agencia con una plataforma integral impulsada por Inteligencia Artificial, diseñada para
+                maximizar conversiones y automatizar procesos críticos.
+            </p>
+        </header>
+
+        <section class="grid">
+            <div class="card">
+                <h3>🤖 Inteligencia Artificial</h3>
+                <p class="feature-item">Análisis automatizado de propiedades mediante visión por computadora (Gemini 2.5
+                    Flash).</p>
+                <p class="feature-item">Generación de anuncios persuasivos y técnicos en segundos.</p>
+                <p class="feature-item">Valuación inmobiliaria predictiva basada en micro-mercado.</p>
+            </div>
+            <div class="card">
+                <h3>📊 Gestión y CRM</h3>
+                <p class="feature-item">Seguimiento inteligente de leads y clientes con estados dinámicos.</p>
+                <p class="feature-item">Integración fluida con WhatsApp para comunicación inmediata.</p>
+                <p class="feature-item">Panel híbrido bilingüe (MEX/USA) con soporte multidivisa.</p>
+            </div>
+            <div class="card">
+                <h3>🏠 Experiencia Inmersiva</h3>
+                <p class="feature-item">Tours virtuales 360° integrados directamente en la ficha del inmueble.</p>
+                <p class="feature-item">Mapas interactivos de alta precisión para ubicación estratégica.</p>
+                <p class="feature-item">Galerías profesionales con almacenamiento en la nube (permante).</p>
+            </div>
+            <div class="card">
+                <h3>📄 Legal y Automatización</h3>
+                <p class="feature-item">Generador de contratos legales automatizado y exportación a PDF.</p>
+                <p class="feature-item">Sincronización bidireccional con Google Sheets para control administrativo.</p>
+                <p class="feature-item">Reportes de métricas y BI (Business Intelligence) en tiempo real.</p>
+            </div>
+        </section>
+
+        <section class="tech-stack">
+            <div class="tech-header">
+                <h2 style="font-size: 2rem; margin-bottom: 20px;">Infraestructura Clase-Mundial</h2>
+                <p style="color: var(--zinc-400);">Blindaje de datos y escalabilidad garantizada.</p>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 40px; text-align: center;">
+                <div>
+                    <p style="font-weight: 900; color: var(--primary);">SUPABASE</p>
+                    <p style="font-size: 0.8rem; color: var(--zinc-400);">Auth & Database</p>
+                </div>
+                <div>
+                    <p style="font-weight: 900; color: var(--primary);">REACT 18</p>
+                    <p style="font-size: 0.8rem; color: var(--zinc-400);">High Perf Frontend</p>
+                </div>
+                <div>
+                    <p style="font-weight: 900; color: var(--primary);">GEMINI AI</p>
+                    <p style="font-size: 0.8rem; color: var(--zinc-400);">Cognitive Core</p>
+                </div>
+                <div>
+                    <p style="font-weight: 900; color: var(--primary);">CLOUD STORAGE</p>
+                    <p style="font-size: 0.8rem; color: var(--zinc-400);">Scalable Assets</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="card"
+            style="text-align: center; background: linear-gradient(to right, #111, #1a1a1a); border: 1px solid var(--primary); margin-top: 40px;">
+            <h3 style="justify-content: center;">🚀 Prueba el Demo en Vivo</h3>
+            <p style="margin-bottom: 20px;">Accede a la plataforma y experimenta la potencia de la IA Inmobiliaria.</p>
+            <div
+                style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 16px; display: inline-block; margin-bottom: 25px;">
+                <p style="font-size: 0.9rem; color: var(--zinc-400);">Credenciales de Acceso:</p>
+                <p style="font-weight: 700; color: var(--primary);">ID Agencia: <span
+                        style="color: white; font-family: monospace;">demo</span></p>
+                <p style="font-weight: 700; color: var(--primary);">Clave: <span
+                        style="color: white; font-family: monospace;">demo123</span></p>
+            </div>
+            <br>
+            <a href="https://inmueble-ia-pro.vercel.app/" target="_blank" class="btn-contact"
+                style="margin-top: 0; background-color: var(--primary); color: var(--dark);">Acceder a la Aplicación</a>
+        </section>
+
+        <section class="contact-box">
+            <h2>¿Listo para el siguiente nivel?</h2>
+            <p>Consultoría y Personalización de Plataforma</p>
+            <div style="margin: 20px 0;">
+                <p style="font-size: 1.5rem; margin-bottom: 5px;">Agustín Prieto</p>
+                <p style="opacity: 0.8;">Desarrollador de Proptech y Soluciones IA</p>
+                <p style="opacity: 0.8;">Torreón, Coahuila - México</p>
+            </div>
+            <a href="mailto:aguss@example.com" class="btn-contact">Solicitar Demo Personalizada</a>
+        </section>
+
+        <footer>
+            &copy; 2025 Inmueble IA Pro. Todos los derechos reservados. <br>
+            Desarrollado con pasión para la industria inmobiliaria moderna.
+        </footer>
+    </div>
+
+</body>
+
+</html>

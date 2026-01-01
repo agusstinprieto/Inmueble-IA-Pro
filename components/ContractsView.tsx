@@ -151,8 +151,8 @@ Firma del Representante
                         <FileText size={24} style={{ color: brandColor }} />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-bold text-white">{t.contract_generator}</h1>
-                        <p className="text-zinc-400 text-sm">Genera contratos profesionales</p>
+                        <h1 className="text-2xl font-bold text-white uppercase">{t.contract_generator}</h1>
+                        <p className="text-zinc-400 text-sm">GESTIÓN DE DOCUMENTOS LEGALES</p>
                     </div>
                 </div>
 
@@ -191,7 +191,7 @@ Firma del Representante
             {/* Contracts List */}
             <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
                 <div className="p-4 border-b border-zinc-800">
-                    <h2 className="text-lg font-semibold text-white">Contratos Generados</h2>
+                    <h2 className="text-lg font-semibold text-white uppercase">Contratos Generados</h2>
                 </div>
 
                 {contracts.length === 0 ? (

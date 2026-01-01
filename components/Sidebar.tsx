@@ -228,7 +228,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               "
             >
               <LogOut size={20} />
-              <span>Cerrar Sesión</span>
+              <span>CERRAR SESIÓN</span>
             </button>
           </div>
         </nav>

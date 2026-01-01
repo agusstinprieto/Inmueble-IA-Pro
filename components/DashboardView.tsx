@@ -24,6 +24,7 @@ interface DashboardViewProps {
     lang: 'es' | 'en';
     brandColor: string;
     businessName: string;
+    onNavigate: (view: string) => void;
 }
 
 const DashboardView: React.FC<DashboardViewProps> = ({
@@ -32,7 +33,8 @@ const DashboardView: React.FC<DashboardViewProps> = ({
     sales,
     lang,
     brandColor,
-    businessName
+    businessName,
+    onNavigate
 }) => {
     const t = translations[lang];
 
@@ -182,7 +184,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="lg:col-span-2 bg-zinc-900 border border-zinc-800 rounded-xl p-5">
                     <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
                         <TrendingUp size={20} style={{ color: brandColor }} />
-                        Valor del Inventario
+                        VALOR DEL INVENTARIO
                     </h3>
 
                     <div className="mb-6">
@@ -194,7 +196,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
 
                     {/* Properties by Type */}
                     <div className="space-y-3">
-                        <p className="text-zinc-400 text-sm">Distribución por Tipo</p>
+                        <p className="text-zinc-400 text-sm">DISTRIBUCIÓN POR TIPO</p>
                         {propertiesByType.map(item => (
                             <div key={item.type} className="flex items-center gap-3">
                                 <div className="flex-1">
@@ -252,7 +254,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
             <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
                 <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
                     <BarChart3 size={20} style={{ color: brandColor }} />
-                    Propiedades Más Vistas
+                    PROPIEDADES MÁS VISTAS
                 </h3>
 
                 {topProperties.length === 0 ? (
@@ -315,33 +317,37 @@ const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
 
             {/* Quick Actions */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
                 <button
-                    className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-left hover:border-zinc-600 transition-all"
+                    onClick={() => onNavigate('properties')}
+                    className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-left hover:border-zinc-600 transition-all cursor-pointer relative z-20"
                 >
                     <Building2 size={24} style={{ color: brandColor }} />
-                    <p className="text-white font-medium mt-2">Agregar Propiedad</p>
+                    <p className="text-white font-medium mt-2">AGREGAR PROPIEDAD</p>
                     <p className="text-zinc-500 text-sm">Registrar nueva</p>
                 </button>
                 <button
-                    className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-left hover:border-zinc-600 transition-all"
+                    onClick={() => onNavigate('clients')}
+                    className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-left hover:border-zinc-600 transition-all cursor-pointer relative z-20"
                 >
                     <Users size={24} style={{ color: brandColor }} />
-                    <p className="text-white font-medium mt-2">Nuevo Cliente</p>
+                    <p className="text-white font-medium mt-2">NUEVO CLIENTE</p>
                     <p className="text-zinc-500 text-sm">Registrar lead</p>
                 </button>
                 <button
-                    className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-left hover:border-zinc-600 transition-all"
+                    onClick={() => onNavigate('contracts')}
+                    className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-left hover:border-zinc-600 transition-all cursor-pointer relative z-20"
                 >
                     <FileText size={24} style={{ color: brandColor }} />
-                    <p className="text-white font-medium mt-2">Crear Contrato</p>
+                    <p className="text-white font-medium mt-2">CREAR CONTRATO</p>
                     <p className="text-zinc-500 text-sm">Generar documento</p>
                 </button>
                 <button
-                    className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-left hover:border-zinc-600 transition-all"
+                    onClick={() => onNavigate('analytics')}
+                    className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-left hover:border-zinc-600 transition-all cursor-pointer relative z-20"
                 >
                     <BarChart3 size={24} style={{ color: brandColor }} />
-                    <p className="text-white font-medium mt-2">Ver Reportes</p>
+                    <p className="text-white font-medium mt-2">VER REPORTES</p>
                     <p className="text-zinc-500 text-sm">Análisis detallado</p>
                 </button>
             </div>

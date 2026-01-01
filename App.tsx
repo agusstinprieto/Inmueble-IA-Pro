@@ -16,8 +16,9 @@ import MapView from './components/MapView';
 import TourView from './components/TourView';
 import AnalyticsView from './components/AnalyticsView';
 import LoginView from './components/LoginView';
+import SettingsView from './components/SettingsView';
 import { translations } from './translations';
-import { supabase, getBusinessProfile, signOut, addProperty, getProperties } from './services/supabase';
+import { supabase, getBusinessProfile, signOut, addProperty, getProperties, uploadPropertyImages } from './services/supabase';
 import {
   Property,
   Client,
@@ -75,22 +76,42 @@ function App() {
 
   // ============ AUTH ============
 
+  // Bypass button state
+  const [showBypass, setShowBypass] = useState(false);
+
   useEffect(() => {
     checkSession();
 
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+    // Fallback: Si por alguna razón la sesión tarda demasiado, habilitamos el botón de entrada manual
+    const bypassTimer = setTimeout(() => setShowBypass(true), 4000);
+
+    // Hard fallback: Después de 7 segundos, forzamos la entrada
+    const hardExitTimer = setTimeout(() => {
+      setIsLoading(prev => {
+        if (prev) {
+          console.warn('⚠️ Salida forzada de pantalla de carga (Hard Exit)');
+          return false;
+        }
+        return prev;
+      });
+    }, 7000);
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
         setUserId(session.user.id);
-        await loadProfile(session.user.id);
         setIsAuthenticated(true);
       } else if (event === 'SIGNED_OUT') {
         setIsAuthenticated(false);
         setUserId(null);
+        setProperties([]);
+        setClients([]);
       }
     });
 
     return () => {
       authListener.subscription.unsubscribe();
+      clearTimeout(bypassTimer);
+      clearTimeout(hardExitTimer);
     };
   }, []);
 
@@ -99,15 +120,22 @@ function App() {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         setUserId(session.user.id);
-        await loadProfile(session.user.id);
         setIsAuthenticated(true);
       }
     } catch (error) {
       console.error('Session check error:', error);
     } finally {
-      setIsLoading(false);
+      // Small delay to ensure smooth transition
+      setTimeout(() => setIsLoading(false), 500);
     }
   };
+
+  // Load data when authenticated
+  useEffect(() => {
+    if (isAuthenticated && userId) {
+      loadProfile(userId);
+    }
+  }, [isAuthenticated, userId]);
 
   const loadProfile = async (uid: string) => {
     try {
@@ -191,16 +219,28 @@ function App() {
   // ============ CRUD HANDLERS ============
 
   const handleAddProperty = async (property: Partial<Property>) => {
-    const newProperty = {
-      ...property,
-      status: PropertyStatus.DISPONIBLE,
-      agentId: userId || undefined,
-      agencyId: undefined,
-      views: 0,
-      favorites: 0
-    } as Partial<Property>;
-
     try {
+      // Generate temp ID for image upload
+      const tempId = `prop_${Date.now()}`;
+
+      // Upload images if they exist and are blob URLs
+      let imageUrls: string[] = [];
+      if (property.images && property.images.length > 0) {
+        console.log(`📸 Uploading ${property.images.length} images to Supabase Storage...`);
+        imageUrls = await uploadPropertyImages(property.images, tempId);
+        console.log(`✅ Uploaded ${imageUrls.length} images`);
+      }
+
+      const newProperty = {
+        ...property,
+        images: imageUrls.length > 0 ? imageUrls : undefined,
+        status: PropertyStatus.DISPONIBLE,
+        agentId: userId || undefined,
+        agencyId: undefined,
+        views: 0,
+        favorites: 0
+      } as Partial<Property>;
+
       // Guardar en Supabase (esto automáticamente sincroniza con Sheets)
       const savedProperty = await addProperty(newProperty);
 
@@ -265,7 +305,9 @@ function App() {
   // ============ NAVIGATION ============
 
   const handleNavigate = (view: string) => {
+    console.log(`🚀 Navegando a: ${view}`);
     setActiveView(view);
+    setSidebarOpen(false);
   };
 
   // ============ RENDER ============
@@ -274,12 +316,22 @@ function App() {
   if (isLoading) {
     return (
       <div
-        className="min-h-screen flex items-center justify-center"
+        className="min-h-screen flex items-center justify-center p-4 text-center"
         style={{ backgroundColor: '#0a0a0a' }}
       >
-        <div className="text-center">
+        <div className="max-w-xs w-full">
           <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4" style={{ color: brandColor }} />
-          <p className="text-zinc-400">Cargando...</p>
+          <p className="text-zinc-400 mb-6">Cargando Inmueble IA Pro...</p>
+
+          {showBypass && (
+            <button
+              onClick={() => setIsLoading(false)}
+              className="w-full px-4 py-3 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl text-sm font-medium transition-all animate-in fade-in slide-in-from-bottom-2"
+              style={{ border: `1px solid ${brandColor}40` }}
+            >
+              ¿Tarda demasiado? Entrar ahora
+            </button>
+          )}
         </div>
       </div>
     );
@@ -302,6 +354,10 @@ function App() {
             lang={lang}
             brandColor={brandColor}
             businessName={businessName}
+            onNavigate={(v) => {
+              console.log('Dashboard click:', v);
+              handleNavigate(v);
+            }}
           />
         );
 
@@ -454,15 +510,23 @@ function App() {
 
       case 'settings':
         return (
-          <div className="p-6 flex items-center justify-center min-h-[60vh]">
-            <div className="text-center">
-              <p className="text-zinc-400 text-lg">Módulo en desarrollo</p>
-              <p className="text-zinc-500 text-sm mt-2">Próximamente disponible</p>
-            </div>
-          </div>
+          <SettingsView
+            businessName={businessName}
+            setBusinessName={setBusinessName}
+            location={location}
+            setLocation={setLocation}
+            brandColor={brandColor}
+            setBrandColor={setBrandColor}
+            lang={lang}
+            setLang={setLang}
+            scriptUrl={scriptUrl}
+            setScriptUrl={setScriptUrl}
+            onSync={syncWithCloud}
+          />
         );
 
       default:
+        console.log(`⚠️ Vista desconocida o directa: ${activeView}, cargando dashboard`);
         return (
           <DashboardView
             properties={properties}
@@ -471,6 +535,7 @@ function App() {
             lang={lang}
             brandColor={brandColor}
             businessName={businessName}
+            onNavigate={handleNavigate}
           />
         );
     }

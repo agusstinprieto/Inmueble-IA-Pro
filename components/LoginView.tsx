@@ -84,14 +84,14 @@ const LoginView: React.FC<LoginViewProps> = ({ brandColor, lang, onToggleLang })
           </div>
         </div>
 
-        <div className="flex justify-between items-center mb-10">
-          <h1 className="text-2xl font-black text-white italic tracking-tighter uppercase">
+        <div className="text-center mb-10">
+          <h1 className="text-2xl font-black text-white italic tracking-tighter uppercase relative z-10">
             INMUEBLE <span className="text-amber-500">IA PRO</span>
           </h1>
           <button
             type="button"
             onClick={onToggleLang}
-            className="text-[10px] font-bold px-2 py-1 bg-white/5 hover:bg-white/10 rounded border border-white/10 text-white/60 uppercase tracking-widest transition-colors"
+            className="absolute top-6 right-6 text-[10px] font-bold px-2 py-1 bg-white/5 hover:bg-white/10 rounded border border-white/10 text-white/60 uppercase tracking-widest transition-colors z-20"
           >
             {lang}
           </button>

@@ -184,8 +184,8 @@ const CRMView: React.FC<CRMViewProps> = ({
                         <Users size={24} style={{ color: brandColor }} />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-bold text-white">{t.client_management}</h1>
-                        <p className="text-zinc-400 text-sm">Gestiona tus clientes y leads</p>
+                        <h1 className="text-2xl font-bold text-white uppercase">{t.client_management}</h1>
+                        <p className="text-zinc-400 text-sm uppercase">GESTIÓN DE PROSPECTOS Y SEGUIMIENTOS</p>
                     </div>
                 </div>
 

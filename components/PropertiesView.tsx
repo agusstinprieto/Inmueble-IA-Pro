@@ -338,8 +338,8 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                         <Building2 size={24} style={{ color: brandColor }} />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-bold text-white">{t.property_catalog}</h1>
-                        <p className="text-zinc-400 text-sm">{stats.available} de {stats.total} disponibles</p>
+                        <h1 className="text-2xl font-bold text-white uppercase">{t.property_catalog}</h1>
+                        <p className="text-zinc-400 text-sm uppercase">{stats.available} DE {stats.total} DISPONIBLES</p>
                     </div>
                 </div>
 
@@ -374,19 +374,19 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
             {/* Stats Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
-                    <p className="text-zinc-400 text-sm">Total</p>
+                    <p className="text-zinc-400 text-sm uppercase">TOTAL</p>
                     <p className="text-3xl font-bold text-white mt-1">{stats.total}</p>
                 </div>
                 <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
-                    <p className="text-zinc-400 text-sm">Disponibles</p>
+                    <p className="text-zinc-400 text-sm uppercase">DISPONIBLES</p>
                     <p className="text-3xl font-bold text-green-400 mt-1">{stats.available}</p>
                 </div>
                 <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
-                    <p className="text-zinc-400 text-sm">En Venta</p>
+                    <p className="text-zinc-400 text-sm uppercase">EN VENTA</p>
                     <p className="text-3xl font-bold text-blue-400 mt-1">{stats.sale}</p>
                 </div>
                 <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
-                    <p className="text-zinc-400 text-sm">En Renta</p>
+                    <p className="text-zinc-400 text-sm uppercase">EN RENTA</p>
                     <p className="text-3xl font-bold text-purple-400 mt-1">{stats.rent}</p>
                 </div>
             </div>

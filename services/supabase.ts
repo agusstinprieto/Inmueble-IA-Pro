@@ -66,6 +66,76 @@ export const getBusinessProfile = async (userId: string): Promise<BusinessProfil
     return data;
 };
 
+// ============ IMAGE STORAGE ============
+
+export const uploadPropertyImage = async (
+    file: Blob,
+    propertyId: string,
+    index: number
+): Promise<string | null> => {
+    try {
+        const fileName = `${propertyId}/${Date.now()}-${index}.jpg`;
+
+        const { data, error } = await supabase.storage
+            .from('property-images')
+            .upload(fileName, file, {
+                contentType: 'image/jpeg',
+                upsert: false
+            });
+
+        if (error) {
+            console.error('Error uploading image:', error);
+            return null;
+        }
+
+        // Get public URL
+        const { data: { publicUrl } } = supabase.storage
+            .from('property-images')
+            .getPublicUrl(fileName);
+
+        return publicUrl;
+    } catch (error) {
+        console.error('Upload image error:', error);
+        return null;
+    }
+};
+
+export const uploadPropertyImages = async (
+    images: string[],
+    propertyId: string
+): Promise<string[]> => {
+    const uploadedUrls: string[] = [];
+
+    for (let i = 0; i < images.length; i++) {
+        const imageUrl = images[i];
+
+        // Skip if already a public URL (http/https)
+        if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+            uploadedUrls.push(imageUrl);
+            continue;
+        }
+
+        // Convert blob URL to Blob
+        if (imageUrl.startsWith('blob:')) {
+            try {
+                const response = await fetch(imageUrl);
+                const blob = await response.blob();
+                const publicUrl = await uploadPropertyImage(blob, propertyId, i);
+
+                if (publicUrl) {
+                    uploadedUrls.push(publicUrl);
+                } else {
+                    console.warn(`Failed to upload image ${i}`);
+                }
+            } catch (error) {
+                console.error(`Error processing blob ${i}:`, error);
+            }
+        }
+    }
+
+    return uploadedUrls;
+};
+
 // ============ PROPERTIES CRUD ============
 
 export const getProperties = async (): Promise<Property[]> => {
@@ -234,39 +304,15 @@ export const addFollowUp = async (clientId: string, followUp: Partial<FollowUp>)
     };
 };
 
-// ============ STORAGE ============
 
-export const uploadPropertyImage = async (file: Blob | File, propertyId: string): Promise<string | null> => {
-    try {
-        const fileName = `${propertyId}/${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`;
-
-        const { data, error } = await supabase.storage
-            .from('properties')
-            .upload(fileName, file, {
-                cacheControl: '3600',
-                upsert: false
-            });
-
-        if (error) throw error;
-
-        const { data: { publicUrl } } = supabase.storage
-            .from('properties')
-            .getPublicUrl(data.path);
-
-        return publicUrl;
-    } catch (err) {
-        console.error('Upload error:', err);
-        return null;
-    }
-};
 
 export const deletePropertyImage = async (url: string): Promise<boolean> => {
     try {
-        const path = url.split('/properties/')[1];
+        const path = url.split('/property-images/')[1];
         if (!path) return false;
 
         const { error } = await supabase.storage
-            .from('properties')
+            .from('property-images')
             .remove([path]);
 
         if (error) throw error;
@@ -311,7 +357,7 @@ function mapDbToProperty(db: any): Property {
             floors: db.floors || 1
         },
         amenities: db.amenities || [],
-        images: db.images || [],
+        images: (db.images || []).filter((url: string) => !url.startsWith('blob:')),
         salePrice: parseFloat(db.sale_price) || 0,
         rentPrice: parseFloat(db.rent_price) || 0,
         views: db.views || 0,
