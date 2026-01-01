@@ -65,7 +65,10 @@ export const getUserProfile = async (userId: string): Promise<Profile | null> =>
         role: data.role as UserRole,
         agencyId: data.agency_id,
         branchId: data.branch_id,
-        photoUrl: data.photo_url
+        photoUrl: data.photo_url,
+        phone: data.phone,
+        commission: data.commission,
+        active: data.active
     };
 };
 
@@ -103,7 +106,10 @@ export const updateUserProfile = async (userId: string, profile: Partial<Profile
                 photo_url: profile.photoUrl,
                 role: profile.role,
                 agency_id: profile.agencyId,
-                branch_id: profile.branchId
+                branch_id: profile.branchId,
+                phone: profile.phone,
+                commission: profile.commission,
+                active: profile.active
             })
             .eq('id', userId);
 
@@ -286,7 +292,7 @@ export const deleteProperty = async (id: string): Promise<boolean> => {
 // ============ AGENTS CRUD ============
 
 export const getAgents = async (agencyId?: string): Promise<Agent[]> => {
-    let query = supabase.from('agents').select('*');
+    let query = supabase.from('profiles').select('*').in('role', ['agent', 'branch_manager', 'agency_owner']);
 
     if (agencyId) {
         query = query.eq('agency_id', agencyId);
@@ -303,14 +309,16 @@ export const getAgents = async (agencyId?: string): Promise<Agent[]> => {
 };
 
 export const addAgent = async (agent: Partial<Agent>, agencyId?: string): Promise<Agent | null> => {
-    const session = await getCurrentSession();
-    if (!session) return null;
-
+    // In SaaS, adding an agent usually means creating an auth user or inviting them.
+    // For now, we'll just insert into profiles if we have the ID, 
+    // but typically this should be an invite flow.
+    // Hack: staying compatible with the UI for now.
     const { data, error } = await supabase
-        .from('agents')
+        .from('profiles')
         .insert({
-            ...mapAgentToDb(agent, session.user.id),
-            agency_id: agencyId || agent.agencyId
+            ...mapAgentToDb(agent),
+            agency_id: agencyId || agent.agencyId,
+            role: 'agent'
         })
         .select()
         .single();
@@ -325,7 +333,7 @@ export const addAgent = async (agent: Partial<Agent>, agencyId?: string): Promis
 
 export const updateAgent = async (agent: Agent): Promise<Agent | null> => {
     const { data, error } = await supabase
-        .from('agents')
+        .from('profiles')
         .update(mapAgentToDb(agent))
         .eq('id', agent.id)
         .select()
@@ -341,8 +349,8 @@ export const updateAgent = async (agent: Agent): Promise<Agent | null> => {
 
 export const deleteAgent = async (id: string): Promise<boolean> => {
     const { error } = await supabase
-        .from('agents')
-        .delete()
+        .from('profiles')
+        .update({ agency_id: null, active: false }) // Soft delete/unassign in SaaS
         .eq('id', id);
 
     if (error) {
@@ -707,31 +715,27 @@ function mapClientToDb(client: Partial<Client>, userId?: string): any {
 function mapDbToAgent(db: any): Agent {
     return {
         id: db.id,
-        name: db.name,
-        phone: db.phone,
+        name: db.name || (db.email ? db.email.split('@')[0] : 'Sin Nombre'),
+        phone: db.phone || '',
         email: db.email,
-        photo: db.photo,
+        photo: db.photo_url || '',
         agencyId: db.agency_id,
-        properties: db.properties || [],
-        clients: db.clients || [],
-        sales: db.sales || [],
+        properties: [], // Not present in profiles table
+        clients: [], // Not present in profiles table
+        sales: [], // Not present in profiles table
         commission: db.commission || 0,
         dateJoined: db.created_at,
         active: db.active !== false
     };
 }
 
-function mapAgentToDb(agent: Partial<Agent>, userId?: string): any {
+function mapAgentToDb(agent: Partial<Agent>): any {
     return {
-        ...(userId && { user_id: userId }),
         name: agent.name,
         phone: agent.phone,
         email: agent.email,
-        photo: agent.photo,
+        photo_url: agent.photo,
         agency_id: agent.agencyId,
-        properties: agent.properties,
-        clients: agent.clients,
-        sales: agent.sales,
         commission: agent.commission,
         active: agent.active
     };

@@ -154,6 +154,9 @@ export interface Profile {
   agencyId?: string;
   branchId?: string;
   photoUrl?: string;
+  phone?: string;
+  commission?: number;
+  active?: boolean;
 }
 
 export interface Agency {

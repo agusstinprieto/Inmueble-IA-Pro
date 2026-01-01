@@ -89,7 +89,10 @@ CREATE TABLE profiles (
   role TEXT DEFAULT 'agency_owner' CHECK (role IN ('super_admin', 'agency_owner', 'branch_manager', 'agent')),
   name TEXT,
   email TEXT,
+  phone TEXT,
   photo_url TEXT,
+  commission DECIMAL(5, 2) DEFAULT 0,
+  active BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
