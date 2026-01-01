@@ -16,7 +16,9 @@ import {
     Edit2
 } from 'lucide-react';
 import { Property, PropertyStatus } from '../types';
+
 import { translations } from '../translations';
+import { uploadPropertyImage, updateProperty } from '../services/supabase';
 
 interface GalleryViewProps {
     properties: Property[];
@@ -37,17 +39,51 @@ const GalleryView: React.FC<GalleryViewProps> = ({
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+    const [isUploading, setIsUploading] = useState(false);
 
     const filteredProperties = properties.filter(p =>
         p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         p.address.city.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const handleAddPhotos = (e: React.ChangeEvent<HTMLInputElement>) => {
-        // Simular lógica de carga
-        if (selectedProperty && e.target.files) {
+    const handleAddPhotos = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!selectedProperty || !e.target.files || e.target.files.length === 0) return;
+
+        setIsUploading(true);
+        try {
             console.log('Cargando fotos para:', selectedProperty.title);
-            // Aquí iría la lógica de uploadPropertyImage de supabase.ts
+            const files = Array.from(e.target.files);
+
+            // Upload to Supabase Storage
+            const newUrls: string[] = [];
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i] as File;
+                const url = await uploadPropertyImage(file, selectedProperty.id, i);
+                if (url) newUrls.push(url);
+            }
+
+            if (newUrls.length > 0) {
+                const updatedProperty = {
+                    ...selectedProperty,
+                    images: [...(selectedProperty.images || []), ...newUrls]
+                };
+
+                // Update in DB
+                const saved = await updateProperty(updatedProperty);
+
+                if (saved) {
+                    setSelectedProperty(saved); // Update local view
+                    if (onUpdateProperty) onUpdateProperty(saved); // Propagate to parent
+                    alert(lang === 'es' ? '✅ Fotos cargadas correctamente' : '✅ Photos uploaded successfully');
+                }
+            }
+        } catch (error) {
+            console.error('Upload error:', error);
+            alert(lang === 'es' ? 'Error al subir fotos' : 'Error uploading photos');
+        } finally {
+            setIsUploading(false);
+            // Reset input
+            e.target.value = '';
         }
     };
 
@@ -153,10 +189,10 @@ const GalleryView: React.FC<GalleryViewProps> = ({
                                         <Edit2 size={16} />
                                         {lang === 'es' ? 'Editar Info' : 'Edit Info'}
                                     </button>
-                                    <label className="flex items-center gap-2 px-6 py-3 bg-white text-black rounded-xl font-black text-xs uppercase italic cursor-pointer hover:bg-zinc-200 transition-all active:scale-95 shadow-lg shadow-white/5">
+                                    <label className={`flex items-center gap-2 px-6 py-3 bg-white text-black rounded-xl font-black text-xs uppercase italic cursor-pointer hover:bg-zinc-200 transition-all active:scale-95 shadow-lg shadow-white/5 ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}>
                                         <Upload size={16} />
-                                        {lang === 'es' ? 'Cargar Fotos' : 'Upload Photos'}
-                                        <input type="file" multiple className="hidden" onChange={handleAddPhotos} accept="image/*" />
+                                        {isUploading ? (lang === 'es' ? 'Cargando...' : 'Uploading...') : (lang === 'es' ? 'Cargar Fotos' : 'Upload Photos')}
+                                        <input type="file" multiple className="hidden" onChange={handleAddPhotos} accept="image/*" disabled={isUploading} />
                                     </label>
                                 </div>
                             </div>
