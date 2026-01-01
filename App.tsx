@@ -322,13 +322,20 @@ function App() {
 
   const handleAddClient = async (client: Partial<Client>) => {
     try {
-      const newClient = await addClient(client);
+      // Ensure agentId is a UUID or undefined (not empty string)
+      const clientToSave = {
+        ...client,
+        agentId: userId || undefined
+      };
+
+      const newClient = await addClient(clientToSave);
       if (newClient) {
         setClients(prev => [newClient, ...prev]);
         console.log('✅ Cliente guardado en BD');
       }
     } catch (error) {
       console.error('❌ Error al guardar cliente:', error);
+      alert(t.error_generic || 'Error al guardar cliente');
     }
   };
 
@@ -593,6 +600,7 @@ function App() {
             brandColor={brandColor}
             businessName={businessName}
             onAddSale={handleAddSaleRequest}
+            agentId={userId || ''}
           />
         );
 

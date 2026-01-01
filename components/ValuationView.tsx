@@ -104,7 +104,15 @@ const ValuationView: React.FC<ValuationViewProps> = ({
                                     <button
                                         key={c}
                                         onClick={() => setFormData({ ...formData, country: c as any })}
-                                        className={`flex-1 py-3 rounded-2xl text-[10px] font-black uppercase italic transition-all border ${formData.country === c ? 'bg-amber-500 border-amber-500 text-black' : 'bg-black border-zinc-800 text-zinc-500 hover:border-zinc-700'}`}
+                                        style={{
+                                            backgroundColor: formData.country === c ? brandColor : 'black',
+                                            borderColor: formData.country === c ? brandColor : undefined,
+                                            color: formData.country === c ? '#000' : undefined
+                                        }}
+                                        className={`flex-1 py-3 rounded-2xl text-[10px] font-black uppercase italic transition-all border ${formData.country === c
+                                            ? ''
+                                            : 'border-zinc-800 text-zinc-500 hover:border-zinc-700'
+                                            }`}
                                     >
                                         <span className="flex items-center justify-center gap-2">
                                             <Globe size={14} />

@@ -26,6 +26,7 @@ interface SalesViewProps {
   brandColor: string;
   businessName: string;
   onAddSale?: (sale: any) => Promise<void>;
+  agentId: string;
 }
 
 const SalesView: React.FC<SalesViewProps> = ({
@@ -35,7 +36,8 @@ const SalesView: React.FC<SalesViewProps> = ({
   lang,
   brandColor,
   businessName,
-  onAddSale
+  onAddSale,
+  agentId
 }) => {
   const t = translations[lang];
   const [filterType, setFilterType] = useState<'ALL' | 'VENTA' | 'RENTA'>('ALL');
@@ -119,7 +121,7 @@ const SalesView: React.FC<SalesViewProps> = ({
     const newSale = {
       propertyId,
       clientId,
-      agentId: property?.agentId || 'agustin', // Fallback
+      agentId: property?.agentId || agentId, // Fallback
       type: property?.operation || OperationType.VENTA,
       finalPrice: Number(formData.get('price')),
       commission: Number(formData.get('commission')),
