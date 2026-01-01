@@ -116,6 +116,21 @@ CREATE TABLE properties (
   city TEXT,
   state TEXT,
   zip_code TEXT,
+  city TEXT,
+  state TEXT,
+  zip_code TEXT,
+  country TEXT DEFAULT 'MEXICO',
+  latitude DECIMAL(10, 8),
+  longitude DECIMAL(11, 8),
+
+  -- Specs
+  m2_total DECIMAL(10, 2) DEFAULT 0,
+  m2_built DECIMAL(10, 2) DEFAULT 0,
+  bedrooms INTEGER DEFAULT 0,
+  bathrooms INTEGER DEFAULT 0,
+  parking INTEGER DEFAULT 0,
+  floors INTEGER DEFAULT 1,
+
   amenities TEXT[] DEFAULT '{}',
   images TEXT[] DEFAULT '{}',
   sale_price DECIMAL(12, 2) DEFAULT 0,

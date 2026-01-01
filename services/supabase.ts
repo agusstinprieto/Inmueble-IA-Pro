@@ -627,14 +627,6 @@ function mapDbToProperty(db: any): Property {
 
 function mapPropertyToDb(property: Partial<Property>, userId?: string): any {
     return {
-        ...(userId && { user_id: userId }),
-        title: property.title,
-        type: property.type,
-        operation: property.operation,
-        status: property.status,
-        description: property.description,
-        street: property.address?.street,
-        exterior_number: property.address?.exteriorNumber,
         interior_number: property.address?.interiorNumber,
         colony: property.address?.colony,
         city: property.address?.city,
