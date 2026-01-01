@@ -406,74 +406,72 @@ const AgentsView: React.FC<AgentsViewProps> = ({
                         </form>
                     </div>
                 </div>
-                </div>
-    )
-}
 
-{/* Agency Modal */ }
-{
-    showAgencyModal && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-            <div className="bg-zinc-900 rounded-2xl w-full max-w-md border border-zinc-800 p-6 space-y-6">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-black text-white italic uppercase">
-                        {lang === 'es' ? 'Configurar Agencia' : 'Configure Agency'}
-                    </h2>
-                    <button onClick={() => setShowAgencyModal(false)} className="text-zinc-500 hover:text-white">
-                        <X size={24} />
-                    </button>
-                </div>
 
-                <div className="space-y-4">
-                    <div>
-                        <label className="text-xs text-zinc-400 block mb-1 uppercase font-bold">
-                            {lang === 'es' ? 'Nombre de la Agencia' : 'Agency Name'}
-                        </label>
-                        <input
-                            type="text"
-                            value={agencyForm.name}
-                            onChange={(e) => setAgencyForm({ ...agencyForm, name: e.target.value })}
-                            className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-amber-500 outline-none"
-                        />
-                    </div>
+{/* Agency Modal */}
+            {
+                showAgencyModal && (
+                    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+                        <div className="bg-zinc-900 rounded-2xl w-full max-w-md border border-zinc-800 p-6 space-y-6">
+                            <div className="flex items-center justify-between">
+                                <h2 className="text-xl font-black text-white italic uppercase">
+                                    {lang === 'es' ? 'Configurar Agencia' : 'Configure Agency'}
+                                </h2>
+                                <button onClick={() => setShowAgencyModal(false)} className="text-zinc-500 hover:text-white">
+                                    <X size={24} />
+                                </button>
+                            </div>
 
-                    <div>
-                        <label className="text-xs text-zinc-400 block mb-1 uppercase font-bold">
-                            {lang === 'es' ? 'Color de Marca' : 'Brand Color'}
-                        </label>
-                        <div className="flex gap-2">
-                            <input
-                                type="color"
-                                value={agencyForm.color}
-                                onChange={(e) => setAgencyForm({ ...agencyForm, color: e.target.value })}
-                                className="h-12 w-12 rounded-xl border-none cursor-pointer bg-transparent"
-                            />
-                            <input
-                                type="text"
-                                value={agencyForm.color}
-                                onChange={(e) => setAgencyForm({ ...agencyForm, color: e.target.value })}
-                                className="flex-1 bg-black border border-zinc-800 rounded-xl px-4 py-3 text-white uppercase"
-                            />
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="text-xs text-zinc-400 block mb-1 uppercase font-bold">
+                                        {lang === 'es' ? 'Nombre de la Agencia' : 'Agency Name'}
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={agencyForm.name}
+                                        onChange={(e) => setAgencyForm({ ...agencyForm, name: e.target.value })}
+                                        className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-amber-500 outline-none"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="text-xs text-zinc-400 block mb-1 uppercase font-bold">
+                                        {lang === 'es' ? 'Color de Marca' : 'Brand Color'}
+                                    </label>
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="color"
+                                            value={agencyForm.color}
+                                            onChange={(e) => setAgencyForm({ ...agencyForm, color: e.target.value })}
+                                            className="h-12 w-12 rounded-xl border-none cursor-pointer bg-transparent"
+                                        />
+                                        <input
+                                            type="text"
+                                            value={agencyForm.color}
+                                            onChange={(e) => setAgencyForm({ ...agencyForm, color: e.target.value })}
+                                            className="flex-1 bg-black border border-zinc-800 rounded-xl px-4 py-3 text-white uppercase"
+                                        />
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={async () => {
+                                        if (onUpdateAgency) {
+                                            const success = await onUpdateAgency(agencyForm);
+                                            if (success) setShowAgencyModal(false);
+                                        }
+                                    }}
+                                    style={{ backgroundColor: brandColor }}
+                                    className="w-full py-3 rounded-xl font-black text-black uppercase italic mt-4 hover:opacity-90 transition-opacity"
+                                >
+                                    {lang === 'es' ? 'Guardar Cambios' : 'Save Changes'}
+                                </button>
+                            </div>
                         </div>
                     </div>
-
-                    <button
-                        onClick={async () => {
-                            if (onUpdateAgency) {
-                                const success = await onUpdateAgency(agencyForm);
-                                if (success) setShowAgencyModal(false);
-                            }
-                        }}
-                        style={{ backgroundColor: brandColor }}
-                        className="w-full py-3 rounded-xl font-black text-black uppercase italic mt-4 hover:opacity-90 transition-opacity"
-                    >
-                        {lang === 'es' ? 'Guardar Cambios' : 'Save Changes'}
-                    </button>
-                </div>
-            </div>
-        </div>
-    )
-}
+                )
+            }
         </div >
     );
 };
