@@ -303,9 +303,12 @@ function App() {
         // Actualizar el estado local con la propiedad guardada
         setProperties(prev => [savedProperty, ...prev]);
         console.log('✅ Propiedad guardada y sincronizada con Sheets');
+      } else {
+        alert("Error al guardar la propiedad. Verifica que tu usuario tenga una agencia asignada.");
       }
     } catch (error) {
       console.error('❌ Error al guardar propiedad:', error);
+      alert("Ocurrió un error inesperado al guardar la propiedad.");
     }
   };
 

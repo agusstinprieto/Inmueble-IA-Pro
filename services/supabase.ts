@@ -236,11 +236,29 @@ export const addProperty = async (property: Partial<Property>, agencyId?: string
     const session = await getCurrentSession();
     if (!session) return null;
 
+    let finalAgencyId = agencyId || property.agencyId;
+
+    // Fallback: Fetch from profile if missing
+    if (!finalAgencyId) {
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('agency_id')
+            .eq('id', session.user.id)
+            .single();
+
+        if (profile) finalAgencyId = profile.agency_id;
+    }
+
+    if (!finalAgencyId) {
+        console.error('❌ Error: No agency_id found for this user. Cannot create property.');
+        return null; // RLS will fail anyway
+    }
+
     const { data, error } = await supabase
         .from('properties')
         .insert({
             ...mapPropertyToDb(property, session.user.id),
-            agency_id: agencyId || property.agencyId,
+            agency_id: finalAgencyId,
             branch_id: branchId
         })
         .select()
