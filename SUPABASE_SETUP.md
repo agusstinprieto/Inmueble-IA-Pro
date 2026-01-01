@@ -243,6 +243,65 @@ CREATE POLICY "Manage Agency Properties" ON properties
     )
   );
 
+-- 4. BRANCHES
+CREATE POLICY "View Agency Branches" ON branches
+  FOR SELECT USING (
+    agency_id IN (SELECT agency_id FROM profiles WHERE id = auth.uid()) OR
+    (SELECT role FROM profiles WHERE id = auth.uid()) = 'super_admin'
+  );
+
+CREATE POLICY "Manage Agency Branches" ON branches
+  FOR ALL USING (
+    agency_id IN (SELECT agency_id FROM profiles WHERE id = auth.uid()) AND
+    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('agency_owner', 'super_admin')
+  );
+
+-- 5. CLIENTS
+CREATE POLICY "Enable all access for agency members" ON clients
+  FOR ALL USING (
+    agency_id IN (SELECT agency_id FROM profiles WHERE id = auth.uid())
+  )
+  WITH CHECK (
+    agency_id IN (SELECT agency_id FROM profiles WHERE id = auth.uid())
+  );
+
+-- 6. CONTRACTS
+CREATE POLICY "Enable all access for agency members" ON contracts
+  FOR ALL USING (
+    agency_id IN (SELECT agency_id FROM profiles WHERE id = auth.uid())
+  )
+  WITH CHECK (
+    agency_id IN (SELECT agency_id FROM profiles WHERE id = auth.uid())
+  );
+
+-- 7. SALES
+CREATE POLICY "Enable all access for agency members" ON sales
+  FOR ALL USING (
+    agency_id IN (SELECT agency_id FROM profiles WHERE id = auth.uid())
+  )
+  WITH CHECK (
+    agency_id IN (SELECT agency_id FROM profiles WHERE id = auth.uid())
+  );
+
+-- 8. FOLLOW_UPS
+CREATE POLICY "View Client FollowUps" ON follow_ups
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM clients
+      WHERE clients.id = follow_ups.client_id
+      AND clients.agency_id IN (SELECT agency_id FROM profiles WHERE id = auth.uid())
+    )
+  );
+
+CREATE POLICY "Manage Client FollowUps" ON follow_ups
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM clients
+      WHERE clients.id = follow_ups.client_id
+      AND clients.agency_id IN (SELECT agency_id FROM profiles WHERE id = auth.uid())
+    )
+  );
+
 -- =============================================
 -- TRIGGERS
 -- =============================================

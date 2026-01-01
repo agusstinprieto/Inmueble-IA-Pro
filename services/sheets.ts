@@ -57,7 +57,12 @@ export const appendPropertyToSheets = async (property: Property, agencySheetsUrl
  */
 export const appendClientToSheets = async (client: Client, agencySheetsUrl?: string): Promise<boolean> => {
     const targetUrl = agencySheetsUrl || GOOGLE_SCRIPT_URL;
-    if (!targetUrl) return false;
+
+    // Basic validation to prevent fetching self (Vercel) or invalid URLs
+    if (!targetUrl || !targetUrl.includes('script.google.com')) {
+        if (targetUrl) console.warn('⚠️ URL de Google Sheets inválida (debe ser script.google.com):', targetUrl);
+        return false;
+    }
 
     try {
         const payload = {
