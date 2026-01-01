@@ -686,7 +686,7 @@ function mapDbToContract(db: any): Contract {
         propertyId: db.property_id,
         agentId: db.agent_id,
         clientId: db.client_id,
-        dateCreated: db.date_created,
+        dateCreated: db.created_at, // Fixed
         startDate: db.start_date,
         endDate: db.end_date,
         amount: db.amount,
@@ -702,7 +702,7 @@ function mapContractToDb(contract: Partial<Contract>, userId?: string): any {
         property_id: contract.propertyId,
         agent_id: contract.agentId || userId,
         client_id: contract.clientId,
-        date_created: contract.dateCreated,
+        // created_at: contract.dateCreated, // Let DB handle defaults
         start_date: contract.startDate,
         end_date: contract.endDate,
         amount: contract.amount,
