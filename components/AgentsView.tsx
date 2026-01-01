@@ -89,6 +89,27 @@ const AgentsView: React.FC<AgentsViewProps> = ({
         };
     };
 
+    const getAgencyStats = () => {
+        // Calculate Top Performer
+        const agentPerformance = agents.map(agent => {
+            const agentTotalSales = sales
+                .filter(s => s.agentId === agent.id)
+                .reduce((acc, s) => acc + s.finalPrice, 0);
+            return { ...agent, totalVolume: agentTotalSales };
+        });
+
+        const topPerformer = agentPerformance.sort((a, b) => b.totalVolume - a.totalVolume)[0];
+
+        // Calculate Efficiency (Sales / (Sales + Available Properties)) * 100
+        // Or simply Sales Count / Total Items Managed
+        const totalItems = sales.length + properties.length;
+        const efficiency = totalItems > 0 ? (sales.length / totalItems) * 100 : 0;
+
+        return { topPerformer, efficiency };
+    };
+
+    const { topPerformer, efficiency } = getAgencyStats();
+
     return (
         <div className="p-4 lg:p-8 space-y-8 animate-in fade-in duration-500">
             {/* Header */}
@@ -137,7 +158,12 @@ const AgentsView: React.FC<AgentsViewProps> = ({
                     </div>
                     <div>
                         <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">{lang === 'es' ? 'Top Performer' : 'Top Performer'}</p>
-                        <h3 className="text-lg font-black text-white mt-1 italic uppercase">Próximamente</h3>
+                        <h3 className="text-lg font-black text-white mt-1 italic uppercase truncate max-w-[150px]">
+                            {topPerformer && topPerformer.totalVolume > 0 ? topPerformer.name : (lang === 'es' ? 'Sin datos' : 'No data')}
+                        </h3>
+                        {topPerformer && topPerformer.totalVolume > 0 && (
+                            <p className="text-green-500 text-xs font-bold">{formatCurrency(topPerformer.totalVolume)}</p>
+                        )}
                     </div>
                 </div>
 
@@ -146,8 +172,11 @@ const AgentsView: React.FC<AgentsViewProps> = ({
                         <PieChart className="text-blue-500" size={32} />
                     </div>
                     <div>
-                        <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">{lang === 'es' ? 'Distribución' : 'Distribution'}</p>
-                        <h3 className="text-lg font-black text-white mt-1 italic uppercase">Eficiencia: 94%</h3>
+                        <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">{lang === 'es' ? 'Efectividad' : 'Effectiveness'}</p>
+                        <h3 className="text-lg font-black text-white mt-1 italic uppercase">
+                            {efficiency.toFixed(1)}%
+                        </h3>
+                        <p className="text-zinc-500 text-[10px]">{sales.length} {lang === 'es' ? 'ventas' : 'sales'} / {properties.length} {lang === 'es' ? 'activos' : 'active'}</p>
                     </div>
                 </div>
             </div>
