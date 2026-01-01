@@ -517,9 +517,17 @@ export async function extractPropertyFromHtml(
   const ai = new GoogleGenAI({ apiKey });
   const model = 'gemini-2.5-flash';
 
-  const prompt = `Analiza este fragmento de HTML de un portal inmobiliario y extrae la información de la propiedad de forma estructurada.
+  // Clean HTML to reduce noise
+  const cleanHtml = html
+    .replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gm, "")
+    .replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gm, "")
+    .replace(/<!--[\s\S]*?-->/g, "");
+
+  const prompt = `Analiza este HTML de un portal inmobiliario y extrae la información de la propiedad.
+  Busca en metadatos (og:title, description), JSON-LD schemas y el contenido visible.
+
   HTML:
-  ${html.substring(0, 30000)} // Truncar para no exceder límites si es necesario
+  ${cleanHtml.substring(0, 150000)}
   `;
 
   try {
@@ -530,7 +538,14 @@ export async function extractPropertyFromHtml(
         systemInstruction: `Eres un extractor de datos experto. Extrae la información de la propiedad del HTML proporcionado. 
         Mapea el tipo a: CASA, DEPARTAMENTO, TERRENO, LOCAL, OFICINA, BODEGA, RANCHO, EDIFICIO.
         Mapea la operación a: VENTA, RENTA.
-        Si no encuentras un campo, omítelo del JSON.`,
+        
+        Prioriza encontrar:
+        1. Precio (busca "MXN", "$", "USD")
+        2. Ubicación (Colonia, Ciudad)
+        3. Metros cuadrados (Terreno y Construcción)
+        4. Habitaciones y Baños
+        
+        Si no encuentras un campo específico, omítelo del JSON.`,
         responseMimeType: "application/json",
         responseSchema: PROPERTY_EXTRACT_SCHEMA as any
       }
