@@ -589,6 +589,7 @@ function App() {
             lang={lang}
             brandColor={brandColor}
             onUpdateProperty={handleEditProperty}
+            onEditRequest={handleEditRequest}
           />
         );
 
