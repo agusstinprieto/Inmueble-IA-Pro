@@ -266,11 +266,26 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
     setError(null);
 
     try {
-      // Usar un proxy CORS público para poder leer portales externos desde el cliente
-      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(importUrl)}`;
-      const response = await fetch(proxyUrl);
-      const data = await response.json();
-      const html = data.contents;
+      // Intentar primero con AllOrigins
+      let html = '';
+      try {
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(importUrl)}`;
+        const response = await fetch(proxyUrl);
+        if (!response.ok) throw new Error('Proxy error');
+        const data = await response.json();
+        html = data.contents;
+      } catch (err) {
+        console.warn('AllOrigins failed, trying backup proxy...', err);
+        // Fallback simple si falla el primero
+        try {
+          const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(importUrl)}`;
+          const response = await fetch(proxyUrl);
+          if (!response.ok) throw new Error('Backup proxy error');
+          html = await response.text();
+        } catch (err2) {
+          throw new Error('All proxies failed');
+        }
+      }
 
       if (!html) throw new Error('No se pudo obtener el contenido de la página');
 
