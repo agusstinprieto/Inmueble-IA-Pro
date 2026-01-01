@@ -153,29 +153,20 @@ function App() {
   // ============ DATA SYNC ============
 
   const syncWithCloud = useCallback(async () => {
-    if (!scriptUrl || isSyncing) return;
+    if (isSyncing) return;
 
     setIsSyncing(true);
     try {
-      const response = await fetch(scriptUrl);
-      if (!response.ok) throw new Error('Sync failed');
-
-      const data = await response.json();
-
-      // Normalize and set data
-      if (data.properties) setProperties(data.properties);
-      if (data.clients) setClients(data.clients);
-      if (data.contracts) setContracts(data.contracts);
-      if (data.sales) setSales(data.sales);
-      if (data.agents) setAgents(data.agents);
-
+      // Load all data from Supabase
+      await loadData();
       setLastSync(new Date());
+      console.log('✅ Sincronización completada');
     } catch (error) {
       console.error('Sync error:', error);
     } finally {
       setIsSyncing(false);
     }
-  }, [scriptUrl, isSyncing]);
+  }, [isSyncing]);
 
   useEffect(() => {
     if (isAuthenticated && scriptUrl) {
