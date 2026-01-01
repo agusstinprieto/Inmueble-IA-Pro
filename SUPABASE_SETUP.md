@@ -145,6 +145,7 @@ CREATE TABLE clients (
   preferred_types TEXT[] DEFAULT '{}',
   budget_min DECIMAL(12, 2) DEFAULT 0,
   budget_max DECIMAL(12, 2) DEFAULT 0,
+  preferred_zones TEXT[] DEFAULT '{}',
   source TEXT,
   notes TEXT,
   

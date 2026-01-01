@@ -390,7 +390,7 @@ export const addClient = async (client: Partial<Client>, agencyId?: string, agen
     const { data, error } = await supabase
         .from('clients')
         .insert({
-            ...mapClientToDb(client, session.user.id),
+            ...mapClientToDb(client),
             agency_id: agencyId || client.agencyId
         })
         .select()
@@ -511,7 +511,7 @@ export const addSale = async (sale: Partial<Sale>, agencyId?: string): Promise<S
     const { data, error } = await supabase
         .from('sales')
         .insert({
-            ...mapSaleToDb(sale, session.user.id),
+            ...mapSaleToDb(sale),
             agency_id: agencyId
         })
         .select()
@@ -551,7 +551,7 @@ export const addContract = async (contract: Partial<Contract>, agencyId?: string
     const { data, error } = await supabase
         .from('contracts')
         .insert({
-            ...mapContractToDb(contract, session.user.id),
+            ...mapContractToDb(contract),
             agency_id: agencyId || contract.agentId // Fallback to agentId if agencyId not provided
         })
         .select()
@@ -692,9 +692,8 @@ function mapDbToClient(db: any): Client {
     };
 }
 
-function mapClientToDb(client: Partial<Client>, userId?: string): any {
+function mapClientToDb(client: Partial<Client>): any {
     return {
-        ...(userId && { user_id: userId }),
         name: client.name,
         phone: client.phone,
         email: client.email,
@@ -757,9 +756,8 @@ function mapDbToSale(db: any): Sale {
     };
 }
 
-function mapSaleToDb(sale: Partial<Sale>, userId?: string): any {
+function mapSaleToDb(sale: Partial<Sale>): any {
     return {
-        ...(userId && { user_id: userId }),
         property_id: sale.propertyId,
         client_id: sale.clientId,
         agent_id: sale.agentId,
@@ -791,11 +789,11 @@ function mapDbToContract(db: any): Contract {
     };
 }
 
-function mapContractToDb(contract: Partial<Contract>, userId?: string): any {
+function mapContractToDb(contract: Partial<Contract>): any {
     return {
         type: contract.type,
         property_id: contract.propertyId,
-        agent_id: contract.agentId || userId,
+        agent_id: contract.agentId,
         client_id: contract.clientId,
         // created_at: contract.dateCreated, // Let DB handle defaults
         start_date: contract.startDate,
@@ -804,7 +802,6 @@ function mapContractToDb(contract: Partial<Contract>, userId?: string): any {
         deposit: contract.deposit,
         terms: contract.terms,
         signed: contract.signed,
-        user_id: userId,
         agency_id: contract.agencyId,
         branch_id: contract.branchId
     };
