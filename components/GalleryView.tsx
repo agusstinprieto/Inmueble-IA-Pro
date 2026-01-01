@@ -13,7 +13,8 @@ import {
     Maximize2,
     CheckCircle2,
     AlertCircle,
-    Edit2
+    Edit2,
+    X
 } from 'lucide-react';
 import { Property, PropertyStatus } from '../types';
 
@@ -40,6 +41,7 @@ const GalleryView: React.FC<GalleryViewProps> = ({
     const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [isUploading, setIsUploading] = useState(false);
+    const [expandedImage, setExpandedImage] = useState<string | null>(null);
 
     const filteredProperties = properties.filter(p =>
         p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -84,6 +86,25 @@ const GalleryView: React.FC<GalleryViewProps> = ({
             setIsUploading(false);
             // Reset input
             e.target.value = '';
+        }
+    };
+
+    const handleDeleteImage = async (imgToDelete: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!selectedProperty || !confirm(lang === 'es' ? '¿Estás seguro de eliminar esta foto?' : 'Are you sure you want to delete this photo?')) return;
+
+        try {
+            const newImages = selectedProperty.images.filter(img => img !== imgToDelete);
+            const updatedProperty = { ...selectedProperty, images: newImages };
+
+            const saved = await updateProperty(updatedProperty);
+            if (saved) {
+                setSelectedProperty(saved);
+                if (onUpdateProperty) onUpdateProperty(saved);
+            }
+        } catch (error) {
+            console.error('Delete error:', error);
+            alert('Error deleting image');
         }
     };
 
@@ -203,10 +224,19 @@ const GalleryView: React.FC<GalleryViewProps> = ({
                                         <div key={idx} className="group relative aspect-square rounded-2xl overflow-hidden bg-zinc-800 border border-zinc-700/50 hover:border-amber-500/50 transition-all cursor-pointer">
                                             <img src={img} alt={`${selectedProperty.title} ${idx}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                                             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                                <button className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white backdrop-blur-md transition-all shadow-lg">
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setExpandedImage(img);
+                                                    }}
+                                                    className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white backdrop-blur-md transition-all shadow-lg"
+                                                >
                                                     <Maximize2 size={18} />
                                                 </button>
-                                                <button className="p-2 bg-red-500/80 hover:bg-red-500 rounded-lg text-white transition-all shadow-lg">
+                                                <button
+                                                    onClick={(e) => handleDeleteImage(img, e)}
+                                                    className="p-2 bg-red-500/80 hover:bg-red-500 rounded-lg text-white transition-all shadow-lg"
+                                                >
                                                     <Trash2 size={18} />
                                                 </button>
                                             </div>
@@ -257,6 +287,24 @@ const GalleryView: React.FC<GalleryViewProps> = ({
                     )}
                 </div>
             </div>
+
+            {/* Expanded Image Modal */}
+            {expandedImage && (
+                <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4 backdrop-blur-sm" onClick={() => setExpandedImage(null)}>
+                    <button
+                        onClick={() => setExpandedImage(null)}
+                        className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-all"
+                    >
+                        <X size={32} />
+                    </button>
+                    <img
+                        src={expandedImage}
+                        alt="Expanded"
+                        className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+                        onClick={(e) => e.stopPropagation()}
+                    />
+                </div>
+            )}
         </div>
     );
 };
