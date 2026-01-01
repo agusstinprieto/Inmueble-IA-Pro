@@ -321,8 +321,19 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
 
   // Save property
   const handleSave = () => {
+    // Auto-generate title if missing
+    let finalTitle = formData.title;
+    if (!finalTitle) {
+      const typeStr = formData.type || PropertyType.CASA;
+      const opStr = formData.operation || OperationType.VENTA;
+      // Default to city or generic location
+      const locStr = formData.address?.city || location || 'Ubicación Excelente';
+      finalTitle = `${typeStr === 'TERRENO' ? 'Terreno' : typeStr} en ${opStr === 'VENTA' ? 'Venta' : 'Renta'} - ${locStr}`;
+    }
+
     const property: Partial<Property> = {
       ...formData,
+      title: finalTitle,
       id: `prop_${Date.now()}`,
       status: PropertyStatus.DISPONIBLE,
       agentId,
