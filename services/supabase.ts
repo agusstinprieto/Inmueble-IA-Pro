@@ -266,6 +266,7 @@ export const addProperty = async (property: Partial<Property>, agencyId?: string
 
     if (error) {
         console.error('Error adding property:', error);
+        alert(`Supabase Error: ${error.message}\nCode: ${error.code}\nDetails: ${error.details}`);
         return null;
     }
 
