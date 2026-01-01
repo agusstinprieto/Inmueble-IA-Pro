@@ -10,6 +10,18 @@ export default defineConfig(({ mode }) => {
       host: '0.0.0.0',
     },
     plugins: [react()],
+    build: {
+      rollupOptions: {
+        input: {
+          main: path.resolve(__dirname, 'index.html'),
+          docs: path.resolve(__dirname, 'docs.html'),
+          sales: path.resolve(__dirname, 'sales-pitch.html'),
+          features: path.resolve(__dirname, 'features.html'),
+          specs: path.resolve(__dirname, 'specs.html'),
+          pricing: path.resolve(__dirname, 'pricing.html'),
+        },
+      },
+    },
     define: {
       'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY || ''),
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY || '')

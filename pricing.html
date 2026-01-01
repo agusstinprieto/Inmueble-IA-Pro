@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inmueble IA Pro - Precios</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #050505;
+            color: #fff;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-card:hover {
+            border-color: #fbbf24;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen py-20 px-6">
+
+    <nav class="absolute top-0 left-0 w-full p-8">
+        <a href="/docs.html"
+            class="text-zinc-500 hover:text-white transition-colors text-xs uppercase font-bold tracking-widest flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m15 18-6-6 6-6" />
+            </svg>
+            Volver al Hub
+        </a>
+    </nav>
+
+    <div class="max-w-7xl mx-auto">
+        <div class="text-center mb-20">
+            <h1 class="text-5xl font-black mb-4">INVERSIÓN INTELIGENTE</h1>
+            <p class="text-zinc-400">Escala tu agencia con la potencia de la IA. Cancela cuando quieras.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Starter -->
+            <div class="glass-card p-10 rounded-3xl flex flex-col relative overflow-hidden">
+                <h3 class="text-xl font-bold mb-2">Independent</h3>
+                <div class="text-4xl font-black mb-6">$49 <span class="text-sm font-normal text-zinc-500">/mes</span>
+                </div>
+                <p class="text-zinc-400 text-sm mb-8">Para agentes independientes que quieren profesionalizar su
+                    portafolio.</p>
+
+                <ul class="space-y-4 mb-10 text-sm text-zinc-300 flex-1">
+                    <li class="flex gap-3"><svg class="text-amber-400 w-5 h-5" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg> Hasta 50 Propiedades</li>
+                    <li class="flex gap-3"><svg class="text-amber-400 w-5 h-5" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg> IA Generativa Básica</li>
+                    <li class="flex gap-3"><svg class="text-amber-400 w-5 h-5" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg> Exportación PDF</li>
+                </ul>
+
+                <button
+                    class="w-full py-4 border border-zinc-700 rounded-xl font-bold hover:bg-white hover:text-black transition-colors">Empezar
+                    Ahora</button>
+            </div>
+
+            <!-- Pro -->
+            <div
+                class="glass-card p-10 rounded-3xl flex flex-col relative overflow-hidden border-amber-400/50 bg-amber-400/5 transform md:-translate-y-4">
+                <div class="absolute top-0 right-0 bg-amber-400 text-black text-xs font-bold px-3 py-1 rounded-bl-xl">
+                    POPULAR</div>
+                <h3 class="text-xl font-bold mb-2 text-amber-400">Agency Pro</h3>
+                <div class="text-4xl font-black mb-6">$149 <span class="text-sm font-normal text-zinc-500">/mes</span>
+                </div>
+                <p class="text-zinc-400 text-sm mb-8">Para agencias en crecimiento que necesitan automatización total.
+                </p>
+
+                <ul class="space-y-4 mb-10 text-sm text-zinc-300 flex-1">
+                    <li class="flex gap-3"><svg class="text-amber-400 w-5 h-5" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg> Propiedades Ilimitadas</li>
+                    <li class="flex gap-3"><svg class="text-amber-400 w-5 h-5" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg> IA Vision Avanzada</li>
+                    <li class="flex gap-3"><svg class="text-amber-400 w-5 h-5" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg> Tours 360° Hosting</li>
+                    <li class="flex gap-3"><svg class="text-amber-400 w-5 h-5" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg> 5 Cuentas de Agente</li>
+                </ul>
+
+                <button
+                    class="w-full py-4 bg-amber-400 text-black rounded-xl font-bold hover:bg-white transition-colors shadow-[0_0_20px_rgba(251,191,36,0.3)]">Prueba
+                    Gratis 14 Días</button>
+            </div>
+
+            <!-- Enterprise -->
+            <div class="glass-card p-10 rounded-3xl flex flex-col relative overflow-hidden">
+                <h3 class="text-xl font-bold mb-2">Enterprise</h3>
+                <div class="text-4xl font-black mb-6">Custom</div>
+                <p class="text-zinc-400 text-sm mb-8">Soluciones a medida para franquicias y grandes desarrolladores.
+                </p>
+
+                <ul class="space-y-4 mb-10 text-sm text-zinc-300 flex-1">
+                    <li class="flex gap-3"><svg class="text-zinc-600 w-5 h-5" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg> API Access</li>
+                    <li class="flex gap-3"><svg class="text-zinc-600 w-5 h-5" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg> White Label (Marca Blanca)</li>
+                    <li class="flex gap-3"><svg class="text-zinc-600 w-5 h-5" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg> SLA Garantizado</li>
+                </ul>
+
+                <button
+                    class="w-full py-4 border border-zinc-700 rounded-xl font-bold hover:bg-white hover:text-black transition-colors">Contactar
+                    Ventas</button>
+            </div>
+        </div>
+
+        <div class="mt-20 text-center text-zinc-600 text-xs uppercase tracking-widest">
+            Todos los precios están en USD. Facturación mensual o anual.
+        </div>
+    </div>
+
+</body>
+
+</html>

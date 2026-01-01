@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INMUEBLE IA PRO - Technical Pitch & Sales Report</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&family=Playfair+Display:ital,wght@1,900&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --accent: #fbbf24;
+            --accent-dark: #d97706;
+            --bg: #050505;
+            --surface: #0f0f0f;
+            --surface-light: #18181b;
+            --text: #ffffff;
+            --text-dim: #a1a1aa;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .pillar-card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .pillar-card:hover {
+            transform: scale(1.02);
+            border-color: var(--accent);
+            background: var(--surface-light);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 1.5s ease;
+        }
+
+        .animate-fade-in-down {
+            animation: fadeInDown 1s ease;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="max-w-7xl mx-auto px-5">
+        <header
+            class="h-screen flex flex-col justify-center items-center text-center relative bg-[radial-gradient(circle_at_50%_50%,rgba(251,191,36,0.08)_0%,transparent_60%)]">
+            <a href="/docs.html"
+                class="absolute top-10 left-0 text-zinc-500 hover:text-white transition-colors text-sm uppercase tracking-widest flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m15 18-6-6 6-6" />
+                </svg>
+                Volver al Index
+            </a>
+
+            <p class="uppercase tracking-[0.5em] text-xs text-amber-400 font-black mb-5 animate-fade-in-down">El Futuro
+                del Real Estate ya es Pro</p>
+            <h1 class="hero-title text-6xl md:text-9xl italic font-black leading-[0.9] mb-5 animate-fade-in">INMUEBLE
+                <span class="text-amber-400">IA PRO</span></h1>
+            <p class="max-w-2xl text-zinc-400 text-lg mb-10">La plataforma PropTech definitiva que fusiona Inteligencia
+                Artificial, Realidad Virtual y Automatización para transformar agencias inmobiliarias en potencias
+                digitales.</p>
+
+            <div class="flex gap-16 py-10 border-y border-white/5 w-full justify-center bg-white/1 flex-wrap">
+                <div class="text-center">
+                    <h2 class="text-4xl font-black text-amber-400">-85%</h2>
+                    <p class="text-[0.6rem] uppercase tracking-widest text-zinc-500 font-black mt-2">Tiempo de Entrada
+                        de Datos</p>
+                </div>
+                <div class="text-center">
+                    <h2 class="text-4xl font-black text-amber-400">24/7</h2>
+                    <p class="text-[0.6rem] uppercase tracking-widest text-zinc-500 font-black mt-2">Captación de Leads
+                    </p>
+                </div>
+                <div class="text-center">
+                    <h2 class="text-4xl font-black text-amber-400">+40%</h2>
+                    <p class="text-[0.6rem] uppercase tracking-widest text-zinc-500 font-black mt-2">Valor Percibido del
+                        Cliente</p>
+                </div>
+            </div>
+        </header>
+
+        <section id="features" class="py-24">
+            <div class="text-center mb-16">
+                <h2 class="text-5xl font-black uppercase italic tracking-tighter">PILARES DE <span
+                        class="text-amber-400">VALOR</span></h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div
+                    class="pillar-card bg-[#0f0f0f] p-12 rounded-[40px] border border-white/5 text-center relative overflow-hidden">
+                    <h3 class="text-2xl font-black mb-5 text-amber-400 uppercase italic">Cognición Artificial</h3>
+                    <ul class="text-zinc-400 text-sm space-y-4">
+                        <li><strong>Visión Computacional:</strong> Analiza fotos de propiedades para extraer datos
+                            técnicos automáticamente.</li>
+                        <li><strong>Valuación Dinámica:</strong> Motor IA que cruza datos de mercado real para tasar
+                            propiedades con precisión.</li>
+                        <li><strong>Copywriting de Ventas:</strong> Generación masiva de anuncios persuasivos adaptados
+                            a cada plataforma.</li>
+                    </ul>
+                </div>
+
+                <div
+                    class="pillar-card bg-[#0f0f0f] p-12 rounded-[40px] border border-white/5 text-center relative overflow-hidden">
+                    <h3 class="text-2xl font-black mb-5 text-amber-400 uppercase italic">Inmersión & VR</h3>
+                    <ul class="text-zinc-400 text-sm space-y-4">
+                        <li><strong>Tour 360° Nativo:</strong> Los clientes recorren la propiedad desde su móvil sin
+                            descargar apps adicionales.</li>
+                        <li><strong>Geo-Inteligencia:</strong> Mapas interactivos para contextualizar la ubicación del
+                            inmueble.</li>
+                        <li><strong>Almacenamiento Cloud Premium:</strong> Galerías de alta fidelidad que no degradan la
+                            calidad visual.</li>
+                    </ul>
+                </div>
+
+                <div
+                    class="pillar-card bg-[#0f0f0f] p-12 rounded-[40px] border border-white/5 text-center relative overflow-hidden">
+                    <h3 class="text-2xl font-black mb-5 text-amber-400 uppercase italic">Escaparate Público</h3>
+                    <ul class="text-zinc-400 text-sm space-y-4">
+                        <li><strong>Portal para Clientes:</strong> Un sitio web público elegante y ultra-rápido para tu
+                            catálogo.</li>
+                        <li><strong>Conversión WhatsApp:</strong> Lead generation directo con mensajes pre-llenados.
+                        </li>
+                        <li><strong>Reportes Ejecutivos:</strong> Exportación de fichas técnicas en PDF premium.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-12">
+            <div
+                class="flex flex-col gap-12 items-center text-center bg-gradient-to-br from-[#0f0f0f] to-black p-20 rounded-[50px] border border-amber-400/20">
+                <div>
+                    <h2 class="text-4xl font-black italic mb-5">TECNOLOGÍA DE <br> <span class="text-amber-400">GRADO
+                            EMPRESARIAL</span></h2>
+                    <p class="text-zinc-400 max-w-2xl mx-auto">Diseñamos sobre una arquitectura robusta para garantizar
+                        que tu negocio nunca se detenga. Escalabilidad infinita y seguridad de datos bancaria.</p>
+                    <div class="flex flex-wrap gap-4 mt-8 justify-center">
+                        <span
+                            class="bg-amber-400/5 border border-amber-400/10 text-amber-400 px-5 py-2 rounded-full text-xs font-black uppercase">Gemini
+                            Pro</span>
+                        <span
+                            class="bg-amber-400/5 border border-amber-400/10 text-amber-400 px-5 py-2 rounded-full text-xs font-black uppercase">Supabase
+                            Realtime</span>
+                        <span
+                            class="bg-amber-400/5 border border-amber-400/10 text-amber-400 px-5 py-2 rounded-full text-xs font-black uppercase">PostgreSQL
+                            15</span>
+                        <span
+                            class="bg-amber-400/5 border border-amber-400/10 text-amber-400 px-5 py-2 rounded-full text-xs font-black uppercase">React
+                            19.2</span>
+                        <span
+                            class="bg-amber-400/5 border border-amber-400/10 text-amber-400 px-5 py-2 rounded-full text-xs font-black uppercase">Tailwind
+                            CSS 4.0</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section
+            class="py-32 flex flex-col items-center text-center bg-[radial-gradient(circle_at_50%_100%,rgba(251,191,36,0.1)_0%,transparent_70%)]">
+            <p class="uppercase tracking-widest text-xs mb-2">¿Listo para dominar el mercado?</p>
+            <h2 class="text-6xl font-black italic leading-none mb-8">LLEVA TU AGENCIA AL <br> <span
+                    class="text-amber-400">PRÓXIMO NIVEL</span></h2>
+
+            <div class="bg-[#0f0f0f] border border-amber-400 p-8 rounded-[30px] my-10 w-full max-w-md">
+                <p class="uppercase tracking-widest text-xs text-amber-400 font-black mb-5">Acceso Demo para Inversores
+                </p>
+                <div class="flex gap-8 justify-center items-center">
+                    <div>
+                        <p class="text-[0.6rem] text-zinc-500 uppercase mb-1">Usuario</p>
+                        <p class="font-mono text-xl font-black text-white">demo</p>
+                    </div>
+                    <div class="w-px h-10 bg-white/10"></div>
+                    <div>
+                        <p class="text-[0.6rem] text-zinc-500 uppercase mb-1">Contraseña</p>
+                        <p class="font-mono text-xl font-black text-white">demo123</p>
+                    </div>
+                </div>
+            </div>
+
+            <a href="https://inmueble-ia-pro.vercel.app/"
+                class="inline-block bg-amber-400 text-black px-16 py-6 rounded-2xl font-black uppercase tracking-widest text-lg hover:-translate-y-1 transition-transform shadow-[0_10px_30px_rgba(251,191,36,0.3)] hover:bg-white hover:text-black hover:shadow-[0_20px_50px_rgba(251,191,36,0.4)]">SOLICITAR
+                DEMO EN VIVO</a>
+        </section>
+
+        <footer class="py-10 text-center border-t border-white/5 text-zinc-800 text-[0.6rem] uppercase tracking-widest">
+            &copy; 2024-2025 INMUEBLE IA PRO • HIGH-END REAL ESTATE SOLUTIONS
+        </footer>
+    </div>
+</body>
+
+</html>
