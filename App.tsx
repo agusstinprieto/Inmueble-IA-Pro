@@ -546,19 +546,17 @@ function App() {
         );
 
       case 'sales':
-        {
-          activeView === 'sales' && (
-            <SalesView
-              sales={sales}
-              properties={properties}
-              clients={clients}
-              lang={lang}
-              brandColor={brandColor}
-              businessName={businessName}
-              onAddSale={handleAddSaleRequest}
-            />
-          )
-        };
+        return (
+          <SalesView
+            sales={sales}
+            properties={properties}
+            clients={clients}
+            lang={lang}
+            brandColor={brandColor}
+            businessName={businessName}
+            onAddSale={handleAddSaleRequest}
+          />
+        );
 
       case 'agents':
         return (
