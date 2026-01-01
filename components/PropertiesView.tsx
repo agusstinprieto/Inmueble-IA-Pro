@@ -122,7 +122,9 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
             setEditingProperty(editingPropertyProp);
             setShowEditModal(true);
             if (onClearEditingProperty) {
-                onClearEditingProperty();
+                setTimeout(() => {
+                    onClearEditingProperty();
+                }, 500);
             }
         }
     }, [editingPropertyProp, onClearEditingProperty]);
