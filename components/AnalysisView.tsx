@@ -762,7 +762,7 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
                   <label className="block text-zinc-400 text-sm mb-2">m² Terreno</label>
                   <input
                     type="number"
-                    value={formData.specs?.m2Total || 0}
+                    value={formData.specs?.m2Total || ''}
                     onChange={e => setFormData(prev => ({
                       ...prev,
                       specs: { ...prev.specs!, m2Total: parseInt(e.target.value) || 0 }
@@ -774,7 +774,7 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
                   <label className="block text-zinc-400 text-sm mb-2">m² Construcción</label>
                   <input
                     type="number"
-                    value={formData.specs?.m2Built || 0}
+                    value={formData.specs?.m2Built || ''}
                     onChange={e => setFormData(prev => ({
                       ...prev,
                       specs: { ...prev.specs!, m2Built: parseInt(e.target.value) || 0 }
@@ -786,7 +786,7 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
                   <label className="block text-zinc-400 text-sm mb-2">Recámaras</label>
                   <input
                     type="number"
-                    value={formData.specs?.bedrooms || 0}
+                    value={formData.specs?.bedrooms || ''}
                     onChange={e => setFormData(prev => ({
                       ...prev,
                       specs: { ...prev.specs!, bedrooms: parseInt(e.target.value) || 0 }
@@ -798,7 +798,7 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
                   <label className="block text-zinc-400 text-sm mb-2">Baños</label>
                   <input
                     type="number"
-                    value={formData.specs?.bathrooms || 0}
+                    value={formData.specs?.bathrooms || ''}
                     onChange={e => setFormData(prev => ({
                       ...prev,
                       specs: { ...prev.specs!, bathrooms: parseInt(e.target.value) || 0 }
@@ -810,7 +810,7 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
                   <label className="block text-zinc-400 text-sm mb-2">Estacionamiento</label>
                   <input
                     type="number"
-                    value={formData.specs?.parking || 0}
+                    value={formData.specs?.parking || ''}
                     onChange={e => setFormData(prev => ({
                       ...prev,
                       specs: { ...prev.specs!, parking: parseInt(e.target.value) || 0 }
@@ -824,7 +824,7 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
                   </label>
                   <input
                     type="number"
-                    value={formData.operation === OperationType.RENTA ? formData.rentPrice : formData.salePrice}
+                    value={(formData.operation === OperationType.RENTA ? formData.rentPrice : formData.salePrice) || ''}
                     onChange={e => {
                       const price = parseInt(e.target.value) || 0;
                       if (formData.operation === OperationType.RENTA) {
