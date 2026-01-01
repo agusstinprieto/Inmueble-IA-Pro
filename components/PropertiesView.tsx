@@ -30,6 +30,7 @@ import {
 import { translations } from '../translations';
 import { Property, PropertyType, OperationType, PropertyStatus } from '../types';
 import { generatePropertyListing, generateSocialAd } from '../services/gemini';
+import { uploadPropertyImage } from '../services/supabase';
 import { pdfService } from '../services/pdfService';
 
 interface PropertiesViewProps {
@@ -79,7 +80,10 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
     const [generatingAd, setGeneratingAd] = useState(false);
     const [adText, setAdText] = useState('');
     const [adPlatform, setAdPlatform] = useState<'generic' | 'facebook' | 'whatsapp'>('generic');
+
+
     const [downloadingPdf, setDownloadingPdf] = useState<string | null>(null);
+    const [isUploading, setIsUploading] = useState(false);
 
     // Filter and sort properties
     const filteredProperties = useMemo(() => {
@@ -185,6 +189,77 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
             console.error('Error generating PDF:', err);
         } finally {
             setDownloadingPdf(null);
+        }
+    };
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!editingProperty || !e.target.files) return;
+
+        setIsUploading(true);
+        try {
+            const files = Array.from(e.target.files);
+            const newUrls: string[] = [];
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i] as File;
+                // Add timestamp to ensure unique filenames if needed or just rely on index
+                const url = await uploadPropertyImage(file, editingProperty.id, editingProperty.images.length + i);
+                if (url) newUrls.push(url);
+            }
+
+            if (newUrls.length > 0) {
+                setEditingProperty({
+                    ...editingProperty,
+                    images: [...(editingProperty.images || []), ...newUrls]
+                });
+            }
+        } catch (error) {
+            console.error('Error uploading images:', error);
+            alert('Error al subir imágenes');
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    const handleRemoveImage = (indexToRemove: number) => {
+        if (!editingProperty) return;
+        const newImages = editingProperty.images.filter((_, idx) => idx !== indexToRemove);
+        setEditingProperty({
+            ...editingProperty,
+            images: newImages
+        });
+    };
+
+    const handleDetailImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!selectedProperty || !e.target.files) return;
+
+        setIsUploading(true);
+        try {
+            const files = Array.from(e.target.files);
+            const newUrls: string[] = [];
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i] as File;
+                const url = await uploadPropertyImage(file, selectedProperty.id, (selectedProperty.images?.length || 0) + i);
+                if (url) newUrls.push(url);
+            }
+
+            if (newUrls.length > 0) {
+                // Update local state
+                const updatedProperty = {
+                    ...selectedProperty,
+                    images: [...(selectedProperty.images || []), ...newUrls]
+                };
+                setSelectedProperty(updatedProperty);
+
+                // Call parent update if exists to refresh grid
+                if (onEditProperty) onEditProperty(updatedProperty); // Using onEditProperty as a general update handler if suitable, or strict update
+            }
+        } catch (error) {
+            console.error('Error uploading detail images:', error);
+            alert('Error al subir imágenes');
+        } finally {
+            setIsUploading(false);
         }
     };
 
@@ -564,9 +639,35 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                                     className="w-full h-full object-cover"
                                 />
                             ) : (
-                                <div className="w-full h-full flex items-center justify-center">
-                                    <Building2 className="text-zinc-600" size={80} />
+                                <div className="w-full h-full flex items-center justify-center group cursor-pointer relative">
+                                    <Building2 className="text-zinc-600 group-hover:opacity-50 transition-opacity" size={80} />
+                                    <label className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                                        <Plus size={48} className="text-white mb-2" />
+                                        <span className="text-white font-bold bg-black/50 px-3 py-1 rounded-full">Agregar Fotos</span>
+                                        <input
+                                            type="file"
+                                            multiple
+                                            accept="image/*"
+                                            className="hidden"
+                                            onChange={handleDetailImageUpload}
+                                            disabled={isUploading}
+                                        />
+                                    </label>
                                 </div>
+                            )}
+                            {/* Add button overlay for existing images too if needed, but primarily for empty state as requested */}
+                            {selectedProperty.images?.[0] && (
+                                <label className="absolute bottom-4 right-4 z-10 p-3 bg-black/50 hover:bg-black/70 rounded-full cursor-pointer text-white transition-colors">
+                                    <Plus size={24} />
+                                    <input
+                                        type="file"
+                                        multiple
+                                        accept="image/*"
+                                        className="hidden"
+                                        onChange={handleDetailImageUpload}
+                                        disabled={isUploading}
+                                    />
+                                </label>
                             )}
                             <button
                                 onClick={() => setShowDetailModal(false)}
@@ -1051,6 +1152,44 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                                     </div>
                                 </div>
 
+                                {/* Images Section */}
+                                <div className="p-4 bg-zinc-800/30 rounded-xl border border-zinc-800">
+                                    <label className="text-xs text-zinc-400 block mb-3 uppercase font-black italic">Galería de Fotos</label>
+
+                                    <div className="grid grid-cols-4 gap-2 mb-4">
+                                        {editingProperty.images?.map((img, idx) => (
+                                            <div key={idx} className="relative aspect-square rounded-lg overflow-hidden group">
+                                                <img src={img} alt={`Foto ${idx}`} className="w-full h-full object-cover" />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleRemoveImage(idx)}
+                                                    className="absolute top-1 right-1 p-1 bg-red-500/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                                >
+                                                    <X size={12} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                        <label className={`aspect-square rounded-lg border-2 border-dashed border-zinc-700 flex flex-col items-center justify-center cursor-pointer hover:border-zinc-500 hover:bg-zinc-800 transition-all ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}>
+                                            {isUploading ? (
+                                                <Loader2 size={24} className="animate-spin text-zinc-500" />
+                                            ) : (
+                                                <>
+                                                    <Plus size={24} className="text-zinc-500 mb-1" />
+                                                    <span className="text-[10px] text-zinc-500 font-bold uppercase">Agregar</span>
+                                                </>
+                                            )}
+                                            <input
+                                                type="file"
+                                                multiple
+                                                accept="image/*"
+                                                className="hidden"
+                                                onChange={handleImageUpload}
+                                                disabled={isUploading}
+                                            />
+                                        </label>
+                                    </div>
+                                </div>
+
                                 {/* Basic Info */}
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="col-span-2">
@@ -1199,9 +1338,9 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                             </form>
                         </div>
                     </div>
-                </div>
+                </div >
             )}
-        </div>
+        </div >
     );
 };
 
