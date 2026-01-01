@@ -646,6 +646,10 @@ function mapDbToProperty(db: any): Property {
 
 function mapPropertyToDb(property: Partial<Property>, userId?: string): any {
     return {
+        title: property.title,
+        description: property.description,
+        type: property.type,
+        operation: property.operation,
         interior_number: property.address?.interiorNumber,
         colony: property.address?.colony,
         city: property.address?.city,
