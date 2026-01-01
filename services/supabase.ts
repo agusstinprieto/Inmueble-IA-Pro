@@ -120,6 +120,7 @@ export const updateProperty = async (property: Property): Promise<Property | nul
     return updatedProperty;
 };
 
+
 export const deleteProperty = async (id: string): Promise<boolean> => {
     const { error } = await supabase
         .from('properties')

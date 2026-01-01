@@ -17,7 +17,7 @@ import TourView from './components/TourView';
 import AnalyticsView from './components/AnalyticsView';
 import LoginView from './components/LoginView';
 import { translations } from './translations';
-import { supabase, getBusinessProfile, signOut, addProperty } from './services/supabase';
+import { supabase, getBusinessProfile, signOut, addProperty, getProperties } from './services/supabase';
 import {
   Property,
   Client,
@@ -119,8 +119,20 @@ function App() {
         setScriptUrl(profile.script_url);
         setUserRole(profile.role);
       }
+      // Load data after profile
+      await loadData();
     } catch (err) {
       console.error('loadProfile error:', err);
+    }
+  };
+
+  const loadData = async () => {
+    try {
+      const props = await getProperties();
+      setProperties(props);
+      console.log(`✅ Loaded ${props.length} properties from Supabase`);
+    } catch (err) {
+      console.error('loadData error:', err);
     }
   };
 
