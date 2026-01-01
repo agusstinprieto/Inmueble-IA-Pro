@@ -23,6 +23,7 @@ import {
   Globe
 } from 'lucide-react';
 import { translations } from '../translations';
+import { UserRole } from '../types';
 
 interface SidebarProps {
   activeView: string;
@@ -30,7 +31,7 @@ interface SidebarProps {
   lang: 'es' | 'en';
   businessName: string;
   brandColor: string;
-  userRole: 'admin' | 'employee';
+  userRole: UserRole;
   isOpen: boolean;
   onToggle: () => void;
   onLogout: () => void;
@@ -89,8 +90,10 @@ const Sidebar: React.FC<SidebarProps> = ({
     { id: 'analytics', label: t.analytics, icon: <BarChart3 size={20} />, adminOnly: true },
   ];
 
+  const isAdmin = ['agency_owner', 'branch_manager', 'super_admin'].includes(userRole);
+
   const filteredItems = navItems.filter(item =>
-    !item.adminOnly || userRole === 'admin'
+    !item.adminOnly || isAdmin
   );
 
   const getContrastColor = (hex: string) => {
