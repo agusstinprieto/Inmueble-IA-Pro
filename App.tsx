@@ -556,7 +556,6 @@ function App() {
               brandColor={brandColor}
               businessName={businessName}
               onAddSale={handleAddSaleRequest}
-              onAddSale={handleAddSaleRequest}
             />
           )
         };
