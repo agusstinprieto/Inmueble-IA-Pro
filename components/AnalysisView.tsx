@@ -374,10 +374,10 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
 
       {/* Media Upload Section */}
       <div className="bg-zinc-900 rounded-xl border border-zinc-800 p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Left Side: Upload or Camera */}
+        <div className="flex flex-col gap-8">
+          {/* Top Section: Upload & Import */}
           <div className="space-y-6">
-            <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl space-y-4">
+            <div className="bg-zinc-900 border border-zinc-700/50 p-6 rounded-2xl space-y-4">
               <div className="flex items-center gap-3 mb-2">
                 <Sparkles style={{ color: brandColor }} size={20} />
                 <h3 className="text-white font-black uppercase italic tracking-tighter">Importar desde Link</h3>
@@ -388,180 +388,184 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
                   placeholder="https://www.propiedadesmexico.com/..."
                   value={importUrl}
                   onChange={(e) => setImportUrl(e.target.value)}
-                  className="flex-1 bg-black border border-zinc-800 rounded-xl py-2.5 px-4 text-sm text-white focus:outline-none focus:border-amber-500 transition-colors"
+                  className="flex-1 bg-black border border-zinc-800 rounded-xl py-3 px-4 text-sm text-white focus:outline-none focus:border-amber-500 transition-colors"
                 />
                 <button
                   onClick={handleImportUrl}
                   disabled={isImporting || !importUrl}
                   style={{ backgroundColor: brandColor, color: '#000' }}
-                  className="px-4 py-2.5 disabled:opacity-50 rounded-xl font-black text-xs uppercase italic transition-all"
+                  className="px-6 py-2.5 disabled:opacity-50 rounded-xl font-black text-xs uppercase italic transition-all"
                 >
                   {isImporting ? <Loader2 size={16} className="animate-spin" /> : 'Importar'}
                 </button>
               </div>
-              <p className="text-zinc-500 text-[10px] uppercase font-bold tracking-widest leading-tight">
-                Pega un link de cualquier portal y deja que la IA rellene los datos por ti.
-              </p>
             </div>
 
-            <div
-              className={`
-              relative border-2 border-dashed rounded-2xl p-12 transition-all cursor-pointer
-              ${mediaItems.length > 0 ? 'border-zinc-800 bg-zinc-900/50' : 'border-zinc-800 hover:border-amber-500/50 hover:bg-amber-500/5'}
-            `}
-              onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
-              onDrop={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const files = Array.from(e.dataTransfer.files);
-                if (files.length > 0) {
-                  const event = { target: { files } } as any;
-                  handleFileUpload(event);
-                }
-              }}
-              onClick={() => !showCamera && fileInputRef.current?.click()}
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleFileUpload}
-                className="hidden"
-              />
-
+            <div className="flex flex-col lg:flex-row gap-6">
+              {/* Upload Area */}
               <div
-                className="
-                flex flex-col items-center justify-center gap-4
-                min-h-[100px]
-              "
+                className={`
+                flex-1 relative border-2 border-dashed rounded-2xl p-8 transition-all cursor-pointer min-h-[300px] flex flex-col items-center justify-center
+                ${mediaItems.length > 0 ? 'border-zinc-800 bg-zinc-900/50 hidden lg:flex' : 'border-zinc-700 hover:border-amber-500/50 hover:bg-amber-500/5'}
+                `}
+                onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  const files = Array.from(e.dataTransfer.files);
+                  if (files.length > 0) {
+                    const event = { target: { files } } as any;
+                    handleFileUpload(event);
+                  }
+                }}
+                onClick={() => !showCamera && fileInputRef.current?.click()}
               >
-                <div
-                  className="w-16 h-16 rounded-full flex items-center justify-center"
-                  style={{ backgroundColor: brandColor + '20' }}
-                >
-                  <Upload size={28} style={{ color: brandColor }} />
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+
+                <div className="flex flex-col items-center justify-center gap-4">
+                  <div
+                    className="w-20 h-20 rounded-full flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform"
+                    style={{ backgroundColor: brandColor + '20' }}
+                  >
+                    <Upload size={32} style={{ color: brandColor }} />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-white font-bold text-lg">{t.click_upload}</p>
+                    <p className="text-zinc-500 text-sm mt-1">Arrastra tus fotos aquí</p>
+                  </div>
                 </div>
-                <div className="text-center">
-                  <p className="text-white font-medium">{t.click_upload}</p>
-                  <p className="text-zinc-500 text-sm mt-1">JPG, PNG hasta 10MB</p>
+
+                <div className="flex gap-3 mt-8 w-full max-w-xs">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); startCamera(); }}
+                    className="
+                    flex-1 flex items-center justify-center gap-2 py-3 px-4
+                    bg-zinc-800 hover:bg-zinc-700 rounded-xl
+                    text-white font-medium transition-colors border border-zinc-700
+                    "
+                  >
+                    <Camera size={20} />
+                    {t.take_photo}
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setManualMode(!manualMode); }}
+                    className="
+                    flex items-center justify-center gap-2 py-3 px-4
+                    bg-zinc-800 hover:bg-zinc-700 rounded-xl
+                    text-white font-medium transition-colors border border-zinc-700
+                    "
+                  >
+                    <Plus size={20} />
+                    Manual
+                  </button>
                 </div>
               </div>
 
-              <div className="flex gap-3 mt-4">
-                <button
-                  onClick={startCamera}
-                  className="
-                  flex-1 flex items-center justify-center gap-2 py-3 px-4
-                  bg-zinc-800 hover:bg-zinc-700 rounded-lg
-                  text-white font-medium transition-colors
-                "
-                >
-                  <Camera size={20} />
-                  {t.take_photo}
-                </button>
-                <button
-                  onClick={() => setManualMode(!manualMode)}
-                  className="
-                  flex items-center justify-center gap-2 py-3 px-4
-                  bg-zinc-800 hover:bg-zinc-700 rounded-lg
-                  text-white font-medium transition-colors
-                "
-                >
-                  <Plus size={20} />
-                  Manual
-                </button>
-              </div>
+              {/* Media Preview (Large) */}
+              {mediaItems.length > 0 && !showCamera && (
+                <div className="flex-1 w-full">
+                  <div className="relative group rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 aspect-video mb-4">
+                    <img
+                      src={mediaItems[mediaItems.length - 1].src}
+                      alt="Main Preview"
+                      className="w-full h-full object-cover"
+                    />
+                    <button
+                      onClick={() => removeMedia(mediaItems[mediaItems.length - 1].id)}
+                      className="absolute top-4 right-4 p-2 rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors shadow-lg"
+                    >
+                      <Trash2 size={20} />
+                    </button>
+                  </div>
+
+                  {/* Thumbnails */}
+                  {mediaItems.length > 1 && (
+                    <div className="flex gap-2 overflow-x-auto pb-2">
+                      {mediaItems.slice(0, -1).reverse().map((item) => (
+                        <div key={item.id} className="relative w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden border border-zinc-800">
+                          <img src={item.src} className="w-full h-full object-cover opacity-60 hover:opacity-100 transition-opacity" />
+                          <button
+                            onClick={() => removeMedia(item.id)}
+                            className="absolute top-1 right-1 p-1 bg-red-500/80 rounded-full text-white"
+                          >
+                            <X size={12} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Analyze Button (Moved Here) */}
+                  <button
+                    onClick={analyzeWithAI}
+                    disabled={isAnalyzing}
+                    className="
+                        w-full mt-4 py-4 rounded-xl font-black text-lg uppercase tracking-wide
+                        flex items-center justify-center gap-3
+                        transition-all duration-200 disabled:opacity-50 shadow-xl hover:translate-y-[-2px]
+                        "
+                    style={{
+                      backgroundColor: brandColor,
+                      color: '#000'
+                    }}
+                  >
+                    {isAnalyzing ? (
+                      <>
+                        <Loader2 className="animate-spin" size={24} />
+                        {t.scanning_property}
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles size={24} />
+                        ANALIZAR FOTOS CON IA
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Camera View */}
             {showCamera && (
-              <div className="relative rounded-xl overflow-hidden">
+              <div className="relative rounded-xl overflow-hidden aspect-video bg-black">
                 <video
                   ref={videoRef}
                   autoPlay
                   playsInline
-                  className="w-full rounded-xl"
+                  className="w-full h-full object-contain"
                 />
                 <canvas ref={canvasRef} className="hidden" />
-                <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-3">
+                <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-6">
                   <button
                     onClick={capturePhoto}
                     className="
-                    w-14 h-14 rounded-full flex items-center justify-center
-                    text-white shadow-lg
+                    w-16 h-16 rounded-full flex items-center justify-center
+                    text-white shadow-xl border-4 border-white
                   "
                     style={{ backgroundColor: brandColor }}
                   >
-                    <Camera size={24} />
+                    <Camera size={28} />
                   </button>
                   <button
                     onClick={stopCamera}
                     className="
-                    w-14 h-14 rounded-full bg-red-500 
-                    flex items-center justify-center text-white shadow-lg
+                    w-16 h-16 rounded-full bg-red-500 
+                    flex items-center justify-center text-white shadow-xl hover:bg-red-600 transition-colors
                   "
                   >
-                    <X size={24} />
+                    <X size={28} />
                   </button>
                 </div>
               </div>
             )}
-
-            {/* Media Preview */}
-            {mediaItems.length > 0 && !showCamera && (
-              <div className="grid grid-cols-3 gap-2">
-                {mediaItems.map((item) => (
-                  <div key={item.id} className="relative group aspect-square">
-                    <img
-                      src={item.src}
-                      alt="Preview"
-                      className="w-full h-full object-cover rounded-lg"
-                    />
-                    <button
-                      onClick={() => removeMedia(item.id)}
-                      className="
-                      absolute top-1 right-1 w-6 h-6 rounded-full
-                      bg-red-500 text-white flex items-center justify-center
-                      opacity-0 group-hover:opacity-100 transition-opacity
-                    "
-                    >
-                      <X size={14} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
-
-          {/* Analyze Button */}
-          {mediaItems.length > 0 && (
-            <button
-              onClick={analyzeWithAI}
-              disabled={isAnalyzing}
-              className="
-              w-full mt-6 py-4 rounded-xl font-bold text-lg
-              flex items-center justify-center gap-3
-              transition-all duration-200 disabled:opacity-50
-            "
-              style={{
-                backgroundColor: brandColor,
-                color: '#000'
-              }}
-            >
-              {isAnalyzing ? (
-                <>
-                  <Loader2 className="animate-spin" size={24} />
-                  {t.scanning_property}
-                </>
-              ) : (
-                <>
-                  <Sparkles size={24} />
-                  ANALIZAR CON IA
-                </>
-              )}
-            </button>
-          )}
 
           {/* Error */}
           {error && (
