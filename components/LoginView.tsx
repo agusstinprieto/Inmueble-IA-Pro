@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Lock, User, ShieldCheck, Loader2, AlertCircle } from 'lucide-react';
-import { signInWithBusinessId, getBusinessProfile, BusinessProfile } from '../services/supabase';
+import { signInWithBusinessId } from '../services/supabase';
 
 // Legacy interface for compatibility with existing code
 export interface ClientConfig {
@@ -33,31 +33,14 @@ const LoginView: React.FC<LoginViewProps> = ({ brandColor, lang, onToggleLang, o
 
     try {
       // Authenticate with Supabase
+      // username can be agency ID (which defaults to @inmuebleiapro.local) or email
       const authData = await signInWithBusinessId(username, password);
 
       if (!authData.user) {
         throw new Error('No user data returned');
       }
 
-      // Fetch business profile from Supabase database
-      const profile = await getBusinessProfile(authData.user.id);
-
-      if (!profile) {
-        throw new Error('Perfil de negocio no encontrado');
-      }
-
-      // Convert to ClientConfig format for compatibility
-      const clientConfig: ClientConfig = {
-        id: profile.business_id,
-        name: profile.business_name,
-        location: profile.location,
-        scriptUrl: profile.script_url,
-        brandingColor: profile.branding_color || '#f59e0b',
-        role: profile.role || 'employee'
-      };
-
-      // App.tsx handles state via supabase.auth.onAuthStateChange
-      // No need to call onLogin here anymore as we rely on the global observer
+      // The application will reactively update state via Supabase's auth listener in App.tsx
     } catch (err: any) {
       console.error('Login error:', err);
 
