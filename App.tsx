@@ -63,6 +63,7 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isPublicView, setIsPublicView] = useState(false);
   const [selectedPublicProperty, setSelectedPublicProperty] = useState<Property | null>(null);
+  const [propertyToEdit, setPropertyToEdit] = useState<Property | null>(null);
 
   // Data state
   const [properties, setProperties] = useState<Property[]>([]);
@@ -374,6 +375,11 @@ function App() {
     setSidebarOpen(false);
   };
 
+  const handleEditRequest = (property: Property) => {
+    setPropertyToEdit(property);
+    setActiveView('properties');
+  };
+
   // ============ RENDER ============
 
   // Loading screen
@@ -458,6 +464,8 @@ function App() {
             brandColor={brandColor}
             businessName={businessName}
             location={location}
+            editingPropertyProp={propertyToEdit}
+            onClearEditingProperty={() => setPropertyToEdit(null)}
           />
         );
 

@@ -42,6 +42,8 @@ interface PropertiesViewProps {
     brandColor: string;
     businessName: string;
     location: string;
+    editingPropertyProp?: Property | null;
+    onClearEditingProperty?: () => void;
 }
 
 const PropertiesView: React.FC<PropertiesViewProps> = ({
@@ -53,7 +55,9 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
     lang,
     brandColor,
     businessName,
-    location
+    location,
+    editingPropertyProp,
+    onClearEditingProperty
 }) => {
     const t = translations[lang];
 
@@ -62,6 +66,8 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
     const [typeFilter, setTypeFilter] = useState<PropertyType | 'ALL'>('ALL');
     const [operationFilter, setOperationFilter] = useState<OperationType | 'ALL'>('ALL');
     const [statusFilter, setStatusFilter] = useState<PropertyStatus | 'ALL'>('ALL');
+    const [bedroomsFilter, setBedroomsFilter] = useState<number | 'ALL'>('ALL');
+    const [bathroomsFilter, setBathroomsFilter] = useState<number | 'ALL'>('ALL');
     const [priceRange, setPriceRange] = useState<{ min: number; max: number }>({ min: 0, max: 999999999 });
     const [sortBy, setSortBy] = useState<'price' | 'date' | 'views'>('date');
 
@@ -85,11 +91,13 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
             const matchesType = typeFilter === 'ALL' || prop.type === typeFilter;
             const matchesOperation = operationFilter === 'ALL' || prop.operation === operationFilter;
             const matchesStatus = statusFilter === 'ALL' || prop.status === statusFilter;
+            const matchesBedrooms = bedroomsFilter === 'ALL' || prop.specs.bedrooms >= bedroomsFilter;
+            const matchesBathrooms = bathroomsFilter === 'ALL' || prop.specs.bathrooms >= bathroomsFilter;
 
             const price = prop.operation === 'RENTA' ? prop.rentPrice : prop.salePrice;
             const matchesPrice = (price || 0) >= priceRange.min && (price || 0) <= priceRange.max;
 
-            return matchesSearch && matchesType && matchesOperation && matchesStatus && matchesPrice;
+            return matchesSearch && matchesType && matchesOperation && matchesStatus && matchesPrice && matchesBedrooms && matchesBathrooms;
         });
 
         // Sort
@@ -106,7 +114,18 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
         });
 
         return result;
-    }, [properties, searchQuery, typeFilter, operationFilter, statusFilter, priceRange, sortBy]);
+    }, [properties, searchQuery, typeFilter, operationFilter, statusFilter, priceRange, sortBy, bedroomsFilter, bathroomsFilter]);
+
+    // Handle external edit request
+    React.useEffect(() => {
+        if (editingPropertyProp) {
+            setEditingProperty(editingPropertyProp);
+            setShowEditModal(true);
+            if (onClearEditingProperty) {
+                onClearEditingProperty();
+            }
+        }
+    }, [editingPropertyProp, onClearEditingProperty]);
 
     // Stats
     const stats = {
@@ -462,6 +481,27 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                     {Object.values(PropertyType).map(type => (
                         <option key={type} value={type}>{t.property_types[type as keyof typeof t.property_types]}</option>
                     ))}
+                </select>
+                <select
+                    value={bedroomsFilter}
+                    onChange={e => setBedroomsFilter(e.target.value === 'ALL' ? 'ALL' : Number(e.target.value))}
+                    className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white"
+                >
+                    <option value="ALL">Recámaras</option>
+                    <option value="1">1+</option>
+                    <option value="2">2+</option>
+                    <option value="3">3+</option>
+                    <option value="4">4+</option>
+                </select>
+                <select
+                    value={bathroomsFilter}
+                    onChange={e => setBathroomsFilter(e.target.value === 'ALL' ? 'ALL' : Number(e.target.value))}
+                    className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white"
+                >
+                    <option value="ALL">Baños</option>
+                    <option value="1">1+</option>
+                    <option value="2">2+</option>
+                    <option value="3">3+</option>
                 </select>
                 <select
                     value={operationFilter}

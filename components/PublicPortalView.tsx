@@ -42,6 +42,8 @@ const PublicPortalView: React.FC<PublicPortalViewProps> = ({
     const [searchTerm, setSearchTerm] = useState('');
     const [typeFilter, setTypeFilter] = useState<PropertyType | 'ALL'>('ALL');
     const [opFilter, setOpFilter] = useState<OperationType | 'ALL'>('ALL');
+    const [bedroomsFilter, setBedroomsFilter] = useState<number | 'ALL'>('ALL');
+    const [bathroomsFilter, setBathroomsFilter] = useState<number | 'ALL'>('ALL');
 
     // Favorites state (persisted in localStorage)
     const [favorites, setFavorites] = useState<string[]>(() => {
@@ -88,7 +90,9 @@ const PublicPortalView: React.FC<PublicPortalViewProps> = ({
             p.address.colony.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesType = typeFilter === 'ALL' || p.type === typeFilter;
         const matchesOp = opFilter === 'ALL' || p.operation === opFilter;
-        return matchesSearch && matchesType && matchesOp;
+        const matchesBedrooms = bedroomsFilter === 'ALL' || p.specs.bedrooms >= bedroomsFilter;
+        const matchesBathrooms = bathroomsFilter === 'ALL' || p.specs.bathrooms >= bathroomsFilter;
+        return matchesSearch && matchesType && matchesOp && matchesBedrooms && matchesBathrooms;
     });
 
     const formatCurrency = (amount: number, currency: 'MXN' | 'USD') => {
@@ -117,6 +121,7 @@ const PublicPortalView: React.FC<PublicPortalViewProps> = ({
                         <a href="#inventario" className="text-xs font-black uppercase italic tracking-widest text-zinc-500 hover:text-white transition-colors">Propiedades</a>
                         <a href="#" className="text-xs font-black uppercase italic tracking-widest text-zinc-500 hover:text-white transition-colors">Nosotros</a>
                         <button
+                            onClick={() => document.querySelector('footer')?.scrollIntoView({ behavior: 'smooth' })}
                             style={{ backgroundColor: brandColor }}
                             className="px-6 py-2.5 rounded-full text-black text-[10px] font-black uppercase italic hover:scale-105 active:scale-95 transition-all shadow-lg shadow-amber-500/20"
                         >
@@ -147,7 +152,7 @@ const PublicPortalView: React.FC<PublicPortalViewProps> = ({
                     </p>
 
                     {/* Search Bar */}
-                    <div className="mt-12 bg-zinc-900/50 backdrop-blur-2xl border border-white/10 p-2 rounded-3xl shadow-2xl max-w-3xl mx-auto flex flex-col md:flex-row gap-2">
+                    <div className="mt-12 bg-zinc-900/50 backdrop-blur-2xl border border-white/10 p-2 rounded-3xl shadow-2xl max-w-4xl mx-auto flex flex-col md:flex-row gap-2">
                         <div className="flex-1 relative">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
                             <input
@@ -158,7 +163,28 @@ const PublicPortalView: React.FC<PublicPortalViewProps> = ({
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
-                        <div className="flex gap-2 p-1">
+                        <div className="flex flex-wrap gap-2 p-1 justify-center md:justify-end">
+                            <select
+                                className="bg-white/5 border border-white/10 rounded-2xl px-4 py-2 text-xs font-black uppercase text-white outline-none cursor-pointer hover:bg-white/10 transition-all"
+                                value={bedroomsFilter}
+                                onChange={(e) => setBedroomsFilter(e.target.value === 'ALL' ? 'ALL' : Number(e.target.value))}
+                            >
+                                <option value="ALL">Recámaras</option>
+                                <option value="1">1+</option>
+                                <option value="2">2+</option>
+                                <option value="3">3+</option>
+                                <option value="4">4+</option>
+                            </select>
+                            <select
+                                className="bg-white/5 border border-white/10 rounded-2xl px-4 py-2 text-xs font-black uppercase text-white outline-none cursor-pointer hover:bg-white/10 transition-all"
+                                value={bathroomsFilter}
+                                onChange={(e) => setBathroomsFilter(e.target.value === 'ALL' ? 'ALL' : Number(e.target.value))}
+                            >
+                                <option value="ALL">Baños</option>
+                                <option value="1">1+</option>
+                                <option value="2">2+</option>
+                                <option value="3">3+</option>
+                            </select>
                             <select
                                 className="bg-white/5 border border-white/10 rounded-2xl px-4 py-2 text-xs font-black uppercase text-white outline-none cursor-pointer hover:bg-white/10 transition-all"
                                 value={typeFilter}
@@ -296,11 +322,17 @@ const PublicPortalView: React.FC<PublicPortalViewProps> = ({
                     <h3 className="text-4xl md:text-5xl font-black italic tracking-tighter uppercase text-white">¿Buscas algo específico?</h3>
                     <p className="text-zinc-500 font-medium italic">Nuestro equipo de expertos te ayudará a encontrar la propiedad ideal de forma personalizada.</p>
                     <div className="flex flex-col md:flex-row items-center justify-center gap-6 pt-8">
-                        <button className="flex items-center gap-3 px-8 py-4 bg-white text-black rounded-3xl font-black uppercase italic hover:scale-105 active:scale-95 transition-all shadow-xl">
+                        <button
+                            onClick={() => window.open('https://wa.me/?text=Hola,%20me%20interesa%20iniciar%20una%20nueva%20búsqueda%20de%20propiedad', '_blank')}
+                            className="flex items-center gap-3 px-8 py-4 bg-white text-black rounded-3xl font-black uppercase italic hover:scale-105 active:scale-95 transition-all shadow-xl"
+                        >
                             <MessageCircle size={20} />
                             Hablar por WhatsApp
                         </button>
-                        <button className="flex items-center gap-3 px-8 py-4 bg-zinc-800 text-white rounded-3xl font-black uppercase italic hover:scale-105 active:scale-95 transition-all">
+                        <button
+                            onClick={() => window.open('mailto:contacto@inmuebleiapro.com?subject=Agendar Llamada&body=Hola, deseo agendar una llamada para buscar una propiedad.', '_blank')}
+                            className="flex items-center gap-3 px-8 py-4 bg-zinc-800 text-white rounded-3xl font-black uppercase italic hover:scale-105 active:scale-95 transition-all"
+                        >
                             <Phone size={20} />
                             Agendar Llamada
                         </button>

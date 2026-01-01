@@ -63,6 +63,46 @@ const SalesView: React.FC<SalesViewProps> = ({
     }).format(amount);
   };
 
+  const handleExport = () => {
+    if (sales.length === 0) {
+      alert(lang === 'es' ? 'No hay datos para exportar' : 'No data to export');
+      return;
+    }
+
+    const headers = ['ID', 'Fecha', 'Propiedad', 'Cliente', 'Tipo', 'Precio', 'Comision'];
+    const csvContent = [
+      headers.join(','),
+      ...sales.map(sale => {
+        const property = properties.find(p => p.id === sale.propertyId);
+        const client = clients.find(c => c.id === sale.clientId);
+        return [
+          sale.id,
+          new Date(sale.id.startsWith('sale_') ? parseInt(sale.id.split('_')[1]) : Date.now()).toLocaleDateString(),
+          `"${property?.title || 'Unknown'}"`,
+          `"${client?.name || 'Unknown'}"`,
+          sale.type,
+          sale.finalPrice,
+          sale.commission
+        ].join(',');
+      })
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'ventas_cerradas.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleNewSale = () => {
+    // TODO: Implement modal for new sale
+    alert(lang === 'es' ? 'Funcionalidad de Nuevo Cierre próximamente' : 'New Closing functionality coming soon');
+  };
+
   return (
     <div className="p-4 lg:p-8 space-y-8 animate-in fade-in duration-500">
       {/* Header */}
@@ -74,11 +114,15 @@ const SalesView: React.FC<SalesViewProps> = ({
           <p className="text-zinc-500 text-sm mt-1">{lang === 'es' ? 'Historial de ventas y rentas finalizadas' : 'History of completed sales and rentals'}</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl transition-colors text-sm font-bold border border-zinc-700">
+          <button
+            onClick={handleExport}
+            className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl transition-colors text-sm font-bold border border-zinc-700"
+          >
             <Download size={18} />
             {lang === 'es' ? 'Exportar' : 'Export'}
           </button>
           <button
+            onClick={handleNewSale}
             style={{ backgroundColor: brandColor }}
             className="flex items-center gap-2 px-5 py-2.5 text-black rounded-xl transition-all font-black text-sm uppercase italic active:scale-95 shadow-lg shadow-amber-500/20"
           >
@@ -225,8 +269,8 @@ const SalesView: React.FC<SalesViewProps> = ({
                     </td>
                     <td className="p-4">
                       <span className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-tighter shadow-sm ${sale.type === OperationType.VENTA
-                          ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20'
-                          : 'bg-blue-500/10 text-blue-500 border border-blue-500/20'
+                        ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20'
+                        : 'bg-blue-500/10 text-blue-500 border border-blue-500/20'
                         }`}>
                         {sale.type}
                       </span>
