@@ -319,6 +319,7 @@ function App() {
         return (
           <PropertiesView
             properties={properties}
+            onAddProperty={handleAddProperty}
             onEditProperty={handleEditProperty}
             onDeleteProperty={handleDeleteProperty}
             onViewProperty={() => { }}

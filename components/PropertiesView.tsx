@@ -30,6 +30,7 @@ import { generatePropertyListing } from '../services/gemini';
 
 interface PropertiesViewProps {
     properties: Property[];
+    onAddProperty?: (property: Partial<Property>) => void;
     onEditProperty: (property: Property) => void;
     onDeleteProperty: (id: string) => void;
     onViewProperty: (property: Property) => void;
@@ -41,6 +42,7 @@ interface PropertiesViewProps {
 
 const PropertiesView: React.FC<PropertiesViewProps> = ({
     properties,
+    onAddProperty,
     onEditProperty,
     onDeleteProperty,
     onViewProperty,
@@ -61,6 +63,7 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
 
     const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
+    const [showAddModal, setShowAddModal] = useState(false);
     const [generatingAd, setGeneratingAd] = useState(false);
     const [adText, setAdText] = useState('');
 
@@ -341,6 +344,16 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                 </div>
 
                 <div className="flex items-center gap-3">
+                    {onAddProperty && (
+                        <button
+                            onClick={() => setShowAddModal(true)}
+                            className="flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-black"
+                            style={{ backgroundColor: brandColor }}
+                        >
+                            <Plus size={20} />
+                            Agregar Propiedad
+                        </button>
+                    )}
                     <div className="flex bg-zinc-800 rounded-lg p-1">
                         <button
                             onClick={() => setViewMode('grid')}
@@ -611,6 +624,204 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                                     <Trash2 size={20} />
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Add Property Modal */}
+            {showAddModal && onAddProperty && (
+                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+                    <div className="bg-zinc-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                        <div className="p-6">
+                            <div className="flex items-center justify-between mb-6">
+                                <h2 className="text-2xl font-bold text-white">Agregar Propiedad</h2>
+                                <button
+                                    onClick={() => setShowAddModal(false)}
+                                    className="p-2 bg-zinc-800 rounded-full text-zinc-400 hover:text-white"
+                                >
+                                    <X size={24} />
+                                </button>
+                            </div>
+
+                            <form
+                                onSubmit={(e) => {
+                                    e.preventDefault();
+                                    const formData = new FormData(e.currentTarget);
+                                    const newProperty: Partial<Property> = {
+                                        title: formData.get('title') as string,
+                                        type: formData.get('type') as PropertyType,
+                                        operation: formData.get('operation') as OperationType,
+                                        salePrice: formData.get('operation') === 'VENTA' ? Number(formData.get('price')) : undefined,
+                                        rentPrice: formData.get('operation') === 'RENTA' ? Number(formData.get('price')) : undefined,
+                                        address: {
+                                            street: formData.get('street') as string,
+                                            exteriorNumber: formData.get('exteriorNumber') as string,
+                                            colony: formData.get('colony') as string,
+                                            city: formData.get('city') as string,
+                                            state: formData.get('state') as string,
+                                            zipCode: formData.get('zipCode') as string,
+                                            country: formData.get('country') as 'MEXICO' | 'USA'
+                                        },
+                                        currency: formData.get('country') === 'USA' ? 'USD' : 'MXN',
+                                        specs: {
+                                            bedrooms: Number(formData.get('bedrooms')),
+                                            bathrooms: Number(formData.get('bathrooms')),
+                                            parking: Number(formData.get('parking')),
+                                            m2Built: Number(formData.get('m2Built')),
+                                            m2Total: Number(formData.get('m2Total')),
+                                            floors: Number(formData.get('floors'))
+                                        },
+                                        description: formData.get('description') as string
+                                    };
+
+                                    onAddProperty(newProperty);
+                                    setShowAddModal(false);
+                                }}
+                                className="space-y-4"
+                            >
+                                {/* Basic Info */}
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="col-span-2">
+                                        <label className="text-xs text-zinc-400 block mb-1">Título</label>
+                                        <input
+                                            name="title"
+                                            type="text"
+                                            required
+                                            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white"
+                                            placeholder="Casa en venta..."
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="text-xs text-zinc-400 block mb-1">Tipo</label>
+                                        <select name="type" required className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white">
+                                            {Object.values(PropertyType).map(type => (
+                                                <option key={type} value={type}>{t.property_types[type as keyof typeof t.property_types]}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="text-xs text-zinc-400 block mb-1">Operación</label>
+                                        <select name="operation" required className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white">
+                                            {Object.values(OperationType).map(op => (
+                                                <option key={op} value={op}>{t.operations[op as keyof typeof t.operations]}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="text-xs text-zinc-400 block mb-1">País</label>
+                                        <select name="country" required className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white">
+                                            <option value="MEXICO">México</option>
+                                            <option value="USA">USA</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="text-xs text-zinc-400 block mb-1">Precio</label>
+                                        <input
+                                            name="price"
+                                            type="number"
+                                            required
+                                            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white"
+                                            placeholder="1500000"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Address */}
+                                <div className="border-t border-zinc-800 pt-4">
+                                    <h3 className="text-white font-semibold mb-3">Dirección</h3>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="text-xs text-zinc-400 block mb-1">Calle</label>
+                                            <input name="street" type="text" className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-zinc-400 block mb-1">Número Exterior</label>
+                                            <input name="exteriorNumber" type="text" className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-zinc-400 block mb-1">Colonia</label>
+                                            <input name="colony" type="text" required className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-zinc-400 block mb-1">Ciudad</label>
+                                            <input name="city" type="text" required className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-zinc-400 block mb-1">Estado</label>
+                                            <input name="state" type="text" className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-zinc-400 block mb-1">Código Postal</label>
+                                            <input name="zipCode" type="text" className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Specs */}
+                                <div className="border-t border-zinc-800 pt-4">
+                                    <h3 className="text-white font-semibold mb-3">Especificaciones</h3>
+                                    <div className="grid grid-cols-3 gap-4">
+                                        <div>
+                                            <label className="text-xs text-zinc-400 block mb-1">Recámaras</label>
+                                            <input name="bedrooms" type="number" defaultValue={0} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-zinc-400 block mb-1">Baños</label>
+                                            <input name="bathrooms" type="number" defaultValue={0} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-zinc-400 block mb-1">Estacionamientos</label>
+                                            <input name="parking" type="number" defaultValue={0} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-zinc-400 block mb-1">M² Construidos</label>
+                                            <input name="m2Built" type="number" defaultValue={0} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-zinc-400 block mb-1">M² Terreno</label>
+                                            <input name="m2Total" type="number" defaultValue={0} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-zinc-400 block mb-1">Pisos</label>
+                                            <input name="floors" type="number" defaultValue={1} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Description */}
+                                <div>
+                                    <label className="text-xs text-zinc-400 block mb-1">Descripción</label>
+                                    <textarea
+                                        name="description"
+                                        rows={3}
+                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white"
+                                        placeholder="Descripción detallada de la propiedad..."
+                                    />
+                                </div>
+
+                                {/* Actions */}
+                                <div className="flex gap-3 pt-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowAddModal(false)}
+                                        className="flex-1 py-3 bg-zinc-800 rounded-xl text-white font-semibold hover:bg-zinc-700"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="flex-1 py-3 rounded-xl font-semibold text-black"
+                                        style={{ backgroundColor: brandColor }}
+                                    >
+                                        Agregar Propiedad
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
