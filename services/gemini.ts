@@ -125,7 +125,8 @@ const PROPERTY_EXTRACT_SCHEMA = {
         colony: { type: Type.STRING },
         city: { type: Type.STRING },
         state: { type: Type.STRING },
-        zipCode: { type: Type.STRING }
+        zipCode: { type: Type.STRING },
+        country: { type: Type.STRING }
       }
     }
   },
@@ -541,7 +542,7 @@ export async function extractPropertyFromHtml(
         
         Prioriza encontrar:
         1. Precio (busca "MXN", "$", "USD")
-        2. Ubicación (Colonia, Ciudad)
+        2. Ubicación (Colonia, Ciudad, PAÍS: usa "USA" o "MEXICO")
         3. Metros cuadrados (Terreno y Construcción)
         4. Habitaciones y Baños
         
@@ -561,15 +562,6 @@ export async function extractPropertyFromHtml(
       description: data.description,
       salePrice: data.operation === 'VENTA' ? data.price : 0,
       rentPrice: data.operation === 'RENTA' ? data.price : 0,
-      currency: data.currency === 'USD' ? 'USD' : 'MXN',
-      specs: {
-        m2Total: data.m2Total || 0,
-        m2Built: data.m2Built || 0,
-        bedrooms: data.bedrooms || 0,
-        bathrooms: data.bathrooms || 0,
-        parking: data.parking || 0,
-        floors: data.floors || 1
-      },
       address: {
         street: data.address?.street || '',
         exteriorNumber: data.address?.exteriorNumber || '',
@@ -577,8 +569,9 @@ export async function extractPropertyFromHtml(
         city: data.address?.city || location,
         state: data.address?.state || '',
         zipCode: data.address?.zipCode || '',
-        country: 'MEXICO'
+        country: data.address?.country || 'MEXICO'
       },
+      currency: (data.address?.country === 'USA' || data.currency === 'USD') ? 'USD' : 'MXN',
       amenities: data.amenities || [],
       status: 'DISPONIBLE' as any
     };
