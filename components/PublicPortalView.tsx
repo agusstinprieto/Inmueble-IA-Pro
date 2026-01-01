@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Search,
     MapPin,
@@ -12,7 +12,9 @@ import {
     Filter,
     X,
     MessageCircle,
-    Globe
+    Globe,
+    Heart,
+    Share2
 } from 'lucide-react';
 import { Property, PropertyType, OperationType } from '../types';
 import { translations } from '../translations';
@@ -40,6 +42,45 @@ const PublicPortalView: React.FC<PublicPortalViewProps> = ({
     const [searchTerm, setSearchTerm] = useState('');
     const [typeFilter, setTypeFilter] = useState<PropertyType | 'ALL'>('ALL');
     const [opFilter, setOpFilter] = useState<OperationType | 'ALL'>('ALL');
+
+    // Favorites state (persisted in localStorage)
+    const [favorites, setFavorites] = useState<string[]>(() => {
+        const saved = localStorage.getItem('inmueble_favorites');
+        return saved ? JSON.parse(saved) : [];
+    });
+
+    // Sync favorites to localStorage
+    useEffect(() => {
+        localStorage.setItem('inmueble_favorites', JSON.stringify(favorites));
+    }, [favorites]);
+
+    const toggleFavorite = (propertyId: string) => {
+        setFavorites(prev =>
+            prev.includes(propertyId)
+                ? prev.filter(id => id !== propertyId)
+                : [...prev, propertyId]
+        );
+    };
+
+    const handleShare = async (property: Property) => {
+        const shareData = {
+            title: property.title,
+            text: `¡Mira esta propiedad! ${property.title} en ${property.address.city}`,
+            url: window.location.href
+        };
+
+        if (navigator.share) {
+            try {
+                await navigator.share(shareData);
+            } catch (err) {
+                console.log('Share cancelled or failed');
+            }
+        } else {
+            // Fallback: copy to clipboard
+            await navigator.clipboard.writeText(`${shareData.text} - ${shareData.url}`);
+            alert('¡Enlace copiado al portapapeles!');
+        }
+    };
 
     const filteredProperties = properties.filter(p => {
         const matchesSearch = p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -179,6 +220,21 @@ const PublicPortalView: React.FC<PublicPortalViewProps> = ({
                                     <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase italic backdrop-blur-md shadow-lg ${prop.operation === OperationType.VENTA ? 'bg-amber-500 text-black' : 'bg-blue-500 text-white'}`}>
                                         {prop.operation}
                                     </span>
+                                </div>
+                                {/* Heart and Share buttons */}
+                                <div className="absolute top-5 right-5 flex gap-2">
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); toggleFavorite(prop.id); }}
+                                        className={`p-2.5 rounded-xl backdrop-blur-md transition-all hover:scale-110 active:scale-95 ${favorites.includes(prop.id) ? 'bg-red-500 text-white' : 'bg-black/40 text-white hover:bg-black/60'}`}
+                                    >
+                                        <Heart size={18} fill={favorites.includes(prop.id) ? 'currentColor' : 'none'} />
+                                    </button>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); handleShare(prop); }}
+                                        className="p-2.5 rounded-xl bg-black/40 text-white backdrop-blur-md hover:bg-black/60 transition-all hover:scale-110 active:scale-95"
+                                    >
+                                        <Share2 size={18} />
+                                    </button>
                                 </div>
                             </div>
 
