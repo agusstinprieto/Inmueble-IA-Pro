@@ -303,6 +303,10 @@ function App() {
         // Actualizar el estado local con la propiedad guardada
         setProperties(prev => [savedProperty, ...prev]);
         console.log('✅ Propiedad guardada y sincronizada con Sheets');
+
+        // UX: Notificar y redirigir
+        alert("✅ Propiedad guardada exitosamente.\n\nSerás redirigido al Inventario para verla.");
+        setActiveView('properties');
       } else {
         alert("Error al guardar la propiedad. Verifica que tu usuario tenga una agencia asignada.");
       }
