@@ -678,3 +678,37 @@ function mapSaleToDb(sale: Partial<Sale>, userId?: string): any {
         contract_id: sale.contractId
     };
 }
+
+function mapDbToContract(db: any): Contract {
+    return {
+        id: db.id,
+        type: db.type as any,
+        propertyId: db.property_id,
+        agentId: db.agent_id,
+        clientId: db.client_id,
+        dateCreated: db.date_created,
+        startDate: db.start_date,
+        endDate: db.end_date,
+        amount: db.amount,
+        deposit: db.deposit,
+        terms: db.terms,
+        signed: db.signed
+    };
+}
+
+function mapContractToDb(contract: Partial<Contract>, userId?: string): any {
+    return {
+        type: contract.type,
+        property_id: contract.propertyId,
+        agent_id: contract.agentId || userId,
+        client_id: contract.clientId,
+        date_created: contract.dateCreated,
+        start_date: contract.startDate,
+        end_date: contract.endDate,
+        amount: contract.amount,
+        deposit: contract.deposit,
+        terms: contract.terms,
+        signed: contract.signed,
+        user_id: userId
+    };
+}
