@@ -242,9 +242,15 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
           salePrice: analysis.estimatedPrice
         }));
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Analysis error:', err);
-      setError('Error al analizar las imágenes. Intenta de nuevo.');
+      // Show more specific error to user
+      let errorMsg = 'Error al analizar las imágenes.';
+      if (err.message?.includes('API_KEY')) errorMsg = 'Error: Falta la API Key de Gemini.';
+      if (err.message?.includes('404')) errorMsg = 'Error: Modelo de IA no disponible o mal configurado.';
+      if (err.message?.includes('429')) errorMsg = 'Error: Cuota de IA excedida.';
+
+      setError(`${errorMsg} (${err.message})`);
     } finally {
       setIsAnalyzing(false);
     }
