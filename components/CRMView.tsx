@@ -31,6 +31,7 @@ interface CRMViewProps {
     onAddClient: (client: Partial<Client>) => void;
     onUpdateClient: (client: Client) => void;
     onDeleteClient: (id: string) => void;
+    onAddFollowUp: (clientId: string, followUp: Partial<FollowUp>) => void;
     lang: 'es' | 'en';
     brandColor: string;
     agentName: string;
@@ -42,6 +43,7 @@ const CRMView: React.FC<CRMViewProps> = ({
     onAddClient,
     onUpdateClient,
     onDeleteClient,
+    onAddFollowUp,
     lang,
     brandColor,
     agentName
@@ -53,6 +55,7 @@ const CRMView: React.FC<CRMViewProps> = ({
     const [selectedClient, setSelectedClient] = useState<Client | null>(null);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showFollowUpModal, setShowFollowUpModal] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
 
     // New client form
     const [newClient, setNewClient] = useState<Partial<Client>>({
@@ -102,16 +105,32 @@ const CRMView: React.FC<CRMViewProps> = ({
         return colors[status];
     };
 
-    // Add new client
-    const handleAddClient = () => {
-        const client: Partial<Client> = {
-            ...newClient,
-            id: `client_${Date.now()}`,
-            agentId: '', // Set by parent
-            dateAdded: new Date().toISOString()
-        };
-        onAddClient(client);
+    // ... (rest of filtering code)
+
+    // Add or Update client
+    const handleSaveClient = () => {
+        if (isEditing && selectedClient) {
+            // Update existing
+            const updatedClient: Client = {
+                ...selectedClient,
+                ...newClient,
+                // Ensure ID and immutable fields are preserved, though newClient shouldn't have them usually
+            };
+            onUpdateClient(updatedClient);
+            setSelectedClient(updatedClient); // Update selection to show changes
+        } else {
+            // Add new
+            const client: Partial<Client> = {
+                ...newClient,
+                id: `client_${Date.now()}`, // Temp ID, ignored by DB
+                agentId: '', // Set by parent
+                dateAdded: new Date().toISOString()
+            };
+            onAddClient(client);
+        }
+
         setShowAddModal(false);
+        setIsEditing(false);
         setNewClient({
             name: '',
             phone: '',
@@ -129,26 +148,40 @@ const CRMView: React.FC<CRMViewProps> = ({
         });
     };
 
+    const handleEditClient = () => {
+        if (!selectedClient) return;
+        setNewClient({
+            name: selectedClient.name,
+            phone: selectedClient.phone,
+            email: selectedClient.email,
+            interest: selectedClient.interest,
+            preferredTypes: selectedClient.preferredTypes,
+            budgetMin: selectedClient.budgetMin,
+            budgetMax: selectedClient.budgetMax,
+            preferredZones: selectedClient.preferredZones,
+            notes: selectedClient.notes,
+            status: selectedClient.status,
+            source: selectedClient.source,
+            followUps: selectedClient.followUps,
+            viewedProperties: selectedClient.viewedProperties
+        });
+        setIsEditing(true);
+        setShowAddModal(true);
+    };
+
     // Add follow up
     const handleAddFollowUp = () => {
         if (!selectedClient) return;
 
-        const followUp: FollowUp = {
-            id: `followup_${Date.now()}`,
-            date: new Date().toISOString(),
+        const followUp: Partial<FollowUp> = {
             type: newFollowUp.type as FollowUp['type'],
             notes: newFollowUp.notes || '',
-            completed: true
+            completed: true,
+            scheduledDate: new Date().toISOString()
         };
 
-        const updatedClient: Client = {
-            ...selectedClient,
-            followUps: [...selectedClient.followUps, followUp],
-            status: selectedClient.status === ClientStatus.NUEVO ? ClientStatus.CONTACTADO : selectedClient.status
-        };
+        onAddFollowUp(selectedClient.id, followUp);
 
-        onUpdateClient(updatedClient);
-        setSelectedClient(updatedClient);
         setShowFollowUpModal(false);
         setNewFollowUp({ type: 'LLAMADA', notes: '', completed: false });
     };
@@ -331,7 +364,10 @@ const CRMView: React.FC<CRMViewProps> = ({
                             <div className="flex items-center justify-between">
                                 <h3 className="text-lg font-bold text-white">{selectedClient.name}</h3>
                                 <div className="flex gap-2">
-                                    <button className="p-2 bg-zinc-800 rounded-lg hover:bg-zinc-700 text-zinc-400">
+                                    <button
+                                        onClick={handleEditClient}
+                                        className="p-2 bg-zinc-800 rounded-lg hover:bg-zinc-700 text-zinc-400"
+                                    >
                                         <Edit2 size={16} />
                                     </button>
                                     <button
@@ -537,12 +573,12 @@ const CRMView: React.FC<CRMViewProps> = ({
                                 />
                             </div>
                             <button
-                                onClick={handleAddClient}
+                                onClick={handleSaveClient}
                                 disabled={!newClient.name || !newClient.phone}
                                 className="w-full py-3 rounded-xl font-bold disabled:opacity-50"
                                 style={{ backgroundColor: brandColor, color: '#000' }}
                             >
-                                {t.save}
+                                {isEditing ? t.save_changes : t.save}
                             </button>
                         </div>
                     </div>

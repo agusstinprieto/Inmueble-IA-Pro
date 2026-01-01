@@ -364,7 +364,7 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
           <div className="space-y-6">
             <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl space-y-4">
               <div className="flex items-center gap-3 mb-2">
-                <Sparkles className="text-amber-500" size={20} />
+                <Sparkles style={{ color: brandColor }} size={20} />
                 <h3 className="text-white font-black uppercase italic tracking-tighter">Importar desde Link</h3>
               </div>
               <div className="flex gap-2">
@@ -378,7 +378,8 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
                 <button
                   onClick={handleImportUrl}
                   disabled={isImporting || !importUrl}
-                  className="px-4 py-2.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-black rounded-xl font-black text-xs uppercase italic transition-all"
+                  style={{ backgroundColor: brandColor, color: '#000' }}
+                  className="px-4 py-2.5 disabled:opacity-50 rounded-xl font-black text-xs uppercase italic transition-all"
                 >
                   {isImporting ? <Loader2 size={16} className="animate-spin" /> : 'Importar'}
                 </button>
