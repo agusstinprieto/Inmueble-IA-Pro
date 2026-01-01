@@ -6,9 +6,11 @@ const GOOGLE_SCRIPT_URL = import.meta.env.VITE_GOOGLE_SHEETS_URL || '';
 /**
  * Agrega una propiedad a Google Sheets mediante un script de Google Apps Script.
  */
-export const appendPropertyToSheets = async (property: Property): Promise<boolean> => {
-    if (!GOOGLE_SCRIPT_URL) {
-        console.warn('⚠️ VITE_GOOGLE_SHEETS_URL no configurada.');
+export const appendPropertyToSheets = async (property: Property, agencySheetsUrl?: string): Promise<boolean> => {
+    const targetUrl = agencySheetsUrl || GOOGLE_SCRIPT_URL;
+
+    if (!targetUrl) {
+        console.warn('⚠️ Google Sheets URL no configurada.');
         return false;
     }
 
@@ -31,9 +33,9 @@ export const appendPropertyToSheets = async (property: Property): Promise<boolea
         };
 
         console.log('📤 Enviando a Sheets:', payload);
-        console.log('🔗 URL:', GOOGLE_SCRIPT_URL);
+        console.log('🔗 URL:', targetUrl);
 
-        const response = await fetch(GOOGLE_SCRIPT_URL, {
+        const response = await fetch(targetUrl, {
             method: 'POST',
             mode: 'no-cors',
             headers: {
@@ -53,8 +55,9 @@ export const appendPropertyToSheets = async (property: Property): Promise<boolea
 /**
  * Agrega un cliente a Google Sheets.
  */
-export const appendClientToSheets = async (client: Client): Promise<boolean> => {
-    if (!GOOGLE_SCRIPT_URL) return false;
+export const appendClientToSheets = async (client: Client, agencySheetsUrl?: string): Promise<boolean> => {
+    const targetUrl = agencySheetsUrl || GOOGLE_SCRIPT_URL;
+    if (!targetUrl) return false;
 
     try {
         const payload = {
@@ -68,7 +71,7 @@ export const appendClientToSheets = async (client: Client): Promise<boolean> => 
             }
         };
 
-        await fetch(GOOGLE_SCRIPT_URL, {
+        await fetch(targetUrl, {
             method: 'POST',
             mode: 'no-cors',
             headers: {

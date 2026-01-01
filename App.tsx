@@ -68,6 +68,8 @@ function App() {
   const [businessName, setBusinessName] = useState(() => localStorage.getItem('inmueble_businessName') || 'INMUEBLE IA PRO');
   const [brandColor, setBrandColor] = useState(() => localStorage.getItem('inmueble_brandColor') || '#f59e0b');
   const [userRole, setUserRole] = useState<UserRole>('agent');
+  const [location, setLocation] = useState('');
+  const [scriptUrl, setScriptUrl] = useState('');
 
   // App state
   const [lang, setLang] = useState<'es' | 'en'>('es');
@@ -151,6 +153,7 @@ function App() {
               setAgency(agencyData);
               setBusinessName(agencyData.name);
               setBrandColor(agencyData.brandColor);
+              setScriptUrl(agencyData.googleSheetsUrl || '');
 
               // Persist for instant load next time
               localStorage.setItem('inmueble_businessName', agencyData.name);
@@ -294,7 +297,7 @@ function App() {
       } as Partial<Property>;
 
       // Guardar en Supabase (esto automáticamente sincroniza con Sheets)
-      const savedProperty = await addProperty(newProperty, profile?.agencyId, profile?.branchId);
+      const savedProperty = await addProperty(newProperty, profile?.agencyId, profile?.branchId, agency?.googleSheetsUrl);
 
       if (savedProperty) {
         // Actualizar el estado local con la propiedad guardada
@@ -308,7 +311,7 @@ function App() {
 
   const handleEditProperty = async (property: Property) => {
     try {
-      const updated = await updateProperty(property);
+      const updated = await updateProperty(property, agency?.googleSheetsUrl);
       if (updated) {
         setProperties(prev => prev.map(p => p.id === property.id ? updated : p));
         console.log('✅ Propiedad actualizada en BD y Sheets');
@@ -339,7 +342,7 @@ function App() {
         agentId: userId || undefined
       };
 
-      const newClient = await addClient(clientToSave, profile?.agencyId);
+      const newClient = await addClient(clientToSave, profile?.agencyId, agency?.googleSheetsUrl);
       if (newClient) {
         setClients(prev => [newClient, ...prev]);
         console.log('✅ Cliente guardado en BD');
@@ -708,16 +711,20 @@ function App() {
           <SettingsView
             businessName={businessName}
             setBusinessName={setBusinessName}
+            location={location}
+            setLocation={setLocation}
             brandColor={brandColor}
             setBrandColor={setBrandColor}
             lang={lang}
             setLang={setLang}
+            scriptUrl={scriptUrl}
+            setScriptUrl={setScriptUrl}
             onSync={syncWithCloud}
             onSaveProfile={async () => {
               if (!userId) return false;
 
               const profileSuccess = await updateUserProfile(userId, {
-                name: businessName, // Using businessName for profile name for now if not set
+                name: businessName,
                 photoUrl: profile?.photoUrl
               });
 
@@ -725,8 +732,19 @@ function App() {
               if (profile?.agencyId && profile.role === 'agency_owner') {
                 agencySuccess = await updateAgencyProfile(profile.agencyId, {
                   name: businessName,
-                  brandColor: brandColor
+                  brandColor: brandColor,
+                  googleSheetsUrl: scriptUrl
                 });
+
+                if (agencySuccess) {
+                  // Update local agency state
+                  setAgency(prev => prev ? {
+                    ...prev,
+                    name: businessName,
+                    brandColor: brandColor,
+                    googleSheetsUrl: scriptUrl
+                  } : null);
+                }
               }
 
               if (profileSuccess && agencySuccess) {

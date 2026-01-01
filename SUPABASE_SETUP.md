@@ -66,6 +66,7 @@ CREATE TABLE agencies (
   brand_color TEXT DEFAULT '#f59e0b',
   plan_type TEXT DEFAULT 'FREE', -- FREE, PRO, ENTERPRISE
   status TEXT DEFAULT 'ACTIVE',
+  google_sheets_url TEXT DEFAULT '',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 

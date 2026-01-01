@@ -164,6 +164,7 @@ export interface Agency {
   brandColor: string;
   planType: 'FREE' | 'PRO' | 'ENTERPRISE';
   status: 'ACTIVE' | 'INACTIVE';
+  googleSheetsUrl?: string;
   dateCreated: string;
 }
 

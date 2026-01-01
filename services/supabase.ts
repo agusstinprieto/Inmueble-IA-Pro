@@ -89,6 +89,7 @@ export const getAgencyProfile = async (agencyId: string): Promise<Agency | null>
         brandColor: data.brand_color,
         planType: data.plan_type as any,
         status: data.status as any,
+        googleSheetsUrl: data.google_sheets_url,
         dateCreated: data.created_at
     };
 };
@@ -123,7 +124,8 @@ export const updateAgencyProfile = async (agencyId: string, agency: Partial<Agen
                 logo_url: agency.logoUrl,
                 brand_color: agency.brandColor,
                 plan_type: agency.planType,
-                status: agency.status
+                status: agency.status,
+                google_sheets_url: agency.googleSheetsUrl
             })
             .eq('id', agencyId);
 
@@ -224,7 +226,7 @@ export const getProperties = async (agencyId?: string): Promise<Property[]> => {
     return data?.map(mapDbToProperty) || [];
 };
 
-export const addProperty = async (property: Partial<Property>, agencyId?: string, branchId?: string): Promise<Property | null> => {
+export const addProperty = async (property: Partial<Property>, agencyId?: string, branchId?: string, agencySheetsUrl?: string): Promise<Property | null> => {
     const session = await getCurrentSession();
     if (!session) return null;
 
@@ -244,11 +246,11 @@ export const addProperty = async (property: Partial<Property>, agencyId?: string
     }
 
     const mappedProperty = mapDbToProperty(data);
-    await appendPropertyToSheets(mappedProperty);
+    await appendPropertyToSheets(mappedProperty, agencySheetsUrl);
     return mappedProperty;
 };
 
-export const updateProperty = async (property: Property): Promise<Property | null> => {
+export const updateProperty = async (property: Property, agencySheetsUrl?: string): Promise<Property | null> => {
     const { data, error } = await supabase
         .from('properties')
         .update(mapPropertyToDb(property))
@@ -262,7 +264,7 @@ export const updateProperty = async (property: Property): Promise<Property | nul
     }
 
     const updatedProperty = mapDbToProperty(data);
-    await appendPropertyToSheets(updatedProperty);
+    await appendPropertyToSheets(updatedProperty, agencySheetsUrl);
     return updatedProperty;
 };
 
@@ -373,7 +375,7 @@ export const getClients = async (agencyId?: string): Promise<Client[]> => {
     return data?.map(mapDbToClient) || [];
 };
 
-export const addClient = async (client: Partial<Client>, agencyId?: string): Promise<Client | null> => {
+export const addClient = async (client: Partial<Client>, agencyId?: string, agencySheetsUrl?: string): Promise<Client | null> => {
     const session = await getCurrentSession();
     if (!session) return null;
 
@@ -392,7 +394,7 @@ export const addClient = async (client: Partial<Client>, agencyId?: string): Pro
     }
 
     const mappedClient = mapDbToClient(data);
-    await appendClientToSheets(mappedClient);
+    await appendClientToSheets(mappedClient, agencySheetsUrl);
     return mappedClient;
 };
 
