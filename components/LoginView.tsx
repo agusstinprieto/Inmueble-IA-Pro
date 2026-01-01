@@ -17,9 +17,10 @@ interface LoginViewProps {
   brandColor: string;
   lang: 'es' | 'en';
   onToggleLang: () => void;
+  onEnterGuest: () => void;
 }
 
-const LoginView: React.FC<LoginViewProps> = ({ brandColor, lang, onToggleLang }) => {
+const LoginView: React.FC<LoginViewProps> = ({ brandColor, lang, onToggleLang, onEnterGuest }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -143,6 +144,19 @@ const LoginView: React.FC<LoginViewProps> = ({ brandColor, lang, onToggleLang })
             className="w-full bg-amber-500 hover:bg-amber-400 disabled:bg-zinc-800 disabled:text-zinc-600 text-black font-black py-4 rounded-2xl transition-all shadow-xl shadow-amber-500/20 uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-3 active:scale-[0.98]"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'INICIAR SESIÓN'}
+          </button>
+          <div className="relative flex items-center py-2">
+            <div className="flex-grow border-t border-white/5"></div>
+            <span className="flex-shrink mx-4 text-[8px] font-black text-white/20 uppercase tracking-widest italic">O</span>
+            <div className="flex-grow border-t border-white/5"></div>
+          </div>
+
+          <button
+            type="button"
+            onClick={onEnterGuest}
+            className="w-full bg-white/5 hover:bg-white/10 text-white font-black py-4 rounded-2xl transition-all border border-white/10 uppercase tracking-[0.2em] text-[10px] flex items-center justify-center gap-3 active:scale-[0.98]"
+          >
+            EXPLORAR COMO INVITADO
           </button>
         </form>
       </div>

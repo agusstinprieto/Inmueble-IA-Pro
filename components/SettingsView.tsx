@@ -25,6 +25,7 @@ interface SettingsViewProps {
     scriptUrl: string;
     setScriptUrl: (url: string) => void;
     onSync: () => Promise<void>;
+    onSaveProfile: () => Promise<boolean>;
 }
 
 const SettingsView: React.FC<SettingsViewProps> = ({
@@ -38,7 +39,8 @@ const SettingsView: React.FC<SettingsViewProps> = ({
     setLang,
     scriptUrl,
     setScriptUrl,
-    onSync
+    onSync,
+    onSaveProfile
 }) => {
     const t = translations[lang];
     const [isSaving, setIsSaving] = useState(false);
@@ -46,13 +48,17 @@ const SettingsView: React.FC<SettingsViewProps> = ({
 
     const handleSave = async () => {
         setIsSaving(true);
-        // Simulate save or trigger specific logic if needed
-        // The state is already updated in parent via props
-        setTimeout(() => {
+        try {
+            const success = await onSaveProfile();
+            if (success) {
+                setSaveSuccess(true);
+                setTimeout(() => setSaveSuccess(false), 3000);
+            }
+        } catch (error) {
+            console.error('Error saving settings:', error);
+        } finally {
             setIsSaving(false);
-            setSaveSuccess(true);
-            setTimeout(() => setSaveSuccess(false), 3000);
-        }, 1000);
+        }
     };
 
     return (

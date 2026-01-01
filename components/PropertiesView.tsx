@@ -22,11 +22,15 @@ import {
     X,
     ChevronLeft,
     ChevronRight,
-    MessageCircle
+    MessageCircle,
+    FileText,
+    Download,
+    Loader2
 } from 'lucide-react';
 import { translations } from '../translations';
 import { Property, PropertyType, OperationType, PropertyStatus } from '../types';
 import { generatePropertyListing } from '../services/gemini';
+import { pdfService } from '../services/pdfService';
 
 interface PropertiesViewProps {
     properties: Property[];
@@ -62,10 +66,13 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
     const [sortBy, setSortBy] = useState<'price' | 'date' | 'views'>('date');
 
     const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+    const [editingProperty, setEditingProperty] = useState<Property | null>(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
     const [generatingAd, setGeneratingAd] = useState(false);
     const [adText, setAdText] = useState('');
+    const [downloadingPdf, setDownloadingPdf] = useState<string | null>(null);
 
     // Filter and sort properties
     const filteredProperties = useMemo(() => {
@@ -139,6 +146,23 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
         navigator.clipboard.writeText(adText);
     };
 
+    // Download PDF
+    const handleDownloadPDF = async (property: Property) => {
+        setDownloadingPdf(property.id);
+        try {
+            await pdfService.generatePropertySheet(property, {
+                name: businessName,
+                color: brandColor,
+                phone: translations[lang].phone || '',
+                email: translations[lang].email || ''
+            });
+        } catch (err) {
+            console.error('Error generating PDF:', err);
+        } finally {
+            setDownloadingPdf(null);
+        }
+    };
+
     // Property Card
     const PropertyCard: React.FC<{ property: Property }> = ({ property }) => {
         const price = property.operation === 'RENTA' ? property.rentPrice : property.salePrice;
@@ -183,6 +207,28 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
 
                     {/* Actions */}
                     <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                            onClick={e => {
+                                e.stopPropagation();
+                                setEditingProperty(property);
+                                setShowEditModal(true);
+                            }}
+                            className="p-2 bg-black/50 rounded-full text-white hover:bg-black/70"
+                            title="Editar"
+                        >
+                            <Edit2 size={18} />
+                        </button>
+                        <button
+                            onClick={e => {
+                                e.stopPropagation();
+                                handleDownloadPDF(property);
+                            }}
+                            disabled={downloadingPdf === property.id}
+                            className="p-2 bg-black/50 rounded-full text-white hover:bg-black/70 disabled:opacity-50"
+                            title="Descargar Ficha PDF"
+                        >
+                            {downloadingPdf === property.id ? <Loader2 size={18} className="animate-spin" /> : <FileText size={18} />}
+                        </button>
                         <button
                             onClick={e => { e.stopPropagation(); }}
                             className="p-2 bg-black/50 rounded-full text-white hover:bg-black/70"
@@ -310,7 +356,11 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
 
                 <div className="flex gap-2">
                     <button
-                        onClick={e => { e.stopPropagation(); onEditProperty(property); }}
+                        onClick={e => {
+                            e.stopPropagation();
+                            setEditingProperty(property);
+                            setShowEditModal(true);
+                        }}
                         className="p-2 bg-zinc-800 rounded-lg hover:bg-zinc-700 text-zinc-400"
                     >
                         <Edit2 size={18} />
@@ -601,7 +651,11 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                             {/* Actions */}
                             <div className="flex gap-3">
                                 <button
-                                    onClick={() => onEditProperty(selectedProperty)}
+                                    onClick={() => {
+                                        setEditingProperty(selectedProperty);
+                                        setShowEditModal(true);
+                                        setShowDetailModal(false);
+                                    }}
                                     className="flex-1 flex items-center justify-center gap-2 py-3 bg-zinc-800 rounded-xl text-white font-semibold hover:bg-zinc-700"
                                 >
                                     <Edit2 size={20} />
@@ -613,6 +667,14 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                                 >
                                     <MessageCircle size={20} />
                                     Contactar
+                                </button>
+                                <button
+                                    onClick={() => handleDownloadPDF(selectedProperty)}
+                                    disabled={downloadingPdf === selectedProperty.id}
+                                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-zinc-800 rounded-xl text-white font-semibold hover:bg-zinc-700 disabled:opacity-50"
+                                >
+                                    {downloadingPdf === selectedProperty.id ? <Loader2 size={20} className="animate-spin" /> : <Download size={20} />}
+                                    PDF
                                 </button>
                                 <button
                                     onClick={() => {
@@ -635,7 +697,7 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                     <div className="bg-zinc-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                         <div className="p-6">
                             <div className="flex items-center justify-between mb-6">
-                                <h2 className="text-2xl font-bold text-white">Agregar Propiedad</h2>
+                                <h2 className="text-2xl font-bold text-white uppercase italic">AGREGAR PROPIEDAD</h2>
                                 <button
                                     onClick={() => setShowAddModal(false)}
                                     className="p-2 bg-zinc-800 rounded-full text-zinc-400 hover:text-white"
@@ -819,6 +881,236 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                                         style={{ backgroundColor: brandColor }}
                                     >
                                         Agregar Propiedad
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Property Modal */}
+            {showEditModal && editingProperty && onEditProperty && (
+                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+                    <div className="bg-zinc-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
+                        <div className="p-6">
+                            <div className="flex items-center justify-between mb-6">
+                                <h2 className="text-2xl font-bold text-white uppercase italic">EDITAR PROPIEDAD</h2>
+                                <button
+                                    onClick={() => {
+                                        setShowEditModal(false);
+                                        setEditingProperty(null);
+                                    }}
+                                    className="p-2 bg-zinc-800 rounded-full text-zinc-400 hover:text-white"
+                                >
+                                    <X size={24} />
+                                </button>
+                            </div>
+
+                            <form
+                                onSubmit={(e) => {
+                                    e.preventDefault();
+                                    const formData = new FormData(e.currentTarget);
+                                    const updatedProperty: Property = {
+                                        ...editingProperty!,
+                                        title: formData.get('title') as string,
+                                        type: formData.get('type') as PropertyType,
+                                        operation: formData.get('operation') as OperationType,
+                                        salePrice: formData.get('operation') === 'VENTA' ? Number(formData.get('price')) : editingProperty!.salePrice,
+                                        rentPrice: formData.get('operation') === 'RENTA' ? Number(formData.get('price')) : editingProperty!.rentPrice,
+                                        address: {
+                                            ...editingProperty!.address,
+                                            street: formData.get('street') as string,
+                                            exteriorNumber: formData.get('exteriorNumber') as string,
+                                            colony: formData.get('colony') as string,
+                                            city: formData.get('city') as string,
+                                            state: formData.get('state') as string,
+                                            zipCode: formData.get('zipCode') as string,
+                                            country: formData.get('country') as 'MEXICO' | 'USA'
+                                        },
+                                        currency: formData.get('country') === 'USA' ? 'USD' : 'MXN',
+                                        specs: {
+                                            ...editingProperty!.specs,
+                                            bedrooms: Number(formData.get('bedrooms')),
+                                            bathrooms: Number(formData.get('bathrooms')),
+                                            parking: Number(formData.get('parking')),
+                                            m2Built: Number(formData.get('m2Built')),
+                                            m2Total: Number(formData.get('m2Total')),
+                                            floors: Number(formData.get('floors'))
+                                        },
+                                        description: formData.get('description') as string,
+                                        status: formData.get('status') as PropertyStatus
+                                    };
+
+                                    onEditProperty(updatedProperty);
+                                    setShowEditModal(false);
+                                    setEditingProperty(null);
+                                }}
+                                className="space-y-4"
+                            >
+                                {/* Status Toggle */}
+                                <div className="p-4 bg-zinc-800/50 rounded-xl border border-zinc-800">
+                                    <label className="text-xs text-zinc-400 block mb-2 uppercase font-black italic">Estado de Disponibilidad</label>
+                                    <div className="flex gap-2">
+                                        {Object.values(PropertyStatus).map(status => (
+                                            <label key={status} className="flex-1 cursor-pointer">
+                                                <input
+                                                    type="radio"
+                                                    name="status"
+                                                    value={status}
+                                                    defaultChecked={editingProperty.status === status}
+                                                    className="hidden peer"
+                                                />
+                                                <div className="py-2 text-center rounded-lg border border-zinc-700 text-[10px] font-bold uppercase peer-checked:bg-white peer-checked:text-black transition-all">
+                                                    {status}
+                                                </div>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Basic Info */}
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="col-span-2">
+                                        <label className="text-xs text-zinc-400 block mb-1">Título</label>
+                                        <input
+                                            name="title"
+                                            type="text"
+                                            required
+                                            defaultValue={editingProperty.title}
+                                            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="text-xs text-zinc-400 block mb-1">Tipo</label>
+                                        <select name="type" defaultValue={editingProperty.type} required className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white">
+                                            {Object.values(PropertyType).map(type => (
+                                                <option key={type} value={type}>{t.property_types[type as keyof typeof t.property_types]}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="text-xs text-zinc-400 block mb-1">Operación</label>
+                                        <select name="operation" defaultValue={editingProperty.operation} required className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white">
+                                            {Object.values(OperationType).map(op => (
+                                                <option key={op} value={op}>{t.operations[op as keyof typeof t.operations]}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="text-xs text-zinc-400 block mb-1">País</label>
+                                        <select name="country" defaultValue={editingProperty.address.country} required className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white">
+                                            <option value="MEXICO">México</option>
+                                            <option value="USA">USA</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="text-xs text-zinc-400 block mb-1">Precio</label>
+                                        <input
+                                            name="price"
+                                            type="number"
+                                            required
+                                            defaultValue={editingProperty.operation === 'VENTA' ? editingProperty.salePrice : editingProperty.rentPrice}
+                                            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Address */}
+                                <div className="border-t border-zinc-800 pt-4">
+                                    <h3 className="text-white font-semibold mb-3">Dirección</h3>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="text-xs text-zinc-400 block mb-1">Calle</label>
+                                            <input name="street" type="text" defaultValue={editingProperty.address.street} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-zinc-400 block mb-1">Número Exterior</label>
+                                            <input name="exteriorNumber" type="text" defaultValue={editingProperty.address.exteriorNumber} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-zinc-400 block mb-1">Colonia</label>
+                                            <input name="colony" type="text" required defaultValue={editingProperty.address.colony} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-zinc-400 block mb-1">Ciudad</label>
+                                            <input name="city" type="text" required defaultValue={editingProperty.address.city} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-zinc-400 block mb-1">Estado</label>
+                                            <input name="state" type="text" defaultValue={editingProperty.address.state} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-zinc-400 block mb-1">Código Postal</label>
+                                            <input name="zipCode" type="text" defaultValue={editingProperty.address.zipCode} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Specs */}
+                                <div className="border-t border-zinc-800 pt-4">
+                                    <h3 className="text-white font-semibold mb-3">Especificaciones</h3>
+                                    <div className="grid grid-cols-3 gap-4">
+                                        <div>
+                                            <label className="text-xs text-zinc-400 block mb-1">Recámaras</label>
+                                            <input name="bedrooms" type="number" defaultValue={editingProperty.specs.bedrooms} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-zinc-400 block mb-1">Baños</label>
+                                            <input name="bathrooms" type="number" defaultValue={editingProperty.specs.bathrooms} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-zinc-400 block mb-1">Estacionamientos</label>
+                                            <input name="parking" type="number" defaultValue={editingProperty.specs.parking} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-zinc-400 block mb-1">M² Construidos</label>
+                                            <input name="m2Built" type="number" defaultValue={editingProperty.specs.m2Built} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-zinc-400 block mb-1">M² Terreno</label>
+                                            <input name="m2Total" type="number" defaultValue={editingProperty.specs.m2Total} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-zinc-400 block mb-1">Pisos</label>
+                                            <input name="floors" type="number" defaultValue={editingProperty.specs.floors} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Description */}
+                                <div>
+                                    <label className="text-xs text-zinc-400 block mb-1">Descripción</label>
+                                    <textarea
+                                        name="description"
+                                        rows={3}
+                                        defaultValue={editingProperty.description}
+                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white"
+                                    />
+                                </div>
+
+                                {/* Actions */}
+                                <div className="flex gap-3 pt-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setShowEditModal(false);
+                                            setEditingProperty(null);
+                                        }}
+                                        className="flex-1 py-3 bg-zinc-800 rounded-xl text-white font-semibold hover:bg-zinc-700"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="flex-1 py-3 rounded-xl font-semibold text-black"
+                                        style={{ backgroundColor: brandColor }}
+                                    >
+                                        Actualizar Propiedad
                                     </button>
                                 </div>
                             </form>

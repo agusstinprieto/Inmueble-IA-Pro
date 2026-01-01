@@ -25,6 +25,7 @@ interface DashboardViewProps {
     brandColor: string;
     businessName: string;
     onNavigate: (view: string) => void;
+    onViewPublic: () => void;
 }
 
 const DashboardView: React.FC<DashboardViewProps> = ({
@@ -34,7 +35,8 @@ const DashboardView: React.FC<DashboardViewProps> = ({
     lang,
     brandColor,
     businessName,
-    onNavigate
+    onNavigate,
+    onViewPublic
 }) => {
     const t = translations[lang];
 
@@ -97,14 +99,24 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                     <h1 className="text-2xl font-bold text-white">{t.operational_dashboard}</h1>
                     <p className="text-zinc-400 text-sm">Bienvenido a {businessName}</p>
                 </div>
-                <div className="flex items-center gap-2 text-zinc-400 text-sm">
-                    <Clock size={16} />
-                    {new Date().toLocaleDateString('es-MX', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                    })}
+                <div className="flex items-center gap-4">
+                    <div className="hidden md:flex items-center gap-2 text-zinc-400 text-sm">
+                        <Clock size={16} />
+                        {new Date().toLocaleDateString('es-MX', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        })}
+                    </div>
+                    <button
+                        onClick={onViewPublic}
+                        style={{ backgroundColor: brandColor + '20', color: brandColor, border: `1px solid ${brandColor}40` }}
+                        className="px-4 py-2 rounded-xl text-xs font-black uppercase italic hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+                    >
+                        <Eye size={16} />
+                        Ver Portal Público
+                    </button>
                 </div>
             </div>
 
@@ -351,7 +363,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                     <p className="text-zinc-500 text-sm">Análisis detallado</p>
                 </button>
             </div>
-        </div>
+        </div >
     );
 };
 

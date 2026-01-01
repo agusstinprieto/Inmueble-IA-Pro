@@ -81,6 +81,57 @@ const PROPERTY_ANALYSIS_SCHEMA = {
   required: ["properties"]
 };
 
+const VALUATION_SCHEMA = {
+  type: Type.OBJECT,
+  properties: {
+    currency: { type: Type.STRING },
+    estimatedPrice: { type: Type.NUMBER },
+    priceRange: {
+      type: Type.OBJECT,
+      properties: {
+        min: { type: Type.NUMBER },
+        max: { type: Type.NUMBER }
+      }
+    },
+    pricePerM2: { type: Type.NUMBER },
+    marketTrend: { type: Type.STRING },
+    marketConfidence: { type: Type.NUMBER },
+    suggestions: { type: Type.ARRAY, items: { type: Type.STRING } }
+  },
+  required: ["currency", "estimatedPrice", "priceRange", "pricePerM2", "marketTrend", "marketConfidence", "suggestions"]
+};
+
+const PROPERTY_EXTRACT_SCHEMA = {
+  type: Type.OBJECT,
+  properties: {
+    title: { type: Type.STRING },
+    type: { type: Type.STRING },
+    operation: { type: Type.STRING },
+    description: { type: Type.STRING },
+    price: { type: Type.NUMBER },
+    currency: { type: Type.STRING },
+    m2Total: { type: Type.NUMBER },
+    m2Built: { type: Type.NUMBER },
+    bedrooms: { type: Type.NUMBER },
+    bathrooms: { type: Type.NUMBER },
+    parking: { type: Type.NUMBER },
+    floors: { type: Type.NUMBER },
+    amenities: { type: Type.ARRAY, items: { type: Type.STRING } },
+    address: {
+      type: Type.OBJECT,
+      properties: {
+        street: { type: Type.STRING },
+        exteriorNumber: { type: Type.STRING },
+        colony: { type: Type.STRING },
+        city: { type: Type.STRING },
+        state: { type: Type.STRING },
+        zipCode: { type: Type.STRING }
+      }
+    }
+  },
+  required: ["title", "type", "operation", "price"]
+};
+
 // ============ FUNCIONES DE ANÁLISIS ============
 
 export async function analyzePropertyImages(
@@ -131,53 +182,50 @@ export async function analyzePropertyImages(
 // ============ VALUACIÓN AUTOMÁTICA ============
 
 export async function getPropertyValuation(
-  property: Partial<Property>,
+  propertyData: any, // Use any for raw form data
   location: string
-): Promise<string> {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  const model = 'gemini-2.5-flash';
+): Promise<any> {
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  if (!apiKey) throw new Error('VITE_GEMINI_API_KEY not found');
+
+  const ai = new GoogleGenAI({ apiKey });
+  const model = 'gemini-2.0-flash'; // Fixed version
   const reg = getRegionalInfo(location);
 
-  const prompt = `Realiza una valuación profesional para esta propiedad:
-  Tipo: ${property.type}
-  Ubicación: ${property.address?.colony}, ${property.address?.city}
-  m² Terreno: ${property.specs?.m2Total}
-  m² Construcción: ${property.specs?.m2Built}
-  Recámaras: ${property.specs?.bedrooms}
-  Baños: ${property.specs?.bathrooms}
-  Estacionamiento: ${property.specs?.parking}
-  Amenidades: ${property.amenities?.join(', ')}
+  const prompt = `Realiza una valuación inmobiliaria profesional y un estudio de mercado para:
+  Tipo: ${propertyData.propertyType}
+  Ubicación: ${propertyData.neighborhood}, ${propertyData.city} (${propertyData.country})
+  m² Terreno: ${propertyData.m2Total}
+  m² Construcción: ${propertyData.m2Built}
+  Recámaras: ${propertyData.bedrooms}
+  Baños: ${propertyData.bathrooms}
+  Condición: ${propertyData.condition}
+  Amenidades: ${propertyData.amenities}
   
-  Mercado: ${reg.market}
-  Moneda: ${reg.currency}
-  
-  Proporciona:
-  1. Precio estimado de venta
-  2. Precio por m²
-  3. Rango de precio (mín - máx)
-  4. Comparación con el mercado de la zona
-  5. Factores que afectan el valor`;
+  CONTEXTO:
+  1. Usa Google Search para encontrar precios reales de mercado en ${propertyData.neighborhood}, ${propertyData.city}.
+  2. La moneda debe ser: ${reg.currency}.
+  3. Estima el precio total, rango y precio por m².
+  4. Analiza la tendencia de la zona (UP/DOWN/STABLE).
+  5. Califica la confianza del análisis (0.0 a 1.0).
+  6. Proporciona insights y sugerencias de mejora.`;
 
   try {
     const response = await ai.models.generateContent({
       model,
-      contents: prompt,
+      contents: { parts: [{ text: prompt }] },
       config: {
-        tools: [{ googleSearch: {} }],
-        systemInstruction: "Eres un valuador inmobiliario profesional certificado. Usa datos reales de mercado."
+        tools: [{ googleSearch: {} } as any],
+        systemInstruction: "Eres un perito valuador inmobiliario internacional con acceso a datos de mercado en tiempo real.",
+        responseMimeType: "application/json",
+        responseSchema: VALUATION_SCHEMA as any
       }
     });
-    return response.text || '';
+
+    return JSON.parse(response.text || '{}');
   } catch (error) {
-    console.warn("Valuation with search failed, using fallback:", error);
-    const fallback = await ai.models.generateContent({
-      model,
-      contents: prompt,
-      config: {
-        systemInstruction: "Eres un valuador inmobiliario. Estima el valor basándote en tu conocimiento del mercado."
-      }
-    });
-    return fallback.text || 'Valuación no disponible.';
+    console.error("Valuation failed:", error);
+    throw error;
   }
 }
 
@@ -386,4 +434,73 @@ export async function generatePropertyDescription(
   });
 
   return response.text || '';
+}
+
+// ============ EXTRACCIÓN DESDE URL (SCRAPING IA) ============
+
+export async function extractPropertyFromHtml(
+  html: string,
+  businessName: string,
+  location: string
+): Promise<Partial<Property> | null> {
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  if (!apiKey) return null;
+
+  const ai = new GoogleGenAI({ apiKey });
+  const model = 'gemini-2.5-flash';
+
+  const prompt = `Analiza este fragmento de HTML de un portal inmobiliario y extrae la información de la propiedad de forma estructurada.
+  HTML:
+  ${html.substring(0, 30000)} // Truncar para no exceder límites si es necesario
+  `;
+
+  try {
+    const response = await ai.models.generateContent({
+      model,
+      contents: prompt,
+      config: {
+        systemInstruction: `Eres un extractor de datos experto. Extrae la información de la propiedad del HTML proporcionado. 
+        Mapea el tipo a: CASA, DEPARTAMENTO, TERRENO, LOCAL, OFICINA, BODEGA, RANCHO, EDIFICIO.
+        Mapea la operación a: VENTA, RENTA.
+        Si no encuentras un campo, omítelo del JSON.`,
+        responseMimeType: "application/json",
+        responseSchema: PROPERTY_EXTRACT_SCHEMA as any
+      }
+    });
+
+    const data = JSON.parse(response.text || '{}');
+    if (!data.title) return null;
+
+    return {
+      title: data.title,
+      type: data.type as any,
+      operation: data.operation as any,
+      description: data.description,
+      salePrice: data.operation === 'VENTA' ? data.price : 0,
+      rentPrice: data.operation === 'RENTA' ? data.price : 0,
+      currency: data.currency === 'USD' ? 'USD' : 'MXN',
+      specs: {
+        m2Total: data.m2Total || 0,
+        m2Built: data.m2Built || 0,
+        bedrooms: data.bedrooms || 0,
+        bathrooms: data.bathrooms || 0,
+        parking: data.parking || 0,
+        floors: data.floors || 1
+      },
+      address: {
+        street: data.address?.street || '',
+        exteriorNumber: data.address?.exteriorNumber || '',
+        colony: data.address?.colony || '',
+        city: data.address?.city || location,
+        state: data.address?.state || '',
+        zipCode: data.address?.zipCode || '',
+        country: 'MEXICO'
+      },
+      amenities: data.amenities || [],
+      status: 'DISPONIBLE' as any
+    };
+  } catch (error) {
+    console.error("AI Extraction failed:", error);
+    return null;
+  }
 }

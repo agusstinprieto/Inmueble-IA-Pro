@@ -12,7 +12,10 @@ import {
     Search,
     Maximize2,
     Trash2,
-    Share2
+    Share2,
+    X,
+    Loader2,
+    CheckCircle
 } from 'lucide-react';
 import { Property } from '../types';
 import { translations } from '../translations';
@@ -21,15 +24,67 @@ interface TourViewProps {
     properties: Property[];
     lang: 'es' | 'en';
     brandColor: string;
+    onUpdateProperty?: (property: Property) => Promise<Property | null>;
 }
 
+declare global {
+    interface Window {
+        pannellum: any;
+    }
+}
 const TourView: React.FC<TourViewProps> = ({
     properties,
     lang,
-    brandColor
+    brandColor,
+    onUpdateProperty
 }) => {
     const t = translations[lang];
     const [activeTour, setActiveTour] = useState<Property | null>(null);
+    const [viewerStarted, setViewerStarted] = useState(false);
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [selectedPropertyId, setSelectedPropertyId] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
+    const [tourImageUrl, setTourImageUrl] = useState('');
+
+    const viewerRef = React.useRef<HTMLDivElement>(null);
+
+    React.useEffect(() => {
+        if (viewerStarted && activeTour?.virtualTourUrl && viewerRef.current) {
+            // Give time for the container to be ready
+            const timer = setTimeout(() => {
+                if (window.pannellum) {
+                    window.pannellum.viewer(viewerRef.current, {
+                        type: 'equirectangular',
+                        panorama: activeTour.virtualTourUrl,
+                        autoLoad: true,
+                        showControls: true
+                    });
+                }
+            }, 100);
+            return () => clearTimeout(timer);
+        }
+    }, [viewerStarted, activeTour]);
+
+    const handleCreateTour = async () => {
+        if (!selectedPropertyId || !tourImageUrl) return;
+        setIsSaving(true);
+        try {
+            const property = properties.find(p => p.id === selectedPropertyId);
+            if (property && onUpdateProperty) {
+                await onUpdateProperty({
+                    ...property,
+                    virtualTourUrl: tourImageUrl
+                });
+                setShowCreateModal(false);
+                setSelectedPropertyId('');
+                setTourImageUrl('');
+            }
+        } catch (error) {
+            console.error('Error creating tour:', error);
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     return (
         <div className="p-4 lg:p-8 space-y-8 animate-in fade-in duration-500">
@@ -43,6 +98,7 @@ const TourView: React.FC<TourViewProps> = ({
                     <p className="text-zinc-500 text-sm mt-2">{lang === 'es' ? 'Experiencias inmersivas para tus clientes' : 'Immersive experiences for your clients'}</p>
                 </div>
                 <button
+                    onClick={() => setShowCreateModal(true)}
                     style={{ backgroundColor: brandColor }}
                     className="flex items-center gap-2 px-6 py-3 text-black rounded-xl transition-all font-black text-xs uppercase italic active:scale-95 shadow-lg shadow-amber-500/20"
                 >
@@ -69,23 +125,37 @@ const TourView: React.FC<TourViewProps> = ({
                                         </div>
                                     </div>
                                 </div>
-                                {/* Simulated 360 Frame */}
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <img src={activeTour.images[0]} className="w-full h-full object-cover blur-[2px] opacity-40 scale-110" alt="" />
-                                    <div className="absolute inset-0 bg-[#000]/20 backdrop-blur-[1px]"></div>
-                                    <div className="relative text-center space-y-6">
-                                        <div className="w-24 h-24 bg-white/5 border border-white/20 rounded-full flex items-center justify-center mx-auto backdrop-blur-xl animate-pulse">
-                                            <RotateCw className="text-white" size={40} />
+                                {viewerStarted && activeTour.virtualTourUrl ? (
+                                    <div ref={viewerRef} className="absolute inset-0 z-20" />
+                                ) : (
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <img src={activeTour.images[0]} className="w-full h-full object-cover blur-[2px] opacity-40 scale-110" alt="" />
+                                        <div className="absolute inset-0 bg-[#000]/20 backdrop-blur-[1px]"></div>
+                                        <div className="relative text-center space-y-6">
+                                            <div className="w-24 h-24 bg-white/5 border border-white/20 rounded-full flex items-center justify-center mx-auto backdrop-blur-xl animate-pulse">
+                                                <RotateCw className="text-white" size={40} />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <h3 className="text-2xl font-black text-white uppercase italic tracking-tighter">{activeTour.title}</h3>
+                                                <p className="text-zinc-400 text-xs font-bold italic">{lang === 'es' ? 'Vista: Estancia Principal' : 'View: Main Living Room'}</p>
+                                            </div>
+                                            {activeTour.virtualTourUrl ? (
+                                                <button
+                                                    onClick={() => setViewerStarted(true)}
+                                                    className="px-8 py-3 bg-white text-black rounded-xl font-black text-xs uppercase italic hover:bg-zinc-200 transition-all"
+                                                >
+                                                    {lang === 'es' ? 'Iniciar Recorrido' : 'Start Tour'}
+                                                </button>
+                                            ) : (
+                                                <div className="bg-amber-500/10 border border-amber-500/30 p-4 rounded-xl max-w-xs mx-auto">
+                                                    <p className="text-amber-500 text-[10px] font-black uppercase tracking-widest leading-normal">
+                                                        {lang === 'es' ? 'Esta propiedad aún no tiene un tour 360 habilitado.' : 'This property does not have a 360 tour yet.'}
+                                                    </p>
+                                                </div>
+                                            )}
                                         </div>
-                                        <div className="space-y-2">
-                                            <h3 className="text-2xl font-black text-white uppercase italic tracking-tighter">{activeTour.title}</h3>
-                                            <p className="text-zinc-400 text-xs font-bold italic">{lang === 'es' ? 'Vista: Estancia Principal' : 'View: Main Living Room'}</p>
-                                        </div>
-                                        <button className="px-8 py-3 bg-white text-black rounded-xl font-black text-xs uppercase italic hover:bg-zinc-200 transition-all">
-                                            {lang === 'es' ? 'Iniciar Recorrido' : 'Start Tour'}
-                                        </button>
                                     </div>
-                                </div>
+                                )}
                                 {/* Hotspots Simulation */}
                                 <div className="absolute top-1/2 left-1/4 w-3 h-3 bg-white rounded-full shadow-[0_0_20px_rgba(255,255,255,0.8)] animate-ping"></div>
                                 <div className="absolute bottom-1/3 right-1/4 w-3 h-3 bg-white rounded-full shadow-[0_0_20px_rgba(255,255,255,0.8)] animate-ping delay-500"></div>
@@ -151,7 +221,10 @@ const TourView: React.FC<TourViewProps> = ({
                             <div
                                 key={p.id}
                                 className={`group relative rounded-2xl border transition-all cursor-pointer overflow-hidden ${activeTour?.id === p.id ? 'border-amber-500 ring-1 ring-amber-500/20' : 'border-zinc-800 hover:border-zinc-700'}`}
-                                onClick={() => setActiveTour(p)}
+                                onClick={() => {
+                                    setActiveTour(p);
+                                    setViewerStarted(false);
+                                }}
                             >
                                 <div className="aspect-video relative">
                                     <img src={p.images[0]} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="" />
@@ -171,6 +244,65 @@ const TourView: React.FC<TourViewProps> = ({
                     </div>
                 </div>
             </div>
+
+            {/* Modal Crear Nuevo Tour */}
+            {showCreateModal && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-zinc-900 border border-zinc-800 w-full max-w-lg rounded-2xl overflow-hidden shadow-2xl">
+                        <div className="p-6 border-b border-zinc-800 flex items-center justify-between">
+                            <h2 className="text-xl font-black text-white italic uppercase tracking-tighter flex items-center gap-3">
+                                <RotateCw className="text-amber-500" size={24} />
+                                {lang === 'es' ? 'CREAR NUEVO TOUR 360' : 'CREATE NEW 360 TOUR'}
+                            </h2>
+                            <button onClick={() => setShowCreateModal(false)} className="text-zinc-500 hover:text-white transition-colors">
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        <div className="p-6 space-y-6">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">{lang === 'es' ? 'Selecciona Propiedad' : 'Select Property'}</label>
+                                <select
+                                    value={selectedPropertyId}
+                                    onChange={(e) => setSelectedPropertyId(e.target.value)}
+                                    className="w-full bg-black border border-zinc-800 rounded-xl py-3 px-4 text-sm text-white focus:outline-none focus:border-amber-500 transition-all"
+                                >
+                                    <option value="">{lang === 'es' ? 'Elija una propiedad...' : 'Choose a property...'}</option>
+                                    {properties.map(p => (
+                                        <option key={p.id} value={p.id}>{p.title}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">{lang === 'es' ? 'URL de Imagen 360 (Equirectangular)' : '360 Image URL (Equirectangular)'}</label>
+                                <input
+                                    type="text"
+                                    placeholder="https://..."
+                                    value={tourImageUrl}
+                                    onChange={(e) => setTourImageUrl(e.target.value)}
+                                    className="w-full bg-black border border-zinc-800 rounded-xl py-3 px-4 text-sm text-white focus:outline-none focus:border-amber-500 transition-all"
+                                />
+                                <p className="text-[9px] text-zinc-600 font-bold italic leading-tight">
+                                    {lang === 'es'
+                                        ? 'Para mejores resultados, usa una imagen en formato equirectangular (proporción 2:1).'
+                                        : 'For best results, use an equirectangular image (2:1 ratio).'}
+                                </p>
+                            </div>
+
+                            <button
+                                onClick={handleCreateTour}
+                                disabled={!selectedPropertyId || !tourImageUrl || isSaving}
+                                style={{ backgroundColor: brandColor }}
+                                className="w-full py-4 text-black rounded-xl font-black text-sm uppercase italic shadow-lg shadow-amber-500/20 active:scale-95 disabled:opacity-50 transition-all flex items-center justify-center gap-3"
+                            >
+                                {isSaving ? <Loader2 className="animate-spin" size={20} /> : <CheckCircle size={20} />}
+                                {lang === 'es' ? 'Generar Experiencia 360' : 'Generate 360 Experience'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

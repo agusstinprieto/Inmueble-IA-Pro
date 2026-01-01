@@ -86,6 +86,7 @@ CREATE TABLE IF NOT EXISTS properties (
   favorites INTEGER DEFAULT 0,
   agent_id UUID,
   agency_id UUID,
+  virtual_tour_url TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { PropertyType } from '../types';
 import { translations } from '../translations';
+import { getPropertyValuation } from '../services/gemini';
 
 interface ValuationViewProps {
     lang: 'es' | 'en';
@@ -48,27 +49,15 @@ const ValuationView: React.FC<ValuationViewProps> = ({
 
     const handleValuate = async () => {
         setLoading(true);
-        // Simular llamada a la IA (Gemini) con contexto de ubicación
-        setTimeout(() => {
-            const isUSA = formData.country === 'USA';
-            setResult({
-                currency: isUSA ? 'USD' : 'MXN',
-                estimatedPrice: isUSA ? 350000 : 2450000,
-                priceRange: {
-                    min: isUSA ? 320000 : 2200000,
-                    max: isUSA ? 390000 : 2750000
-                },
-                pricePerM2: isUSA ? 2500 : 12500,
-                marketTrend: 'UP',
-                marketConfidence: 0.94,
-                suggestions: [
-                    isUSA ? 'Upgrading the kitchen could increase value by 12%' : 'Modernizar la cocina aumentaría el valor un 10%',
-                    isUSA ? 'The area has an annual appreciation of 4.2%' : 'La zona tiene una plusvalía anual del 6.8%',
-                    isUSA ? 'Improve curb appeal with new landscaping' : 'Mejorar el atractivo exterior con paisajismo'
-                ]
-            });
+        try {
+            const valuation = await getPropertyValuation(formData, formData.city);
+            setResult(valuation);
+        } catch (error) {
+            console.error("Valuation Error:", error);
+            alert(lang === 'es' ? 'Error al generar la valuación. Intenta de nuevo.' : 'Error generating valuation. Please try again.');
+        } finally {
             setLoading(false);
-        }, 2000);
+        }
     };
 
     const formatCurrency = (amount: number, currency: 'MXN' | 'USD') => {

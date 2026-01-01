@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 import { createClient } from '@supabase/supabase-js';
-import { Property, Client, Contract, Sale, FollowUp } from '../types';
+import { Property, Client, Contract, Sale, FollowUp, Agent } from '../types';
 import { appendPropertyToSheets, appendClientToSheets } from './sheets';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -64,6 +64,27 @@ export const getBusinessProfile = async (userId: string): Promise<BusinessProfil
     }
 
     return data;
+};
+
+export const updateBusinessProfile = async (userId: string, profile: Partial<BusinessProfile>): Promise<boolean> => {
+    try {
+        const { error } = await supabase
+            .from('profiles')
+            .update({
+                business_name: profile.business_name,
+                location: profile.location,
+                branding_color: profile.branding_color,
+                script_url: profile.script_url,
+                role: profile.role
+            })
+            .eq('id', userId);
+
+        if (error) throw error;
+        return true;
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        return false;
+    }
 };
 
 // ============ IMAGE STORAGE ============
@@ -199,6 +220,70 @@ export const deleteProperty = async (id: string): Promise<boolean> => {
 
     if (error) {
         console.error('Error deleting property:', error);
+        return false;
+    }
+
+    return true;
+};
+
+// ============ AGENTS CRUD ============
+
+export const getAgents = async (): Promise<Agent[]> => {
+    const { data, error } = await supabase
+        .from('agents')
+        .select('*')
+        .order('name', { ascending: true });
+
+    if (error) {
+        console.error('Error fetching agents:', error);
+        return [];
+    }
+
+    return data?.map(mapDbToAgent) || [];
+};
+
+export const addAgent = async (agent: Partial<Agent>): Promise<Agent | null> => {
+    const session = await getCurrentSession();
+    if (!session) return null;
+
+    const { data, error } = await supabase
+        .from('agents')
+        .insert(mapAgentToDb(agent, session.user.id))
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Error adding agent:', error);
+        return null;
+    }
+
+    return mapDbToAgent(data);
+};
+
+export const updateAgent = async (agent: Agent): Promise<Agent | null> => {
+    const { data, error } = await supabase
+        .from('agents')
+        .update(mapAgentToDb(agent))
+        .eq('id', agent.id)
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Error updating agent:', error);
+        return null;
+    }
+
+    return mapDbToAgent(data);
+};
+
+export const deleteAgent = async (id: string): Promise<boolean> => {
+    const { error } = await supabase
+        .from('agents')
+        .delete()
+        .eq('id', id);
+
+    if (error) {
+        console.error('Error deleting agent:', error);
         return false;
     }
 
@@ -364,6 +449,7 @@ function mapDbToProperty(db: any): Property {
         favorites: db.favorites || 0,
         agentId: db.agent_id,
         agencyId: db.agency_id,
+        virtualTourUrl: db.virtual_tour_url,
         dateAdded: db.created_at
     };
 }
@@ -400,7 +486,8 @@ function mapPropertyToDb(property: Partial<Property>, userId?: string): any {
         views: property.views,
         favorites: property.favorites,
         agent_id: property.agentId,
-        agency_id: property.agencyId
+        agency_id: property.agencyId,
+        virtual_tour_url: property.virtualTourUrl
     };
 }
 
@@ -447,5 +534,38 @@ function mapClientToDb(client: Partial<Client>, userId?: string): any {
         status: client.status,
         source: client.source,
         agent_id: client.agentId
+    };
+}
+
+function mapDbToAgent(db: any): Agent {
+    return {
+        id: db.id,
+        name: db.name,
+        phone: db.phone,
+        email: db.email,
+        photo: db.photo,
+        agencyId: db.agency_id,
+        properties: db.properties || [],
+        clients: db.clients || [],
+        sales: db.sales || [],
+        commission: db.commission || 0,
+        dateJoined: db.created_at,
+        active: db.active !== false
+    };
+}
+
+function mapAgentToDb(agent: Partial<Agent>, userId?: string): any {
+    return {
+        ...(userId && { user_id: userId }),
+        name: agent.name,
+        phone: agent.phone,
+        email: agent.email,
+        photo: agent.photo,
+        agency_id: agent.agencyId,
+        properties: agent.properties,
+        clients: agent.clients,
+        sales: agent.sales,
+        commission: agent.commission,
+        active: agent.active
     };
 }

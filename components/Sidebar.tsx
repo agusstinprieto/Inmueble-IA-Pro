@@ -19,7 +19,8 @@ import {
   LogOut,
   Menu,
   X,
-  Sparkles
+  Sparkles,
+  Globe
 } from 'lucide-react';
 import { translations } from '../translations';
 
@@ -33,6 +34,7 @@ interface SidebarProps {
   isOpen: boolean;
   onToggle: () => void;
   onLogout: () => void;
+  onViewPublic: () => void;
 }
 
 interface NavItem {
@@ -52,7 +54,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   userRole,
   isOpen,
   onToggle,
-  onLogout
+  onLogout,
+  onViewPublic
 }) => {
   const t = translations[lang];
 
@@ -202,6 +205,22 @@ const Sidebar: React.FC<SidebarProps> = ({
 
           {/* Separator */}
           <div className="my-4 mx-3 border-t border-zinc-800" />
+
+          {/* Public Portal Access */}
+          <div className="px-3 mb-4">
+            <button
+              onClick={onViewPublic}
+              className="
+                w-full flex items-center gap-3 px-3 py-3 rounded-xl
+                text-left text-sm font-black uppercase italic
+                bg-amber-500/10 border border-amber-500/20 text-amber-500
+                hover:bg-amber-500/20 transition-all duration-150
+              "
+            >
+              <Globe size={20} />
+              <span>Ver Sitio Público</span>
+            </button>
+          </div>
 
           {/* Settings & Logout */}
           <div className="px-3 space-y-1">

@@ -12,7 +12,8 @@ import {
     Plus,
     Maximize2,
     CheckCircle2,
-    AlertCircle
+    AlertCircle,
+    Edit2
 } from 'lucide-react';
 import { Property, PropertyStatus } from '../types';
 import { translations } from '../translations';
@@ -139,6 +140,19 @@ const GalleryView: React.FC<GalleryViewProps> = ({
                                     </p>
                                 </div>
                                 <div className="flex items-center gap-3">
+                                    <button
+                                        onClick={() => {
+                                            // Trigger edit for this property
+                                            // We need to pass this action back or use it here
+                                            if (onUpdateProperty && selectedProperty) {
+                                                onUpdateProperty(selectedProperty);
+                                            }
+                                        }}
+                                        className="flex items-center gap-2 px-6 py-3 bg-zinc-800 text-white rounded-xl font-black text-xs uppercase italic cursor-pointer hover:bg-zinc-700 transition-all active:scale-95 shadow-lg border border-zinc-700"
+                                    >
+                                        <Edit2 size={16} />
+                                        {lang === 'es' ? 'Editar Info' : 'Edit Info'}
+                                    </button>
                                     <label className="flex items-center gap-2 px-6 py-3 bg-white text-black rounded-xl font-black text-xs uppercase italic cursor-pointer hover:bg-zinc-200 transition-all active:scale-95 shadow-lg shadow-white/5">
                                         <Upload size={16} />
                                         {lang === 'es' ? 'Cargar Fotos' : 'Upload Photos'}

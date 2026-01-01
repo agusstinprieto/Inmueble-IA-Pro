@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INMUEBLE IA PRO - Technical Pitch & Sales Report</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&family=Playfair+Display:ital,wght@1,900&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --accent: #fbbf24;
+            --accent-dark: #d97706;
+            --bg: #050505;
+            --surface: #0f0f0f;
+            --surface-light: #18181b;
+            --text: #ffffff;
+            --text-dim: #a1a1aa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Hero */
+        header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: radial-gradient(circle at 50% 50%, rgba(251, 191, 36, 0.08) 0%, transparent 60%);
+            position: relative;
+        }
+
+        .pre-title {
+            text-transform: uppercase;
+            letter-spacing: 0.5em;
+            font-size: 0.7rem;
+            color: var(--accent);
+            font-weight: 900;
+            margin-bottom: 20px;
+            animation: fadeInDown 1s ease;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3rem, 10vw, 7rem);
+            font-style: italic;
+            font-weight: 900;
+            line-height: 0.9;
+            margin-bottom: 20px;
+            animation: fadeIn 1.5s ease;
+        }
+
+        h1 span {
+            color: var(--accent);
+        }
+
+        .hero-desc {
+            max-width: 600px;
+            color: var(--text-dim);
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+        }
+
+        /* Stats Strip */
+        .stats-strip {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            padding: 40px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            width: 100%;
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .stat-item h2 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--accent);
+        }
+
+        .stat-item p {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--text-dim);
+            font-weight: 900;
+        }
+
+        /* Sections */
+        section {
+            padding: 100px 0;
+        }
+
+        .section-header {
+            margin-bottom: 60px;
+            text-align: center;
+        }
+
+        .section-header h2 {
+            font-size: 3rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-style: italic;
+            letter-spacing: -0.02em;
+        }
+
+        /* Pillars Grid */
+        .pillars {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .pillar-card {
+            background: var(--surface);
+            padding: 50px;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .pillar-card:hover {
+            transform: scale(1.02);
+            border-color: var(--accent);
+            background: var(--surface-light);
+        }
+
+        .pillar-card h3 {
+            font-size: 1.5rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            color: var(--accent);
+            text-transform: uppercase;
+            font-style: italic;
+        }
+
+        .pillar-card ul {
+            list-style: none;
+        }
+
+        .pillar-card li {
+            font-size: 0.95rem;
+            color: var(--text-dim);
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .pillar-card li::before {
+            display: none;
+        }
+
+        /* Tech Feature */
+        .tech-box {
+            display: flex;
+            flex-direction: column;
+            gap: 50px;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(135deg, var(--surface) 0%, #000 100%);
+            padding: 80px;
+            border-radius: 50px;
+            border: 1px solid var(--accent);
+        }
+
+        .tech-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+
+        .tag {
+            background: rgba(251, 191, 36, 0.05);
+            border: 1px solid rgba(251, 191, 36, 0.1);
+            color: var(--accent);
+            padding: 8px 20px;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        /* CTA */
+        .cta-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 150px 0;
+            background: radial-gradient(circle at 50% bottom, rgba(251, 191, 36, 0.1) 0%, transparent 70%);
+        }
+
+        .cta-section h2 {
+            font-size: 4rem;
+            font-weight: 900;
+            font-style: italic;
+            line-height: 1;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            display: inline-block;
+            background: var(--accent);
+            color: #000;
+            padding: 24px 60px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(251, 191, 36, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(251, 191, 36, 0.4);
+            background: #fff;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .tech-box {
+                grid-template-columns: 1fr;
+                padding: 40px;
+            }
+
+            .stats-strip {
+                flex-direction: column;
+                gap: 30px;
+                text-align: center;
+            }
+
+            h1 {
+                font-size: 4rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <header>
+            <p class="pre-title">El Futuro del Real Estate ya es Pro</p>
+            <h1>INMUEBLE <span>IA PRO</span></h1>
+            <p class="hero-desc">La plataforma PropTech definitiva que fusiona Inteligencia Artificial, Realidad Virtual
+                y Automatización para transformar agencias inmobiliarias en potencias digitales.</p>
+
+            <div class="stats-strip">
+                <div class="stat-item">
+                    <h2>-85%</h2>
+                    <p>Tiempo de Entrada de Datos</p>
+                </div>
+                <div class="stat-item">
+                    <h2>24/7</h2>
+                    <p>Captación de Leads</p>
+                </div>
+                <div class="stat-item">
+                    <h2>+40%</h2>
+                    <p>Valor Percibido del Cliente</p>
+                </div>
+            </div>
+        </header>
+
+        <section id="features">
+            <div class="section-header">
+                <h2>PILARES DE <span>VALOR</span></h2>
+            </div>
+
+            <div class="pillars">
+                <div class="pillar-card">
+                    <h3>Cognición Artificial</h3>
+                    <ul>
+                        <li><strong>Visión Computacional:</strong> Analiza fotos de propiedades para extraer datos
+                            técnicos automáticamente.</li>
+                        <li><strong>Valuación Dinámica:</strong> Motor IA que cruza datos de mercado real (Google
+                            Search) para tasar propiedades con precisión.</li>
+                        <li><strong>Copywriting de Ventas:</strong> Generación masiva de anuncios persuasivos adaptados
+                            a cada plataforma.</li>
+                    </ul>
+                </div>
+
+                <div class="pillar-card">
+                    <h3>Inmersión & VR</h3>
+                    <ul>
+                        <li><strong>Tour 360° Nativo:</strong> Los clientes recorren la propiedad desde su móvil sin
+                            descargar apps adicionales.</li>
+                        <li><strong>Geo-Inteligencia:</strong> Mapas interactivos con Leaflet.js para contextualizar la
+                            ubicación del inmueble.</li>
+                        <li><strong>Almacenamiento Cloud Premium:</strong> Galerías de alta fidelidad que no degradan la
+                            calidad visual.</li>
+                    </ul>
+                </div>
+
+                <div class="pillar-card">
+                    <h3>Escaparate Público</h3>
+                    <ul>
+                        <li><strong>Portal para Clientes:</strong> Un sitio web público elegante y ultra-rápido para tu
+                            catálogo.</li>
+                        <li><strong>Conversión WhatsApp:</strong> Lead generation directo con mensajes pre-llenados que
+                            facilitan el cierre.</li>
+                        <li><strong>Reportes Ejecutivos:</strong> Exportación de fichas técnicas en PDF premium para
+                            compartir por canales digitales.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="tech-box">
+                <div>
+                    <h2 style="font-size: 2.5rem; font-weight: 900; font-style: italic; margin-bottom: 20px;">TECNOLOGÍA
+                        DE <br> <span style="color: var(--accent);">GRADO EMPRESARIAL</span></h2>
+                    <p style="color: var(--text-dim);">Diseñamos sobre una arquitectura robusta para garantizar que tu
+                        negocio nunca se detenga. Escalabilidad infinita y seguridad de datos bancaria.</p>
+                    <div class="tech-tags">
+                        <span class="tag">Gemini Pro</span>
+                        <span class="tag">Supabase Realtime</span>
+                        <span class="tag">PostgreSQL 15</span>
+                        <span class="tag">React 19.2</span>
+                        <span class="tag">Tailwind CSS 4.0</span>
+                        <span class="tag">Vite 6.2</span>
+                    </div>
+                </div>
+                <div
+                    style="background: var(--surface-light); padding: 40px; border-radius: 30px; border-left: 4px solid var(--accent);">
+                    <p style="font-weight: 900; text-transform: uppercase; color: var(--accent); margin-bottom: 10px;">
+                        Security & Performance</p>
+                    <p style="font-size: 0.9rem; color: var(--text-dim);">
+                        • Cifrado AES-256 en documentos y contratos.<br>
+                        • Optimización de imágenes automática con Supabase Storage.<br>
+                        • Base de datos relacional con backups en tiempo real con trazabilidad total.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta-section">
+            <p class="pre-title" style="margin-bottom: 10px;">¿Listo para dominar el mercado?</p>
+            <h2>LLEVA TU AGENCIA AL <br> <span>PRÓXIMO NIVEL</span></h2>
+
+            <div
+                style="background: var(--surface); border: 1px solid var(--accent); padding: 30px; border-radius: 30px; margin: 40px 0; max-width: 440px; width: 100%;">
+                <p
+                    style="text-transform: uppercase; letter-spacing: 0.2em; font-size: 0.7rem; color: var(--accent); font-weight: 900; margin-bottom: 20px;">
+                    Acceso Demo para Inversores</p>
+                <div style="display: flex; gap: 30px; justify-content: center; align-items: center;">
+                    <div>
+                        <p
+                            style="font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 5px;">
+                            Usuario</p>
+                        <p style="font-family: monospace; font-size: 1.2rem; font-weight: 900; color: white;">demo</p>
+                    </div>
+                    <div style="width: 1px; height: 40px; background: rgba(255,255,255,0.1);"></div>
+                    <div>
+                        <p
+                            style="font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 5px;">
+                            Contraseña</p>
+                        <p style="font-family: monospace; font-size: 1.2rem; font-weight: 900; color: white;">demo123
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <p style="color: var(--text-dim); margin-bottom: 50px; max-width: 600px; margin-top: 10px;">
+                Inmueble IA Pro no es solo un software, es el socio tecnológico que permite a los asesores enfocarse en
+                el trato humano mientras la IA maneja la complejidad técnica.
+            </p>
+
+            <a href="https://inmueble-ia-pro.vercel.app/" class="btn">SOLICITAR DEMO EN VIVO</a>
+
+            <div style="margin-top: 80px; color: var(--text-dim); font-size: 0.8rem;">
+                <p>Desarrollado por <strong>Agustín Prieto</strong></p>
+                <p>Estratega de Soluciones IA & Proptech</p>
+            </div>
+        </section>
+
+        <footer
+            style="padding: 40px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); color: #333; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.2em;">
+            &copy; 2024-2025 INMUEBLE IA PRO • HIGH-END REAL ESTATE SOLUTIONS
+        </footer>
+    </div>
+
+</body>
+
+</html>

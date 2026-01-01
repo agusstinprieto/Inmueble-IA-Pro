@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inmueble IA Pro - Especificaciones Técnicas</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --brand: #fbbf24;
+            --bg: #0a0a0b;
+            --surface: #141416;
+            --border: #27272a;
+            --text: #e4e4e7;
+            --text-muted: #a1a1aa;
+            --code-bg: #18181b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        header {
+            border-bottom: 2px solid var(--brand);
+            padding-bottom: 40px;
+            margin-bottom: 60px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 10px;
+        }
+
+        .version {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--brand);
+            font-size: 0.9rem;
+        }
+
+        section {
+            margin-bottom: 50px;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--brand);
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        h2::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .spec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .spec-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 25px;
+            border-radius: 16px;
+        }
+
+        .spec-item h3 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            font-weight: 800;
+        }
+
+        .spec-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-list li {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            border-left: 3px solid var(--brand);
+        }
+
+        .feature-list strong {
+            display: block;
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .feature-list p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        code-block {
+            display: block;
+            background: var(--code-bg);
+            padding: 20px;
+            border-radius: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        .code-comment {
+            color: #71717a;
+        }
+
+        .code-keyword {
+            color: #fb7185;
+        }
+
+        .code-string {
+            color: #34d399;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 0.7rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            background: var(--brand);
+            color: black;
+            margin-bottom: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding-top: 60px;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <header>
+            <div class="badge">Technical Documentation</div>
+            <h1>Inmueble IA Pro</h1>
+            <p class="version">System Specifications v1.0.0 // Build 2025.01.31</p>
+        </header>
+
+        <section id="stack">
+            <h2>Core Technology Stack</h2>
+            <div class="spec-grid">
+                <div class="spec-item">
+                    <h3>Frontend Framework</h3>
+                    <div class="spec-value">React 19.0.0</div>
+                </div>
+                <div class="spec-item">
+                    <h3>UI & Styling</h3>
+                    <div class="spec-value">Tailwind CSS 4.0</div>
+                </div>
+                <div class="spec-item">
+                    <h3>Build Engine</h3>
+                    <div class="spec-value">Vite 6.2.0</div>
+                </div>
+                <div class="spec-item">
+                    <h3>Runtime / Language</h3>
+                    <div class="spec-value">TypeScript 5.8</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="infrastructure">
+            <h2>Infraestructura & Backend</h2>
+            <div class="feature-list">
+                <li>
+                    <strong>Supabase (BaaS)</strong>
+                    <p>Utilizado como motor principal de datos (PostgreSQL 15), sistema de autenticación JWT y
+                        almacenamiento de archivos planos (S3-compatible bucket).</p>
+                </li>
+                <li>
+                    <strong>Realtime Engine</strong>
+                    <p>Suscripciones a bases de datos vía WebSockets para actualización instantánea de métricas y
+                        estados de propiedades en el dashboard.</p>
+                </li>
+                <li>
+                    <strong>Edge Computing</strong>
+                    <p>Despliegue global optimizado para latencia mínima en carga de activos y ejecución de lógica de
+                        frontend.</p>
+                </li>
+            </div>
+        </section>
+
+        <section id="ai-specs">
+            <h2>Especificaciones de IA</h2>
+            <div class="spec-item" style="margin-bottom: 20px;">
+                <h3>Cognitive Engine</h3>
+                <div class="spec-value">Google Gemini Pro (@google/genai)</div>
+            </div>
+            <code-block>
+                <span class="code-comment">// Pipeline de Análisis de Imagen</span>
+                <span class="code-keyword">const</span> analysisResult = <span class="code-keyword">await</span>
+                model.generateContent([
+                { <span class="code-keyword">text</span>: <span class="code-string">"Analizar especificaciones técnicas
+                    de la propiedad..."</span> },
+                { <span class="code-keyword">inlineData</span>: { <span class="code-keyword">mimeType</span>: <span
+                    class="code-string">"image/jpeg"</span>, <span class="code-keyword">data</span>: <span
+                    class="code-keyword">base64Image</span> } }
+                ]);
+            </code-block>
+            <div class="feature-list">
+                <li>
+                    <strong>Computer Vision:</strong> Extracción paramétrica de metros cuadrados, número de habitaciones
+                    y acabados arquitectónicos directamente de fotografías.
+                </li>
+                <li>
+                    <strong>Predictive Valuation:</strong> Modelo de regresión asistido por IA que pondera ubicación,
+                    métricas de mercado vivo y características intrínsecas del inmueble.
+                </li>
+            </div>
+        </section>
+
+        <section id="feature-matrix">
+            <h2>Matriz de Funcionalidades</h2>
+            <div class="feature-list">
+                <li>
+                    <strong>Módulo 360° (Pannellum SDK):</strong> Visor panorámico inmersivo integrado con aceleración
+                    por hardware (WebGL) para tours virtuales sin latencia.
+                </li>
+                <li>
+                    <strong>Engine de Reportes PDF:</strong> Integración de jsPDF + html2canvas para generación de
+                    fichas técnicas ("Brochures") en tiempo de ejecución del lado del cliente.
+                </li>
+                <li>
+                    <strong>GIS & Mapping:</strong> Implementación de Leaflet.js con capas de OpenStreetMap para
+                    georreferenciación precisa y análisis de entorno.
+                </li>
+                <li>
+                    <strong>CRM Inteligente:</strong> Sistema de gestión de leads con persistencia en PostgreSQL y
+                    triggers automatizados para seguimiento vía WhatsApp API Business.
+                </li>
+            </div>
+        </section>
+
+        <section id="security">
+            <h2>Seguridad & Protocolos</h2>
+            <div class="feature-list">
+                <li>
+                    <strong>Encriptación:</strong> Datos en reposo encriptados mediante AES-256 (Supabase Storage).
+                </li>
+                <li>
+                    <strong>Control de Acceso:</strong> Row Level Security (RLS) implementado en base de datos para
+                    garantizar el aislamiento estricto de datos entre diferentes agencias.
+                </li>
+                <li>
+                    <strong>Auth Flow:</strong> Autenticación basada en tokens JWT con tiempos de expiración
+                    configurables para máxima seguridad.
+                </li>
+            </div>
+        </section>
+
+        <footer>
+            &copy; 2024-2025 Inmueble IA Pro • Documento Técnico de Referencia <br>
+            Generado para la optimización de procesos inmobiliarios mediante tecnología de vanguardia.
+        </footer>
+    </div>
+
+</body>
+
+</html>

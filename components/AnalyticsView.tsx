@@ -13,10 +13,13 @@ import {
     Activity,
     Target,
     Clock,
-    Briefcase
+    Briefcase,
+    Download,
+    Loader2
 } from 'lucide-react';
 import { Property, Client, Sale, Agent } from '../types';
 import { translations } from '../translations';
+import { pdfService } from '../services/pdfService';
 
 interface AnalyticsViewProps {
     properties: Property[];
@@ -36,14 +39,40 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
     brandColor
 }) => {
     const t = translations[lang];
+    const [exporting, setExporting] = React.useState(false);
 
+    // Cálculos Reales
     const totalVolume = sales.reduce((acc, s) => acc + s.finalPrice, 0);
-    const avgCommission = totalVolume * 0.05;
-    const activeListings = properties.length;
-    const conversionRate = ((sales.length / (clients.length || 1)) * 100).toFixed(1);
+    const totalCommissions = sales.reduce((acc, s) => acc + s.commission, 0);
+    const conversionRate = clients.length > 0 ? ((sales.length / clients.length) * 100).toFixed(1) : "0";
+
+    // Distribución por Tipo de Propiedad
+    const typeDistribution = properties.reduce((acc, p) => {
+        acc[p.type] = (acc[p.type] || 0) + 1;
+        return acc;
+    }, {} as Record<string, number>);
+
+    const sortedTypes = Object.entries(typeDistribution)
+        .sort((a: any, b: any) => (b[1] as number) - (a[1] as number))
+        .map(([type, count]) => ({
+            name: type,
+            percentage: (((count as number) / (properties.length || 1)) * 100).toFixed(0),
+            color: type === 'CASA' ? 'bg-amber-500' : type === 'DEPARTAMENTO' ? 'bg-blue-500' : 'bg-green-500'
+        }));
+
+    const handleExportReport = async () => {
+        setExporting(true);
+        try {
+            await pdfService.generateReportFromElement('analytics-report-content', `REPORTE_EJECUTIVO_${new Date().toISOString().split('T')[0]}`);
+        } catch (err) {
+            console.error('Error exporting report:', err);
+        } finally {
+            setExporting(false);
+        }
+    };
 
     return (
-        <div className="p-4 lg:p-8 space-y-8 animate-in fade-in duration-500 pb-20">
+        <div id="analytics-report-content" className="p-4 lg:p-8 space-y-8 animate-in fade-in duration-500 pb-20 bg-[#050505]">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
@@ -53,9 +82,21 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
                     </h1>
                     <p className="text-zinc-500 text-sm mt-2">{lang === 'es' ? 'Análisis predictivo y métricas de rendimiento' : 'Predictive analysis and performance metrics'}</p>
                 </div>
-                <div className="flex items-center gap-2 px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-xl">
-                    <Calendar className="text-zinc-500" size={18} />
-                    <span className="text-xs font-black text-white uppercase italic">{lang === 'es' ? 'Últimos 30 días' : 'Last 30 days'}</span>
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={handleExportReport}
+                        disabled={exporting}
+                        className="flex items-center gap-2 px-4 py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-xl transition-all disabled:opacity-50"
+                    >
+                        {exporting ? <Loader2 size={16} className="animate-spin text-zinc-500" /> : <Download size={16} className="text-zinc-500" />}
+                        <span className="text-[10px] font-black text-white uppercase italic">
+                            {exporting ? 'Exportando...' : 'Exportar Reporte Ejecutivo'}
+                        </span>
+                    </button>
+                    <div className="flex items-center gap-2 px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-xl">
+                        <Calendar className="text-zinc-500" size={18} />
+                        <span className="text-xs font-black text-white uppercase italic">{lang === 'es' ? 'Últimos 30 días' : 'Last 30 days'}</span>
+                    </div>
                 </div>
             </div>
 
@@ -116,7 +157,7 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
                     <div className="flex items-start justify-between relative z-10">
                         <div>
                             <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">{lang === 'es' ? 'Comisiones' : 'Commissions'}</p>
-                            <h3 className="text-2xl font-black text-white mt-2 italic tracking-tighter">${(avgCommission / 1000).toFixed(0)}k</h3>
+                            <h3 className="text-2xl font-black text-white mt-2 italic tracking-tighter">${(totalCommissions / 1000).toFixed(0)}k</h3>
                             <div className="flex items-center gap-1 mt-2 text-green-400 text-[10px] font-bold">
                                 <ArrowUpRight size={12} />
                                 <span>+14%</span>
@@ -167,42 +208,23 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
                     </div>
 
                     <div className="space-y-6">
-                        <div className="space-y-2">
-                            <div className="flex justify-between text-[10px] font-black uppercase italic tracking-widest mb-1">
-                                <span className="text-zinc-400">Casas</span>
-                                <span className="text-white">65%</span>
+                        {sortedTypes.map((item, i) => (
+                            <div key={i} className="space-y-2">
+                                <div className="flex justify-between text-[10px] font-black uppercase italic tracking-widest mb-1">
+                                    <span className="text-zinc-400">{item.name}</span>
+                                    <span className="text-white">{item.percentage}%</span>
+                                </div>
+                                <div className="h-2 bg-zinc-900 rounded-full overflow-hidden">
+                                    <div
+                                        className={`h-full ${item.color} rounded-full transition-all duration-1000`}
+                                        style={{ width: `${item.percentage}%` }}
+                                    ></div>
+                                </div>
                             </div>
-                            <div className="h-2 bg-zinc-900 rounded-full overflow-hidden">
-                                <div className="h-full bg-amber-500 w-[65%] rounded-full shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <div className="flex justify-between text-[10px] font-black uppercase italic tracking-widest mb-1">
-                                <span className="text-zinc-400">Departamentos</span>
-                                <span className="text-white">20%</span>
-                            </div>
-                            <div className="h-2 bg-zinc-900 rounded-full overflow-hidden">
-                                <div className="h-full bg-blue-500 w-[20%] rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <div className="flex justify-between text-[10px] font-black uppercase italic tracking-widest mb-1">
-                                <span className="text-zinc-400">Terrenos</span>
-                                <span className="text-white">10%</span>
-                            </div>
-                            <div className="h-2 bg-zinc-900 rounded-full overflow-hidden">
-                                <div className="h-full bg-green-500 w-[10%] rounded-full shadow-[0_0_10px_rgba(34,197,94,0.5)]"></div>
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <div className="flex justify-between text-[10px] font-black uppercase italic tracking-widest mb-1">
-                                <span className="text-zinc-400">Otros</span>
-                                <span className="text-white">5%</span>
-                            </div>
-                            <div className="h-2 bg-zinc-900 rounded-full overflow-hidden">
-                                <div className="h-full bg-zinc-700 w-[5%] rounded-full"></div>
-                            </div>
-                        </div>
+                        ))}
+                        {sortedTypes.length === 0 && (
+                            <p className="text-zinc-600 text-xs italic text-center pb-8 pt-4">No hay datos de inventario</p>
+                        )}
                     </div>
 
                     <div className="pt-4">
@@ -241,33 +263,42 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-zinc-800/50">
-                            {agents.map((agent) => (
-                                <tr key={agent.id} className="group hover:bg-white/5 transition-all">
-                                    <td className="py-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center font-black text-zinc-500 group-hover:text-amber-500 transition-colors">
-                                                {agent.name.substring(0, 2).toUpperCase()}
+                            {agents.map((agent) => {
+                                const agentSales = sales.filter(s => s.agentId === agent.id);
+                                const agentRevenue = agentSales.reduce((acc, s) => acc + s.finalPrice, 0);
+                                const agentComms = agentSales.reduce((acc, s) => acc + s.commission, 0);
+                                const avgTicket = agentSales.length > 0 ? (agentRevenue / agentSales.length) : 0;
+
+                                return (
+                                    <tr key={agent.id} className="group hover:bg-white/5 transition-all">
+                                        <td className="py-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center font-black text-zinc-500 group-hover:text-amber-500 transition-colors">
+                                                    {agent.name.substring(0, 2).toUpperCase()}
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-black text-white uppercase italic tracking-tighter">{agent.name}</p>
+                                                    <p className="text-[9px] text-zinc-600 font-bold italic">{agent.email}</p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="text-sm font-black text-white uppercase italic tracking-tighter">{agent.name}</p>
-                                                <p className="text-[9px] text-zinc-600 font-bold italic">{agent.email}</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="py-4 text-center">
-                                        <span className="text-sm font-black text-zinc-300 italic">{sales.filter(s => s.agentId === agent.id).length}</span>
-                                    </td>
-                                    <td className="py-4 text-center">
-                                        <span className="text-sm font-black text-zinc-300 italic">$2.5M</span>
-                                    </td>
-                                    <td className="py-4 text-center">
-                                        <span className="text-sm font-black text-amber-500 italic">$125,000</span>
-                                    </td>
-                                    <td className="py-4 text-right">
-                                        <span className="px-3 py-1 bg-green-500/10 text-green-500 text-[9px] font-black uppercase italic rounded-full border border-green-500/20">Optimal</span>
-                                    </td>
-                                </tr>
-                            ))}
+                                        </td>
+                                        <td className="py-4 text-center">
+                                            <span className="text-sm font-black text-zinc-300 italic">{agentSales.length}</span>
+                                        </td>
+                                        <td className="py-4 text-center">
+                                            <span className="text-sm font-black text-zinc-300 italic">${(avgTicket / 1000000).toFixed(1)}M</span>
+                                        </td>
+                                        <td className="py-4 text-center">
+                                            <span className="text-sm font-black text-amber-500 italic">${(agentComms / 1000).toFixed(0)}k</span>
+                                        </td>
+                                        <td className="py-4 text-right">
+                                            <span className={`px-3 py-1 bg-green-500/10 text-green-500 text-[9px] font-black uppercase italic rounded-full border border-green-500/20`}>
+                                                {agentSales.length > 0 ? 'Optimal' : 'Active'}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                 </div>

@@ -15,7 +15,12 @@ import {
     ChevronRight,
     Shield,
     Building2,
-    PieChart
+    PieChart,
+    Plus,
+    X,
+    Edit2,
+    Trash2,
+    Check
 } from 'lucide-react';
 import { Agent, Property, Sale, Client } from '../types';
 import { translations } from '../translations';
@@ -28,6 +33,9 @@ interface AgentsViewProps {
     lang: 'es' | 'en';
     brandColor: string;
     businessName: string;
+    onAddAgent?: (agent: Partial<Agent>) => Promise<void>;
+    onEditAgent?: (agent: Agent) => Promise<void>;
+    onDeleteAgent?: (id: string) => Promise<void>;
 }
 
 const AgentsView: React.FC<AgentsViewProps> = ({
@@ -37,10 +45,22 @@ const AgentsView: React.FC<AgentsViewProps> = ({
     clients,
     lang,
     brandColor,
-    businessName
+    businessName,
+    onAddAgent,
+    onEditAgent,
+    onDeleteAgent
 }) => {
     const t = translations[lang];
     const [searchTerm, setSearchTerm] = useState('');
+    const [showModal, setShowModal] = useState(false);
+    const [editingAgent, setEditingAgent] = useState<Agent | null>(null);
+    const [formData, setFormData] = useState<Partial<Agent>>({
+        name: '',
+        email: '',
+        phone: '',
+        commission: 0,
+        active: true
+    });
 
     const filteredAgents = (agents || []).filter(agent =>
         agent.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -85,6 +105,11 @@ const AgentsView: React.FC<AgentsViewProps> = ({
                         {lang === 'es' ? 'Mi Agencia' : 'My Agency'}
                     </button>
                     <button
+                        onClick={() => {
+                            setEditingAgent(null);
+                            setFormData({ name: '', email: '', phone: '', commission: 0, active: true });
+                            setShowModal(true);
+                        }}
                         style={{ backgroundColor: brandColor }}
                         className="flex items-center gap-2 px-5 py-2.5 text-black rounded-xl transition-all font-black text-sm uppercase italic active:scale-95 shadow-lg shadow-amber-500/20"
                     >
@@ -174,9 +199,28 @@ const AgentsView: React.FC<AgentsViewProps> = ({
                                             </p>
                                         </div>
                                     </div>
-                                    <button className="text-zinc-600 hover:text-white transition-colors">
-                                        <MoreVertical size={20} />
-                                    </button>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => {
+                                                setEditingAgent(agent);
+                                                setFormData({ ...agent });
+                                                setShowModal(true);
+                                            }}
+                                            className="p-2 text-zinc-600 hover:text-white hover:bg-zinc-800 rounded-lg transition-all"
+                                        >
+                                            <Edit2 size={16} />
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                if (confirm(lang === 'es' ? '¿Estás seguro de eliminar este agente?' : 'Are you sure you want to delete this agent?')) {
+                                                    onDeleteAgent?.(agent.id);
+                                                }
+                                            }}
+                                            className="p-2 text-zinc-600 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div className="mt-6 grid grid-cols-3 gap-4">
@@ -231,6 +275,100 @@ const AgentsView: React.FC<AgentsViewProps> = ({
                     </div>
                 )}
             </div>
+
+            {/* Modal de Agente */}
+            {showModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-zinc-900 border border-zinc-800 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl">
+                        <div className="p-6 border-b border-zinc-800 flex items-center justify-between">
+                            <h2 className="text-xl font-black text-white italic uppercase tracking-tighter">
+                                {editingAgent ? (lang === 'es' ? 'Editar Agente' : 'Edit Agent') : (lang === 'es' ? 'Nuevo Agente' : 'New Agent')}
+                            </h2>
+                            <button onClick={() => setShowModal(false)} className="text-zinc-500 hover:text-white transition-colors">
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        <form onSubmit={async (e) => {
+                            e.preventDefault();
+                            if (editingAgent) {
+                                await onEditAgent?.({ ...editingAgent, ...formData } as Agent);
+                            } else {
+                                await onAddAgent?.({ ...formData, agencyId: 'demo' });
+                            }
+                            setShowModal(false);
+                        }} className="p-6 space-y-4">
+                            <div>
+                                <label className="block text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-1">Nombre Completo</label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={formData.name}
+                                    onChange={e => setFormData({ ...formData, name: e.target.value })}
+                                    className="w-full bg-black border border-zinc-800 rounded-xl py-2.5 px-4 text-sm text-white focus:outline-none focus:border-amber-500 transition-colors"
+                                    placeholder="Ej: Juan Pérez"
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-1">Email</label>
+                                    <input
+                                        type="email"
+                                        required
+                                        value={formData.email}
+                                        onChange={e => setFormData({ ...formData, email: e.target.value })}
+                                        className="w-full bg-black border border-zinc-800 rounded-xl py-2.5 px-4 text-sm text-white focus:outline-none focus:border-amber-500 transition-colors"
+                                        placeholder="juan@ejemplo.com"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-1">Teléfono</label>
+                                    <input
+                                        type="tel"
+                                        required
+                                        value={formData.phone}
+                                        onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                                        className="w-full bg-black border border-zinc-800 rounded-xl py-2.5 px-4 text-sm text-white focus:outline-none focus:border-amber-500 transition-colors"
+                                        placeholder="55 1234 5678"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-1">Comisión (%)</label>
+                                <input
+                                    type="number"
+                                    required
+                                    min="0"
+                                    max="100"
+                                    value={formData.commission}
+                                    onChange={e => setFormData({ ...formData, commission: parseFloat(e.target.value) })}
+                                    className="w-full bg-black border border-zinc-800 rounded-xl py-2.5 px-4 text-sm text-white focus:outline-none focus:border-amber-500 transition-colors"
+                                    placeholder="Ej: 5"
+                                />
+                            </div>
+
+                            <div className="pt-4 flex items-center justify-end gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowModal(false)}
+                                    className="px-6 py-2.5 text-zinc-400 hover:text-white transition-colors font-bold text-sm"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    type="submit"
+                                    style={{ backgroundColor: brandColor }}
+                                    className="px-6 py-2.5 text-black rounded-xl font-black text-sm uppercase italic shadow-lg shadow-amber-500/20 active:scale-95"
+                                >
+                                    {editingAgent ? 'Guardar Cambios' : 'Crear Agente'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -17,8 +17,10 @@ import TourView from './components/TourView';
 import AnalyticsView from './components/AnalyticsView';
 import LoginView from './components/LoginView';
 import SettingsView from './components/SettingsView';
+import PublicPortalView from './components/PublicPortalView';
+import PublicPropertyDetail from './components/PublicPropertyDetail';
 import { translations } from './translations';
-import { supabase, getBusinessProfile, signOut, addProperty, getProperties, uploadPropertyImages } from './services/supabase';
+import { supabase, getBusinessProfile, signOut, addProperty, getProperties, uploadPropertyImages, updateProperty, deleteProperty, updateBusinessProfile, getAgents, addAgent, updateAgent, deleteAgent } from './services/supabase';
 import {
   Property,
   Client,
@@ -48,17 +50,19 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
 
-  // Business config
-  const [businessName, setBusinessName] = useState('INMUEBLE IA PRO');
-  const [location, setLocation] = useState('Torreón, Coahuila');
-  const [brandColor, setBrandColor] = useState('#f59e0b');
-  const [scriptUrl, setScriptUrl] = useState('');
+  // Business config - with localStorage cache for instant load
+  const [businessName, setBusinessName] = useState(() => localStorage.getItem('inmueble_businessName') || 'INMUEBLE IA PRO');
+  const [location, setLocation] = useState(() => localStorage.getItem('inmueble_location') || 'Torreón, Coahuila');
+  const [brandColor, setBrandColor] = useState(() => localStorage.getItem('inmueble_brandColor') || '#f59e0b');
+  const [scriptUrl, setScriptUrl] = useState(() => localStorage.getItem('inmueble_scriptUrl') || '');
   const [userRole, setUserRole] = useState<'admin' | 'employee'>('admin');
 
   // App state
   const [lang, setLang] = useState<'es' | 'en'>('es');
   const [activeView, setActiveView] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isPublicView, setIsPublicView] = useState(false);
+  const [selectedPublicProperty, setSelectedPublicProperty] = useState<Property | null>(null);
 
   // Data state
   const [properties, setProperties] = useState<Property[]>([]);
@@ -125,8 +129,19 @@ function App() {
     } catch (error) {
       console.error('Session check error:', error);
     } finally {
+      // Intentar cargar propiedades públicas independientemente de la sesión
+      loadPublicData();
       // Small delay to ensure smooth transition
       setTimeout(() => setIsLoading(false), 500);
+    }
+  };
+
+  const loadPublicData = async () => {
+    try {
+      const props = await getProperties();
+      setProperties(props);
+    } catch (err) {
+      console.error('loadPublicData error:', err);
     }
   };
 
@@ -146,6 +161,12 @@ function App() {
         setBrandColor(profile.branding_color || '#f59e0b');
         setScriptUrl(profile.script_url);
         setUserRole(profile.role);
+
+        // Sync to localStorage for instant load on next visit
+        localStorage.setItem('inmueble_businessName', profile.business_name);
+        localStorage.setItem('inmueble_location', profile.location);
+        localStorage.setItem('inmueble_brandColor', profile.branding_color || '#f59e0b');
+        localStorage.setItem('inmueble_scriptUrl', profile.script_url || '');
       }
       // Load data after profile
       await loadData();
@@ -156,9 +177,13 @@ function App() {
 
   const loadData = async () => {
     try {
-      const props = await getProperties();
+      const [props, ags] = await Promise.all([
+        getProperties(),
+        getAgents()
+      ]);
       setProperties(props);
-      console.log(`✅ Loaded ${props.length} properties from Supabase`);
+      setAgents(ags);
+      console.log(`✅ Loaded ${props.length} properties and ${ags.length} agents from Supabase`);
     } catch (err) {
       console.error('loadData error:', err);
     }
@@ -254,13 +279,29 @@ function App() {
     }
   };
 
-  const handleEditProperty = (property: Property) => {
-    setProperties(prev => prev.map(p => p.id === property.id ? property : p));
+  const handleEditProperty = async (property: Property) => {
+    try {
+      const updated = await updateProperty(property);
+      if (updated) {
+        setProperties(prev => prev.map(p => p.id === property.id ? updated : p));
+        console.log('✅ Propiedad actualizada en BD y Sheets');
+      }
+    } catch (error) {
+      console.error('❌ Error al editar propiedad:', error);
+    }
   };
 
-  const handleDeleteProperty = (id: string) => {
+  const handleDeleteProperty = async (id: string) => {
     if (!confirm(t.confirm_delete)) return;
-    setProperties(prev => prev.filter(p => p.id !== id));
+    try {
+      const success = await deleteProperty(id);
+      if (success) {
+        setProperties(prev => prev.filter(p => p.id !== id));
+        console.log('✅ Propiedad eliminada de BD');
+      }
+    } catch (error) {
+      console.error('❌ Error al eliminar propiedad:', error);
+    }
   };
 
   const handleAddClient = (client: Partial<Client>) => {
@@ -284,6 +325,29 @@ function App() {
   const handleDeleteClient = (id: string) => {
     if (!confirm(t.confirm_delete)) return;
     setClients(prev => prev.filter(c => c.id !== id));
+  };
+
+  // ============ AGENTS HANDLERS ============
+
+  const handleAddAgent = async (agent: Partial<Agent>) => {
+    const newAgent = await addAgent(agent);
+    if (newAgent) {
+      setAgents(prev => [...prev, newAgent]);
+    }
+  };
+
+  const handleUpdateAgent = async (agent: Agent) => {
+    const updated = await updateAgent(agent);
+    if (updated) {
+      setAgents(prev => prev.map(a => a.id === updated.id ? updated : a));
+    }
+  };
+
+  const handleDeleteAgent = async (id: string) => {
+    const success = await deleteAgent(id);
+    if (success) {
+      setAgents(prev => prev.filter(a => a.id !== id));
+    }
   };
 
   const handleAddContract = (contract: Partial<Contract>) => {
@@ -339,7 +403,14 @@ function App() {
 
   // Login screen
   if (!isAuthenticated) {
-    return <LoginView brandColor={brandColor} lang={lang} onToggleLang={() => setLang(l => l === 'es' ? 'en' : 'es')} />;
+    return (
+      <LoginView
+        brandColor={brandColor}
+        lang={lang}
+        onToggleLang={() => setLang(l => l === 'es' ? 'en' : 'es')}
+        onEnterGuest={() => setIsPublicView(true)}
+      />
+    );
   }
 
   // Render active view
@@ -358,6 +429,7 @@ function App() {
               console.log('Dashboard click:', v);
               handleNavigate(v);
             }}
+            onViewPublic={() => setIsPublicView(true)}
           />
         );
 
@@ -436,6 +508,9 @@ function App() {
             properties={properties}
             sales={sales}
             clients={clients}
+            onAddAgent={handleAddAgent}
+            onEditAgent={handleUpdateAgent}
+            onDeleteAgent={handleDeleteAgent}
             lang={lang}
             brandColor={brandColor}
             businessName={businessName}
@@ -493,6 +568,7 @@ function App() {
             properties={properties}
             lang={lang}
             brandColor={brandColor}
+            onUpdateProperty={handleEditProperty}
           />
         );
 
@@ -522,6 +598,26 @@ function App() {
             scriptUrl={scriptUrl}
             setScriptUrl={setScriptUrl}
             onSync={syncWithCloud}
+            onSaveProfile={async () => {
+              if (userId) {
+                const success = await updateBusinessProfile(userId, {
+                  business_name: businessName,
+                  location: location,
+                  branding_color: brandColor,
+                  script_url: scriptUrl,
+                  role: userRole
+                });
+                if (success) {
+                  // Sync to localStorage immediately on save
+                  localStorage.setItem('inmueble_businessName', businessName);
+                  localStorage.setItem('inmueble_location', location);
+                  localStorage.setItem('inmueble_brandColor', brandColor);
+                  localStorage.setItem('inmueble_scriptUrl', scriptUrl);
+                }
+                return success;
+              }
+              return false;
+            }}
           />
         );
 
@@ -541,6 +637,33 @@ function App() {
     }
   };
 
+  // ============ PUBLIC VIEW LOGIC ============
+  if (isPublicView) {
+    if (selectedPublicProperty) {
+      return (
+        <PublicPropertyDetail
+          property={selectedPublicProperty}
+          lang={lang}
+          brandColor={brandColor}
+          agencyName={businessName}
+          onBack={() => setSelectedPublicProperty(null)}
+        />
+      );
+    }
+    return (
+      <PublicPortalView
+        properties={properties}
+        lang={lang}
+        brandColor={brandColor}
+        agencyName={businessName}
+        onViewDetail={(p) => setSelectedPublicProperty(p)}
+        onExitPublic={() => setIsPublicView(false)}
+        isAuthenticated={isAuthenticated}
+      />
+    );
+  }
+
+  // ============ RENDER MAIN ============
   return (
     <div className="min-h-screen bg-black text-white flex">
       {/* Sidebar */}
@@ -554,6 +677,7 @@ function App() {
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
         onLogout={handleLogout}
+        onViewPublic={() => setIsPublicView(true)}
       />
 
       {/* Main Content */}
