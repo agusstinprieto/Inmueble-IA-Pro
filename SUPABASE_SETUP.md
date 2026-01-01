@@ -152,6 +152,23 @@ CREATE TABLE IF NOT EXISTS sales (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- 7. TABLA AGENTS (agentes inmobiliarios)
+CREATE TABLE IF NOT EXISTS agents (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id), -- Dueño de la agencia/cuenta
+  name TEXT NOT NULL,
+  phone TEXT,
+  email TEXT,
+  photo TEXT,
+  agency_id TEXT DEFAULT 'demo',
+  properties TEXT[] DEFAULT '{}',
+  clients TEXT[] DEFAULT '{}',
+  sales TEXT[] DEFAULT '{}',
+  commission DECIMAL(5, 2) DEFAULT 0,
+  active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- =============================================
 -- ROW LEVEL SECURITY (RLS)
 -- =============================================
@@ -163,6 +180,7 @@ ALTER TABLE clients ENABLE ROW LEVEL SECURITY;
 ALTER TABLE follow_ups ENABLE ROW LEVEL SECURITY;
 ALTER TABLE contracts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sales ENABLE ROW LEVEL SECURITY;
+ALTER TABLE agents ENABLE ROW LEVEL SECURITY;
 
 -- Políticas para PROFILES
 CREATE POLICY "Users can view own profile" ON profiles
@@ -212,6 +230,10 @@ CREATE POLICY "Users can view own sales" ON sales
   FOR SELECT USING (
     EXISTS (SELECT 1 FROM properties WHERE properties.id = sales.property_id AND properties.user_id = auth.uid())
   );
+
+-- Políticas para AGENTS
+CREATE POLICY "Users can manage own agents" ON agents
+  FOR ALL USING (auth.uid() = user_id);
 
 -- =============================================
 -- TRIGGER: Crear perfil automáticamente
