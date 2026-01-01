@@ -17,7 +17,7 @@ import TourView from './components/TourView';
 import AnalyticsView from './components/AnalyticsView';
 import LoginView from './components/LoginView';
 import { translations } from './translations';
-import { supabase, getBusinessProfile, signOut } from './services/supabase';
+import { supabase, getBusinessProfile, signOut, addProperty } from './services/supabase';
 import {
   Property,
   Client,
@@ -190,27 +190,24 @@ function App() {
   const handleAddProperty = async (property: Partial<Property>) => {
     const newProperty = {
       ...property,
-      id: property.id || `prop_${Date.now()}`,
       status: PropertyStatus.DISPONIBLE,
-      agentId: userId || '',
-      agencyId: '',
-      dateAdded: new Date().toISOString(),
+      agentId: userId || undefined,
+      agencyId: undefined,
       views: 0,
       favorites: 0
-    } as Property;
+    } as Partial<Property>;
 
-    setProperties(prev => [newProperty, ...prev]);
+    try {
+      // Guardar en Supabase (esto automáticamente sincroniza con Sheets)
+      const savedProperty = await addProperty(newProperty);
 
-    // Sync to cloud
-    if (scriptUrl) {
-      try {
-        await fetch(scriptUrl, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'addProperty', data: newProperty })
-        });
-      } catch (error) {
-        console.error('Failed to sync property:', error);
+      if (savedProperty) {
+        // Actualizar el estado local con la propiedad guardada
+        setProperties(prev => [savedProperty, ...prev]);
+        console.log('✅ Propiedad guardada y sincronizada con Sheets');
       }
+    } catch (error) {
+      console.error('❌ Error al guardar propiedad:', error);
     }
   };
 

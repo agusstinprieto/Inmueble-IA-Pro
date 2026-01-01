@@ -16,8 +16,8 @@
 
 1. Ve a **Settings > API**
 2. Copia estos valores:
-   - **Project URL** → `VITE_SUPABASE_URL`
-   - **anon public key** → `VITE_SUPABASE_ANON_KEY`
+   - **Project URL** → `https://kfrfwodnyrkukqqbjbjh.supabase.co`
+   - **anon public key** → `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcmZ3b2RueXJrdWtxcWJqYmpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxOTUxMzMsImV4cCI6MjA4Mjc3MTEzM30.Mo-4uto9Rx8b7PkHkahKBNS9SFK6H5P51GJLQmu1GWw`
 
 ---
 
@@ -254,12 +254,12 @@ CREATE TRIGGER on_auth_user_created
 2. Click "Add user"
 3. Configura:
    - **Email**: `demo@inmuebleiapro.local`
-   - **Password**: `demo123456`
+   - **Password**: `demo123`
 4. Click "Create user"
 
 Ahora puedes iniciar sesión con:
 - **ID de Agencia**: `demo`
-- **Contraseña**: `demo123456`
+- **Contraseña**: `demo123`
 
 ---
 
