@@ -121,13 +121,8 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
         if (editingPropertyProp) {
             setEditingProperty(editingPropertyProp);
             setShowEditModal(true);
-            if (onClearEditingProperty) {
-                setTimeout(() => {
-                    onClearEditingProperty();
-                }, 500);
-            }
         }
-    }, [editingPropertyProp, onClearEditingProperty]);
+    }, [editingPropertyProp]);
 
     // Stats
     const stats = {
@@ -942,6 +937,7 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                                     onClick={() => {
                                         setShowEditModal(false);
                                         setEditingProperty(null);
+                                        if (onClearEditingProperty) onClearEditingProperty();
                                     }}
                                     className="p-2 bg-zinc-800 rounded-full text-zinc-400 hover:text-white"
                                 >
@@ -987,6 +983,7 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                                     onEditProperty(updatedProperty);
                                     setShowEditModal(false);
                                     setEditingProperty(null);
+                                    if (onClearEditingProperty) onClearEditingProperty();
                                 }}
                                 className="space-y-4"
                             >
@@ -1142,6 +1139,7 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                                         onClick={() => {
                                             setShowEditModal(false);
                                             setEditingProperty(null);
+                                            if (onClearEditingProperty) onClearEditingProperty();
                                         }}
                                         className="flex-1 py-3 bg-zinc-800 rounded-xl text-white font-semibold hover:bg-zinc-700"
                                     >

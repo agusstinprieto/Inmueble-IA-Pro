@@ -408,6 +408,40 @@ export const deletePropertyImage = async (url: string): Promise<boolean> => {
     }
 };
 
+// ============ SALES CRUD ============
+
+export const getSales = async (): Promise<Sale[]> => {
+    const { data, error } = await supabase
+        .from('sales')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching sales:', error);
+        return [];
+    }
+
+    return data?.map(mapDbToSale) || [];
+};
+
+export const addSale = async (sale: Partial<Sale>): Promise<Sale | null> => {
+    const session = await getCurrentSession();
+    if (!session) return null;
+
+    const { data, error } = await supabase
+        .from('sales')
+        .insert(mapSaleToDb(sale, session.user.id))
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Error adding sale:', error);
+        return null;
+    }
+
+    return mapDbToSale(data);
+};
+
 // ============ MAPPERS ============
 
 function mapDbToProperty(db: any): Property {
@@ -567,5 +601,32 @@ function mapAgentToDb(agent: Partial<Agent>, userId?: string): any {
         sales: agent.sales,
         commission: agent.commission,
         active: agent.active
+    };
+}
+
+function mapDbToSale(db: any): Sale {
+    return {
+        id: db.id,
+        propertyId: db.property_id,
+        clientId: db.client_id,
+        agentId: db.agent_id,
+        type: db.type,
+        finalPrice: parseFloat(db.final_price) || 0,
+        commission: parseFloat(db.commission) || 0,
+        dateClosed: db.created_at,
+        contractId: db.contract_id
+    };
+}
+
+function mapSaleToDb(sale: Partial<Sale>, userId?: string): any {
+    return {
+        ...(userId && { user_id: userId }),
+        property_id: sale.propertyId,
+        client_id: sale.clientId,
+        agent_id: sale.agentId,
+        type: sale.type,
+        final_price: sale.finalPrice,
+        commission: sale.commission,
+        contract_id: sale.contractId
     };
 }

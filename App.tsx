@@ -20,7 +20,7 @@ import SettingsView from './components/SettingsView';
 import PublicPortalView from './components/PublicPortalView';
 import PublicPropertyDetail from './components/PublicPropertyDetail';
 import { translations } from './translations';
-import { supabase, getBusinessProfile, signOut, addProperty, getProperties, uploadPropertyImages, updateProperty, deleteProperty, updateBusinessProfile, getAgents, addAgent, updateAgent, deleteAgent } from './services/supabase';
+import { supabase, getBusinessProfile, signOut, addProperty, getProperties, uploadPropertyImages, updateProperty, deleteProperty, updateBusinessProfile, getAgents, addAgent, updateAgent, deleteAgent, addSale, updateClient } from './services/supabase';
 import {
   Property,
   Client,
@@ -367,6 +367,54 @@ function App() {
     setContracts(prev => prev.filter(c => c.id !== id));
   };
 
+  // ============ SALES HANDLERS ============
+
+  // Handle new sale
+  const handleAddSale = async (sale: Sale) => {
+    try {
+      setSales(prev => [sale, ...prev]);
+
+      // Update property status
+      const property = properties.find(p => p.id === sale.propertyId);
+      if (property) {
+        const newStatus = sale.type === 'VENTA' ? PropertyStatus.VENDIDA : PropertyStatus.RENTADA;
+        const updatedProperty = { ...property, status: newStatus };
+
+        // Optimistic update
+        setProperties(prev => prev.map(p => p.id === property.id ? updatedProperty : p));
+
+        // Persist
+        await updateProperty(updatedProperty);
+      }
+
+      // Update client status
+      const client = clients.find(c => c.id === sale.clientId);
+      if (client) {
+        const updatedClient = { ...client, status: ClientStatus.CERRADO };
+
+        // Optimistic update
+        setClients(prev => prev.map(c => c.id === client.id ? updatedClient : c));
+
+        // Persist
+        await updateClient(updatedClient);
+      }
+    } catch (error) {
+      console.error('Error handling new sale:', error);
+    }
+  };
+
+  // Add Sale Request
+  const handleAddSaleRequest = async (newSaleData: any) => {
+    try {
+      const addedSale = await addSale(newSaleData);
+      if (addedSale) {
+        handleAddSale(addedSale);
+      }
+    } catch (error) {
+      console.error('Error creating sale:', error);
+    }
+  };
+
   // ============ NAVIGATION ============
 
   const handleNavigate = (view: string) => {
@@ -498,16 +546,20 @@ function App() {
         );
 
       case 'sales':
-        return (
-          <SalesView
-            sales={sales}
-            properties={properties}
-            clients={clients}
-            lang={lang}
-            brandColor={brandColor}
-            businessName={businessName}
-          />
-        );
+        {
+          activeView === 'sales' && (
+            <SalesView
+              sales={sales}
+              properties={properties}
+              clients={clients}
+              lang={lang}
+              brandColor={brandColor}
+              businessName={businessName}
+              onAddSale={handleAddSaleRequest}
+              onAddSale={handleAddSaleRequest}
+            />
+          )
+        };
 
       case 'agents':
         return (

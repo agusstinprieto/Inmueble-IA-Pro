@@ -25,6 +25,7 @@ interface SalesViewProps {
   lang: 'es' | 'en';
   brandColor: string;
   businessName: string;
+  onAddSale?: (sale: any) => Promise<void>;
 }
 
 const SalesView: React.FC<SalesViewProps> = ({
@@ -33,11 +34,16 @@ const SalesView: React.FC<SalesViewProps> = ({
   clients,
   lang,
   brandColor,
-  businessName
+  businessName,
+  onAddSale
 }) => {
   const t = translations[lang];
   const [filterType, setFilterType] = useState<'ALL' | 'VENTA' | 'RENTA'>('ALL');
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Modal State
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Statistics
   const totalSales = sales.reduce((acc, sale) => acc + sale.finalPrice, 0);
@@ -98,9 +104,31 @@ const SalesView: React.FC<SalesViewProps> = ({
     document.body.removeChild(link);
   };
 
-  const handleNewSale = () => {
-    // TODO: Implement modal for new sale
-    alert(lang === 'es' ? 'Funcionalidad de Nuevo Cierre próximamente' : 'New Closing functionality coming soon');
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!onAddSale) return;
+
+    setIsSubmitting(true);
+    const formData = new FormData(e.currentTarget);
+
+    // Find linked entities
+    const propertyId = formData.get('propertyId') as string;
+    const property = properties.find(p => p.id === propertyId);
+    const clientId = formData.get('clientId') as string;
+
+    const newSale = {
+      propertyId,
+      clientId,
+      agentId: property?.agentId || 'agustin', // Fallback
+      type: property?.operation || OperationType.VENTA,
+      finalPrice: Number(formData.get('price')),
+      commission: Number(formData.get('commission')),
+    };
+
+    await onAddSale(newSale);
+
+    setIsSubmitting(false);
+    setShowAddModal(false);
   };
 
   return (
@@ -122,7 +150,7 @@ const SalesView: React.FC<SalesViewProps> = ({
             {lang === 'es' ? 'Exportar' : 'Export'}
           </button>
           <button
-            onClick={handleNewSale}
+            onClick={() => setShowAddModal(true)}
             style={{ backgroundColor: brandColor }}
             className="flex items-center gap-2 px-5 py-2.5 text-black rounded-xl transition-all font-black text-sm uppercase italic active:scale-95 shadow-lg shadow-amber-500/20"
           >
@@ -250,7 +278,7 @@ const SalesView: React.FC<SalesViewProps> = ({
                     <td className="p-4">
                       <div className="flex items-center gap-2 text-sm text-zinc-400">
                         <Calendar size={14} />
-                        {new Date(sale.id.startsWith('sale_') ? parseInt(sale.id.split('_')[1]) : Date.now()).toLocaleDateString(lang === 'es' ? 'es-MX' : 'en-US')}
+                        {new Date(sale.dateClosed).toLocaleDateString(lang === 'es' ? 'es-MX' : 'en-US')}
                       </div>
                     </td>
                     <td className="p-4">
@@ -309,6 +337,70 @@ const SalesView: React.FC<SalesViewProps> = ({
           </table>
         </div>
       </div>
+
+      {/* Add Sale Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="bg-zinc-900 rounded-2xl w-full max-w-lg border border-zinc-800">
+            <div className="p-6">
+              <h2 className="text-2xl font-bold text-white uppercase italic mb-6">
+                {lang === 'es' ? 'Registrar Nuevo Cierre' : 'Register New Closing'}
+              </h2>
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="text-xs text-zinc-400 block mb-1">Propiedad</label>
+                  <select name="propertyId" required className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white">
+                    <option value="">Seleccionar Propiedad</option>
+                    {properties.filter(p => p.status === 'DISPONIBLE').map(p => (
+                      <option key={p.id} value={p.id}>{p.title} ({p.operation})</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs text-zinc-400 block mb-1">Cliente</label>
+                  <select name="clientId" required className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white">
+                    <option value="">Seleccionar Cliente</option>
+                    {clients.map(c => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs text-zinc-400 block mb-1">Precio Final</label>
+                    <input name="price" type="number" required className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" placeholder="0.00" />
+                  </div>
+                  <div>
+                    <label className="text-xs text-zinc-400 block mb-1">Comisión Generada</label>
+                    <input name="commission" type="number" required className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" placeholder="0.00" />
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddModal(false)}
+                    className="flex-1 py-3 bg-zinc-800 rounded-xl text-white font-semibold hover:bg-zinc-700"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="flex-1 py-3 rounded-xl font-semibold text-black"
+                    style={{ backgroundColor: brandColor }}
+                  >
+                    {isSubmitting ? 'Guardando...' : 'Registrar Cierre'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
