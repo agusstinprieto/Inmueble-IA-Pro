@@ -9,11 +9,13 @@ VALUES (
 )
 ON CONFLICT (id) DO NOTHING;
 
--- 2. Asignar todos los usuarios sin agencia a la agencia Demo (incluyendo el usuario actual)
+-- 2. Corregir usuarios asignados a agencias que NO existen (IDs huérfanos)
+-- o usuarios sin agencia. Todos van a la Agencia Demo.
 UPDATE profiles 
 SET agency_id = '00000000-0000-0000-0000-000000000000',
     role = 'agency_owner'
-WHERE agency_id IS NULL;
+WHERE agency_id IS NULL 
+   OR agency_id NOT IN (SELECT id FROM agencies);
 
 -- 3. Crear una rama por defecto para la agencia si no existe
 INSERT INTO branches (id, agency_id, name, address, phone)

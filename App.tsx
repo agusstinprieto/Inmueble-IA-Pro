@@ -304,18 +304,7 @@ function App() {
         setProperties(prev => [savedProperty, ...prev]);
         console.log('✅ Propiedad guardada y sincronizada con Sheets');
       } else {
-        // Detailed debug message
-        const errorMsg = `Error al guardar. 
-        AgencyID Frontend: ${profile?.agencyId || 'NULL'} 
-        UserID: ${userId || 'NULL'}
-        
-        Verifica que hayas ejecutado el script SQL y recargado la página.`;
-
-        console.error(errorMsg);
-        alert("Error al guardar la propiedad. El sistema no detecta tu Agencia.\n\n" + errorMsg);
-
-        // Force reload profile to try to fix it for next time
-        checkSession();
+        alert("Error al guardar la propiedad. Verifica que tu usuario tenga una agencia asignada.");
       }
     } catch (error) {
       console.error('❌ Error al guardar propiedad:', error);
