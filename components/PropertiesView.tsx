@@ -29,7 +29,7 @@ import {
 } from 'lucide-react';
 import { translations } from '../translations';
 import { Property, PropertyType, OperationType, PropertyStatus } from '../types';
-import { generatePropertyListing } from '../services/gemini';
+import { generatePropertyListing, generateSocialAd } from '../services/gemini';
 import { pdfService } from '../services/pdfService';
 
 interface PropertiesViewProps {
@@ -78,6 +78,7 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
     const [showEditModal, setShowEditModal] = useState(false);
     const [generatingAd, setGeneratingAd] = useState(false);
     const [adText, setAdText] = useState('');
+    const [adPlatform, setAdPlatform] = useState<'generic' | 'facebook' | 'whatsapp'>('generic');
     const [downloadingPdf, setDownloadingPdf] = useState<string | null>(null);
 
     // Filter and sort properties
@@ -144,14 +145,22 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
     };
 
     // Generate ad
-    const handleGenerateAd = async (property: Property) => {
+    const handleGenerateAd = async (property: Property, platform: 'generic' | 'facebook' | 'whatsapp' = 'generic') => {
         setGeneratingAd(true);
+        setAdPlatform(platform);
+        setAdText(''); // Clear previous ad text to show state change
+
         try {
-            const ad = await generatePropertyListing(property, lang, businessName, location);
+            let ad = '';
+            if (platform === 'generic') {
+                ad = await generatePropertyListing(property, lang, businessName, location);
+            } else {
+                ad = await generateSocialAd(property, platform, businessName, location);
+            }
             setAdText(ad);
         } catch (err) {
             console.error('Error generating ad:', err);
-            setAdText('Error al generar anuncio');
+            setAdText('Error al generar anuncio. Verifica tu conexión o intenta de nuevo.');
         } finally {
             setGeneratingAd(false);
         }
@@ -658,28 +667,62 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
 
                             {/* Generate Ad Section */}
                             <div className="bg-zinc-800 rounded-xl p-4 mb-6">
-                                <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center justify-between mb-4">
                                     <h3 className="text-white font-semibold flex items-center gap-2">
                                         <Sparkles size={20} style={{ color: brandColor }} />
-                                        Generar Anuncio con IA
+                                        Generar Anuncio IA
                                     </h3>
+                                </div>
+
+                                <div className="flex gap-2 mb-4">
                                     <button
-                                        onClick={() => handleGenerateAd(selectedProperty)}
+                                        onClick={() => handleGenerateAd(selectedProperty, 'generic')}
                                         disabled={generatingAd}
-                                        className="px-4 py-2 rounded-lg font-semibold flex items-center gap-2 disabled:opacity-50"
-                                        style={{ backgroundColor: brandColor, color: '#000' }}
+                                        className={`px-3 py-2 rounded-lg text-xs font-semibold flex-1 transition-colors ${adPlatform === 'generic' ? 'bg-white text-black' : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
+                                            }`}
                                     >
-                                        {generatingAd ? 'Generando...' : 'Generar'}
+                                        📄 Estándar
+                                    </button>
+                                    <button
+                                        onClick={() => handleGenerateAd(selectedProperty, 'facebook')}
+                                        disabled={generatingAd}
+                                        className={`px-3 py-2 rounded-lg text-xs font-semibold flex-1 transition-colors ${adPlatform === 'facebook' ? 'bg-[#1877F2] text-white' : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
+                                            }`}
+                                    >
+                                        📘 Facebook
+                                    </button>
+                                    <button
+                                        onClick={() => handleGenerateAd(selectedProperty, 'whatsapp')}
+                                        disabled={generatingAd}
+                                        className={`px-3 py-2 rounded-lg text-xs font-semibold flex-1 transition-colors ${adPlatform === 'whatsapp' ? 'bg-[#25D366] text-white' : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
+                                            }`}
+                                    >
+                                        💬 WhatsApp
                                     </button>
                                 </div>
-                                {adText && (
-                                    <div className="bg-zinc-900 rounded-lg p-4">
-                                        <p className="text-zinc-300 whitespace-pre-wrap text-sm">{adText}</p>
+
+                                {generatingAd ? (
+                                    <div className="flex items-center justify-center py-8">
+                                        <Loader2 className="animate-spin text-zinc-500" size={24} />
+                                        <span className="ml-2 text-zinc-500 text-sm">Creando copy perfecto...</span>
+                                    </div>
+                                ) : adText && (
+                                    <div className="bg-zinc-900 rounded-lg p-4 animate-fade-in relative group">
+                                        <p className="text-zinc-300 whitespace-pre-wrap text-sm leading-relaxed">{adText}</p>
+                                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button
+                                                onClick={copyAd}
+                                                className="bg-zinc-800 p-2 rounded-lg text-white hover:bg-zinc-700 shadow-lg"
+                                                title="Copiar texto"
+                                            >
+                                                <Share2 size={16} />
+                                            </button>
+                                        </div>
                                         <button
                                             onClick={copyAd}
-                                            className="mt-3 text-sm text-zinc-400 hover:text-white flex items-center gap-1"
+                                            className="mt-4 w-full py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs text-zinc-300 flex items-center justify-center gap-2 transition-colors"
                                         >
-                                            📋 Copiar anuncio
+                                            📋 Copiar al portapapeles
                                         </button>
                                     </div>
                                 )}

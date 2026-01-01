@@ -334,6 +334,74 @@ export async function generatePropertyListing(
   return response.text || '';
 }
 
+// ============ GENERADOR DE ADS SOCIALES ============
+
+export async function generateSocialAd(
+  property: Property,
+  platform: 'facebook' | 'whatsapp',
+  businessName: string,
+  location: string
+): Promise<string> {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const model = 'gemini-2.5-flash';
+  const reg = getRegionalInfo(location);
+
+  const operationText = property.operation === 'VENTA' ? 'venta' : 'renta';
+  const price = property.operation === 'VENTA' ? property.salePrice : property.rentPrice;
+
+  let prompt = '';
+
+  if (platform === 'facebook') {
+    prompt = `Genera un anuncio para FACEBOOK Marketplace y Grupos Inmobiliarios:
+    
+    Propiedad: ${property.title}
+    Tipo: ${property.type}
+    Precio: $${price?.toLocaleString()} ${reg.shortCurrency}
+    Ubicación: ${property.address.colony}, ${property.address.city}
+
+    Características:
+    - ${property.specs.bedrooms} Recámaras
+    - ${property.specs.bathrooms} Baños
+    - ${property.specs.parking} Autos
+
+    ESTILO FACEBOOK:
+    - Usa MUCHOS emojis llamativos (🏠, 🔥, 📍, 💰).
+    - Empieza con un GANCHO fuerte (Ej: "¡Oportunidad Única!", "¡Tu Nuevo Hogar te Espera!").
+    - Lista de beneficios usando viñetas (✅).
+    - Precio claro.
+    - Llamada a la acción persuasiva ("Envía inbox", "Agenda cita hoy").
+    - Bloque de hashtags al final (#bienesraices #${property.address.city.replace(/\s/g, '')} #inmobiliaria).
+    
+    Inmobiliaria: ${businessName}`;
+  } else {
+    prompt = `Genera un mensaje para WHATSAPP (formato lista de difusión):
+
+    Propiedad: ${property.title}
+    Ubicación: ${property.address.colony}
+    Precio: $${price?.toLocaleString()} ${reg.shortCurrency}
+
+    ESTILO WHATSAPP:
+    - Corto y directo (lectura rápida).
+    - Usa negritas con asteriscos (Ej: *Precio:*).
+    - Emojis clave pero no excesivos.
+    - Destaca: Ubicación, Precio y 3 Puntos clave.
+    - Cierre con pregunta o invitación directa ("¿Te envío fotos?", "¿Agendamos visita?").
+    - Sin hashtags.
+    
+    Inmobiliaria: ${businessName}`;
+  }
+
+  const response = await ai.models.generateContent({
+    model,
+    contents: prompt,
+    config: {
+      systemInstruction: "Eres un experto en Community Management inmobiliario. Tu objetivo es generar clics y mensajes."
+    }
+  });
+
+  return response.text || '';
+}
+
 // ============ ANÁLISIS DE TEXTO ============
 
 export async function analyzePropertyText(
