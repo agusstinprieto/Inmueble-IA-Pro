@@ -62,6 +62,7 @@ const TourView: React.FC<TourViewProps> = ({
     React.useEffect(() => {
         if (viewerStarted && activeTour?.virtualTourUrl && viewerRef.current) {
             setIsLoading(true);
+            const startTime = Date.now();
             const timer = setTimeout(() => {
                 if (window.pannellum) {
                     const viewer = window.pannellum.viewer(viewerRef.current, {
@@ -73,7 +74,12 @@ const TourView: React.FC<TourViewProps> = ({
 
                     // Listen for load event
                     viewer.on('load', () => {
-                        setIsLoading(false);
+                        // Ensure loading indicator shows for at least 800ms
+                        const elapsed = Date.now() - startTime;
+                        const remaining = Math.max(0, 800 - elapsed);
+                        setTimeout(() => {
+                            setIsLoading(false);
+                        }, remaining);
                     });
 
                     // Handle errors
