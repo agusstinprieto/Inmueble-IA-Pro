@@ -49,7 +49,8 @@ const AgentsView: React.FC<AgentsViewProps> = ({
     businessName,
     onAddAgent,
     onEditAgent,
-    onDeleteAgent
+    onDeleteAgent,
+    onUpdateAgency
 }) => {
     const t = translations[lang];
     const [searchTerm, setSearchTerm] = useState('');
