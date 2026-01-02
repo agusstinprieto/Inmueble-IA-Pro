@@ -849,603 +849,604 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                                                 <Share2 size={16} />
                                             </button>
                                         </div>
-                                        onClick={copyAd}
-                                        className={`mt-4 w-full py-2 rounded-lg text-xs flex items-center justify-center gap-2 transition-colors ${isCopied
-                                            ? 'bg-green-600 text-white'
-                                            : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300'
-                                            }`}
+                                        <button
+                                            onClick={copyAd}
+                                            className={`mt-4 w-full py-2 rounded-lg text-xs flex items-center justify-center gap-2 transition-colors ${isCopied
+                                                ? 'bg-green-600 text-white'
+                                                : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300'
+                                                }`}
                                         >
-                                        {isCopied ? <Check size={16} /> : null}
-                                        {isCopied ? '¡Copiado!' : '📋 Copiar al portapapeles'}
-                                    </button>
+                                            {isCopied ? <Check size={16} /> : null}
+                                            {isCopied ? '¡Copiado!' : '📋 Copiar al portapapeles'}
+                                        </button>
                                     </div>
                                 )}
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex gap-3">
-                            <button
-                                onClick={() => {
-                                    setEditingProperty(selectedProperty);
-                                    setShowEditModal(true);
-                                    setShowDetailModal(false);
-                                }}
-                                className="flex-1 flex items-center justify-center gap-2 py-3 bg-zinc-800 rounded-xl text-white font-semibold hover:bg-zinc-700"
-                            >
-                                <Edit2 size={20} />
-                                {t.edit}
-                            </button>
-                            <button
-                                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold"
-                                style={{ backgroundColor: brandColor, color: '#000' }}
-                            >
-                                <MessageCircle size={20} />
-                                Contactar
-                            </button>
-                            <button
-                                onClick={() => handleDownloadPDF(selectedProperty)}
-                                disabled={downloadingPdf === selectedProperty.id}
-                                className="flex-1 flex items-center justify-center gap-2 py-3 bg-zinc-800 rounded-xl text-white font-semibold hover:bg-zinc-700 disabled:opacity-50"
-                            >
-                                {downloadingPdf === selectedProperty.id ? <Loader2 size={20} className="animate-spin" /> : <Download size={20} />}
-                                PDF
-                            </button>
-                            <button
-                                onClick={() => {
-                                    onDeleteProperty(selectedProperty.id);
-                                    setShowDetailModal(false);
-                                }}
-                                className="px-4 py-3 bg-red-500/20 rounded-xl text-red-400 hover:bg-red-500/30"
-                            >
-                                <Trash2 size={20} />
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                </div>
-    )
-}
-
-{/* Add Property Modal */ }
-{
-    showAddModal && onAddProperty && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-            <div className="bg-zinc-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
-                <div className="p-6">
-                    <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-2xl font-bold text-white uppercase italic">AGREGAR PROPIEDAD</h2>
-                        <button
-                            onClick={() => {
-                                setShowAddModal(false);
-                                setTempAddImages([]);
-                            }}
-                            className="p-2 bg-zinc-800 rounded-full text-zinc-400 hover:text-white"
-                        >
-                            <X size={24} />
-                        </button>
-                    </div>
-
-                    <form
-                        onSubmit={(e) => {
-                            e.preventDefault();
-                            const formData = new FormData(e.currentTarget);
-                            const newProperty: Partial<Property> = {
-                                title: formData.get('title') as string,
-                                type: formData.get('type') as PropertyType,
-                                operation: formData.get('operation') as OperationType,
-                                salePrice: formData.get('operation') === 'VENTA' ? Number(String(formData.get('price')).replace(/,/g, '')) : undefined,
-                                rentPrice: formData.get('operation') === 'RENTA' ? Number(String(formData.get('price')).replace(/,/g, '')) : undefined,
-                                address: {
-                                    street: formData.get('street') as string,
-                                    exteriorNumber: formData.get('exteriorNumber') as string,
-                                    colony: formData.get('colony') as string,
-                                    city: formData.get('city') as string,
-                                    state: formData.get('state') as string,
-                                    zipCode: formData.get('zipCode') as string,
-                                    country: formData.get('country') as 'MEXICO' | 'USA'
-                                },
-                                images: tempAddImages,
-                                currency: formData.get('country') === 'USA' ? 'USD' : 'MXN',
-                                specs: {
-                                    bedrooms: Number(formData.get('bedrooms')),
-                                    bathrooms: Number(formData.get('bathrooms')),
-                                    parking: Number(formData.get('parking')),
-                                    m2Built: Number(formData.get('m2Built')),
-                                    m2Total: Number(formData.get('m2Total')),
-                                    floors: Number(formData.get('floors'))
-                                },
-                                description: formData.get('description') as string
-                            };
-
-                            onAddProperty(newProperty);
-                            setTempAddImages([]);
-                            setShowAddModal(false);
-                        }}
-                        className="space-y-4"
-                    >
-                        {/* Basic Info */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="col-span-2">
-                                <label className="text-xs text-zinc-400 block mb-1">Título</label>
-                                <input
-                                    name="title"
-                                    type="text"
-                                    required
-                                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white"
-                                    placeholder="Casa en venta..."
-                                />
                             </div>
 
-                            <div>
-                                <label className="text-xs text-zinc-400 block mb-1">Tipo</label>
-                                <select name="type" required className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white">
-                                    {Object.values(PropertyType).map(type => (
-                                        <option key={type} value={type}>{t.property_types[type as keyof typeof t.property_types]}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="text-xs text-zinc-400 block mb-1">Operación</label>
-                                <select name="operation" required className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white">
-                                    {Object.values(OperationType).map(op => (
-                                        <option key={op} value={op}>{t.operations[op as keyof typeof t.operations]}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="text-xs text-zinc-400 block mb-1">País</label>
-                                <select name="country" required className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white">
-                                    <option value="MEXICO">México</option>
-                                    <option value="USA">USA</option>
-                                </select>
-                            </div>
-
-                            <div className="relative">
-                                <label className="text-xs text-zinc-400 block mb-1">Precio</label>
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">$</span>
-                                <input
-                                    name="price"
-                                    type="text"
-                                    required
-                                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg pl-7 pr-3 py-2 text-white placeholder-zinc-500"
-                                    placeholder="0,000"
-                                    onInput={(e) => {
-                                        const input = e.currentTarget;
-                                        let value = input.value.replace(/\D/g, '');
-                                        if (value) {
-                                            value = parseInt(value).toLocaleString('en-US');
-                                            input.value = value;
-                                        }
+                            {/* Actions */}
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => {
+                                        setEditingProperty(selectedProperty);
+                                        setShowEditModal(true);
+                                        setShowDetailModal(false);
                                     }}
-                                />
+                                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-zinc-800 rounded-xl text-white font-semibold hover:bg-zinc-700"
+                                >
+                                    <Edit2 size={20} />
+                                    {t.edit}
+                                </button>
+                                <button
+                                    className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold"
+                                    style={{ backgroundColor: brandColor, color: '#000' }}
+                                >
+                                    <MessageCircle size={20} />
+                                    Contactar
+                                </button>
+                                <button
+                                    onClick={() => handleDownloadPDF(selectedProperty)}
+                                    disabled={downloadingPdf === selectedProperty.id}
+                                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-zinc-800 rounded-xl text-white font-semibold hover:bg-zinc-700 disabled:opacity-50"
+                                >
+                                    {downloadingPdf === selectedProperty.id ? <Loader2 size={20} className="animate-spin" /> : <Download size={20} />}
+                                    PDF
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        onDeleteProperty(selectedProperty.id);
+                                        setShowDetailModal(false);
+                                    }}
+                                    className="px-4 py-3 bg-red-500/20 rounded-xl text-red-400 hover:bg-red-500/30"
+                                >
+                                    <Trash2 size={20} />
+                                </button>
                             </div>
                         </div>
-
-                        {/* Address */}
-                        <div className="border-t border-zinc-800 pt-4">
-                            <h3 className="text-white font-semibold mb-3">Dirección</h3>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="text-xs text-zinc-400 block mb-1">Calle</label>
-                                    <input name="street" type="text" className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
-                                </div>
-                                <div>
-                                    <label className="text-xs text-zinc-400 block mb-1">Número Exterior</label>
-                                    <input name="exteriorNumber" type="text" className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
-                                </div>
-                                <div>
-                                    <label className="text-xs text-zinc-400 block mb-1">Colonia</label>
-                                    <input name="colony" type="text" required className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
-                                </div>
-                                <div>
-                                    <label className="text-xs text-zinc-400 block mb-1">Ciudad</label>
-                                    <input name="city" type="text" required className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
-                                </div>
-                                <div>
-                                    <label className="text-xs text-zinc-400 block mb-1">Estado</label>
-                                    <input name="state" type="text" className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
-                                </div>
-                                <div>
-                                    <label className="text-xs text-zinc-400 block mb-1">Código Postal</label>
-                                    <input name="zipCode" type="text" className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Specs & Description */}
-                        <div className="border-t border-zinc-800 pt-4">
-                            <h3 className="text-white font-semibold mb-3">Especificaciones y Descripción</h3>
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                <div>
-                                    <label className="text-xs text-zinc-400 block mb-1">Recámaras</label>
-                                    <input name="bedrooms" type="number" defaultValue={0} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
-                                </div>
-                                <div>
-                                    <label className="text-xs text-zinc-400 block mb-1">Baños</label>
-                                    <input name="bathrooms" type="number" defaultValue={0} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
-                                </div>
-                                <div>
-                                    <label className="text-xs text-zinc-400 block mb-1">Pisos</label>
-                                    <input name="floors" type="number" defaultValue={1} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
-                                </div>
-                                <div>
-                                    <label className="text-xs text-zinc-400 block mb-1">M² Const.</label>
-                                    <input name="m2Built" type="number" defaultValue={0} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
-                                </div>
-                                <div>
-                                    <label className="text-xs text-zinc-400 block mb-1">M² Terreno</label>
-                                    <input name="m2Total" type="number" defaultValue={0} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
-                                </div>
-                                <div>
-                                    <label className="text-xs text-zinc-400 block mb-1">Estacionam.</label>
-                                    <input name="parking" type="number" defaultValue={0} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
-                                </div>
-                                <div className="col-span-2 md:col-span-3">
-                                    <label className="text-xs text-zinc-400 block mb-1">Descripción</label>
-                                    <textarea
-                                        name="description"
-                                        rows={2}
-                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white"
-                                        placeholder="Descripción detallada..."
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Manual Image Upload */}
-                        <div className="border-t border-zinc-800 pt-4">
-                            <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
-                                <Sparkles size={16} className="text-amber-500" />
-                                Fotos de la Propiedad
-                            </h3>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                                {tempAddImages.map((src, idx) => (
-                                    <div key={idx} className="relative aspect-square bg-zinc-800 rounded-xl overflow-hidden group border border-zinc-700">
-                                        <img src={src} className="w-full h-full object-cover" alt="" />
-                                        <button
-                                            type="button"
-                                            onClick={() => handleRemoveManualAddImage(idx)}
-                                            className="absolute top-2 right-2 p-1.5 bg-red-500 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                                        >
-                                            <X size={14} />
-                                        </button>
-                                        {idx === 0 && (
-                                            <div className="absolute top-2 left-2 bg-amber-500 text-black text-[10px] font-bold px-2 py-0.5 rounded-full">
-                                                Principal
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                                {tempAddImages.length < 10 && (
-                                    <label className="border-2 border-dashed border-zinc-800 rounded-xl aspect-square flex flex-col items-center justify-center cursor-pointer hover:border-zinc-700 hover:bg-white/5 transition-all group">
-                                        <Plus className="text-zinc-600 group-hover:text-amber-500 mb-1 transition-colors" size={24} />
-                                        <span className="text-[10px] text-zinc-600 group-hover:text-amber-500 font-bold uppercase tracking-widest transition-colors">Añadir</span>
-                                        <input
-                                            type="file"
-                                            multiple
-                                            accept="image/*,video/*"
-                                            className="hidden"
-                                            onChange={handleManualAddImageUpload}
-                                        />
-                                    </label>
-                                )}
-                            </div>
-                            <p className="text-[10px] text-zinc-600 italic">Sube hasta 10 fotos. La primera será la principal.</p>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex gap-4 pt-4 pb-2">
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setShowAddModal(false);
-                                    setTempAddImages([]);
-                                }}
-                                className="flex-1 py-3 bg-zinc-800 rounded-xl text-white font-semibold hover:bg-zinc-700 transition-colors"
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                type="submit"
-                                className="flex-1 py-3 rounded-xl font-bold text-black shadow-lg shadow-amber-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
-                                style={{ backgroundColor: brandColor }}
-                            >
-                                Agregar Propiedad
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    )
-}
-
-
-{/* Edit Property Modal */ }
-{
-    showEditModal && editingProperty && onEditProperty && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-            <div className="bg-zinc-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
-                <div className="p-6">
-                    <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-2xl font-bold text-white uppercase italic">EDITAR PROPIEDAD</h2>
-                        <button
-                            onClick={() => {
-                                setShowEditModal(false);
-                                setEditingProperty(null);
-                                if (onClearEditingProperty) onClearEditingProperty();
-                            }}
-                            className="p-2 bg-zinc-800 rounded-full text-zinc-400 hover:text-white"
-                        >
-                            <X size={24} />
-                        </button>
                     </div>
+                </div>
+            )
+            }
 
-                    <form
-                        onSubmit={(e) => {
-                            e.preventDefault();
-                            const formData = new FormData(e.currentTarget);
-                            const updatedProperty: Property = {
-                                ...editingProperty!,
-                                title: formData.get('title') as string,
-                                type: formData.get('type') as PropertyType,
-                                operation: formData.get('operation') as OperationType,
-                                salePrice: formData.get('operation') === 'VENTA' ? Number(String(formData.get('price')).replace(/,/g, '')) : editingProperty!.salePrice,
-                                rentPrice: formData.get('operation') === 'RENTA' ? Number(String(formData.get('price')).replace(/,/g, '')) : editingProperty!.rentPrice,
-                                address: {
-                                    ...editingProperty!.address,
-                                    street: formData.get('street') as string,
-                                    exteriorNumber: formData.get('exteriorNumber') as string,
-                                    colony: formData.get('colony') as string,
-                                    city: formData.get('city') as string,
-                                    state: formData.get('state') as string,
-                                    zipCode: formData.get('zipCode') as string,
-                                    country: formData.get('country') as 'MEXICO' | 'USA'
-                                },
-                                currency: formData.get('country') === 'USA' ? 'USD' : 'MXN',
-                                specs: {
-                                    ...editingProperty!.specs,
-                                    bedrooms: Number(formData.get('bedrooms')),
-                                    bathrooms: Number(formData.get('bathrooms')),
-                                    parking: Number(formData.get('parking')),
-                                    m2Built: Number(formData.get('m2Built')),
-                                    m2Total: Number(formData.get('m2Total')),
-                                    floors: Number(formData.get('floors'))
-                                },
-                                description: formData.get('description') as string,
-                                status: formData.get('status') as PropertyStatus
-                            };
+            {/* Add Property Modal */}
+            {
+                showAddModal && onAddProperty && (
+                    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+                        <div className="bg-zinc-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
+                            <div className="p-6">
+                                <div className="flex items-center justify-between mb-6">
+                                    <h2 className="text-2xl font-bold text-white uppercase italic">AGREGAR PROPIEDAD</h2>
+                                    <button
+                                        onClick={() => {
+                                            setShowAddModal(false);
+                                            setTempAddImages([]);
+                                        }}
+                                        className="p-2 bg-zinc-800 rounded-full text-zinc-400 hover:text-white"
+                                    >
+                                        <X size={24} />
+                                    </button>
+                                </div>
 
-                            onEditProperty(updatedProperty);
-                            setShowEditModal(false);
-                            setEditingProperty(null);
-                            if (onClearEditingProperty) onClearEditingProperty();
-                        }}
-                        className="space-y-4"
-                    >
-                        {/* Status Toggle */}
-                        <div className="p-4 bg-zinc-800/50 rounded-xl border border-zinc-800">
-                            <label className="text-xs text-zinc-400 block mb-2 uppercase font-black italic">Estado de Disponibilidad</label>
-                            <div className="flex gap-2">
-                                {Object.values(PropertyStatus).map(status => (
-                                    <label key={status} className="flex-1 cursor-pointer">
-                                        <input
-                                            type="radio"
-                                            name="status"
-                                            value={status}
-                                            defaultChecked={editingProperty.status === status}
-                                            className="hidden peer"
-                                        />
-                                        <div className="py-2 text-center rounded-lg border border-zinc-700 text-[10px] font-bold uppercase peer-checked:bg-white peer-checked:text-black transition-all">
-                                            {status}
+                                <form
+                                    onSubmit={(e) => {
+                                        e.preventDefault();
+                                        const formData = new FormData(e.currentTarget);
+                                        const newProperty: Partial<Property> = {
+                                            title: formData.get('title') as string,
+                                            type: formData.get('type') as PropertyType,
+                                            operation: formData.get('operation') as OperationType,
+                                            salePrice: formData.get('operation') === 'VENTA' ? Number(String(formData.get('price')).replace(/,/g, '')) : undefined,
+                                            rentPrice: formData.get('operation') === 'RENTA' ? Number(String(formData.get('price')).replace(/,/g, '')) : undefined,
+                                            address: {
+                                                street: formData.get('street') as string,
+                                                exteriorNumber: formData.get('exteriorNumber') as string,
+                                                colony: formData.get('colony') as string,
+                                                city: formData.get('city') as string,
+                                                state: formData.get('state') as string,
+                                                zipCode: formData.get('zipCode') as string,
+                                                country: formData.get('country') as 'MEXICO' | 'USA'
+                                            },
+                                            images: tempAddImages,
+                                            currency: formData.get('country') === 'USA' ? 'USD' : 'MXN',
+                                            specs: {
+                                                bedrooms: Number(formData.get('bedrooms')),
+                                                bathrooms: Number(formData.get('bathrooms')),
+                                                parking: Number(formData.get('parking')),
+                                                m2Built: Number(formData.get('m2Built')),
+                                                m2Total: Number(formData.get('m2Total')),
+                                                floors: Number(formData.get('floors'))
+                                            },
+                                            description: formData.get('description') as string
+                                        };
+
+                                        onAddProperty(newProperty);
+                                        setTempAddImages([]);
+                                        setShowAddModal(false);
+                                    }}
+                                    className="space-y-4"
+                                >
+                                    {/* Basic Info */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="col-span-2">
+                                            <label className="text-xs text-zinc-400 block mb-1">Título</label>
+                                            <input
+                                                name="title"
+                                                type="text"
+                                                required
+                                                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white"
+                                                placeholder="Casa en venta..."
+                                            />
                                         </div>
-                                    </label>
-                                ))}
-                            </div>
-                        </div>
 
-                        {/* Images Section */}
-                        <div className="p-4 bg-zinc-800/30 rounded-xl border border-zinc-800">
-                            <label className="text-xs text-zinc-400 block mb-3 uppercase font-black italic">Galería de Fotos</label>
+                                        <div>
+                                            <label className="text-xs text-zinc-400 block mb-1">Tipo</label>
+                                            <select name="type" required className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white">
+                                                {Object.values(PropertyType).map(type => (
+                                                    <option key={type} value={type}>{t.property_types[type as keyof typeof t.property_types]}</option>
+                                                ))}
+                                            </select>
+                                        </div>
 
-                            <div className="grid grid-cols-4 gap-2 mb-4">
-                                {editingProperty.images?.map((img, idx) => (
-                                    <div key={idx} className="relative aspect-square rounded-lg overflow-hidden group">
-                                        <img src={img} alt={`Foto ${idx}`} className="w-full h-full object-cover" />
+                                        <div>
+                                            <label className="text-xs text-zinc-400 block mb-1">Operación</label>
+                                            <select name="operation" required className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white">
+                                                {Object.values(OperationType).map(op => (
+                                                    <option key={op} value={op}>{t.operations[op as keyof typeof t.operations]}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label className="text-xs text-zinc-400 block mb-1">País</label>
+                                            <select name="country" required className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white">
+                                                <option value="MEXICO">México</option>
+                                                <option value="USA">USA</option>
+                                            </select>
+                                        </div>
+
+                                        <div className="relative">
+                                            <label className="text-xs text-zinc-400 block mb-1">Precio</label>
+                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">$</span>
+                                            <input
+                                                name="price"
+                                                type="text"
+                                                required
+                                                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg pl-7 pr-3 py-2 text-white placeholder-zinc-500"
+                                                placeholder="0,000"
+                                                onInput={(e) => {
+                                                    const input = e.currentTarget;
+                                                    let value = input.value.replace(/\D/g, '');
+                                                    if (value) {
+                                                        value = parseInt(value).toLocaleString('en-US');
+                                                        input.value = value;
+                                                    }
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Address */}
+                                    <div className="border-t border-zinc-800 pt-4">
+                                        <h3 className="text-white font-semibold mb-3">Dirección</h3>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="text-xs text-zinc-400 block mb-1">Calle</label>
+                                                <input name="street" type="text" className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs text-zinc-400 block mb-1">Número Exterior</label>
+                                                <input name="exteriorNumber" type="text" className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs text-zinc-400 block mb-1">Colonia</label>
+                                                <input name="colony" type="text" required className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs text-zinc-400 block mb-1">Ciudad</label>
+                                                <input name="city" type="text" required className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs text-zinc-400 block mb-1">Estado</label>
+                                                <input name="state" type="text" className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs text-zinc-400 block mb-1">Código Postal</label>
+                                                <input name="zipCode" type="text" className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Specs & Description */}
+                                    <div className="border-t border-zinc-800 pt-4">
+                                        <h3 className="text-white font-semibold mb-3">Especificaciones y Descripción</h3>
+                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                            <div>
+                                                <label className="text-xs text-zinc-400 block mb-1">Recámaras</label>
+                                                <input name="bedrooms" type="number" defaultValue={0} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs text-zinc-400 block mb-1">Baños</label>
+                                                <input name="bathrooms" type="number" defaultValue={0} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs text-zinc-400 block mb-1">Pisos</label>
+                                                <input name="floors" type="number" defaultValue={1} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs text-zinc-400 block mb-1">M² Const.</label>
+                                                <input name="m2Built" type="number" defaultValue={0} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs text-zinc-400 block mb-1">M² Terreno</label>
+                                                <input name="m2Total" type="number" defaultValue={0} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs text-zinc-400 block mb-1">Estacionam.</label>
+                                                <input name="parking" type="number" defaultValue={0} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                            </div>
+                                            <div className="col-span-2 md:col-span-3">
+                                                <label className="text-xs text-zinc-400 block mb-1">Descripción</label>
+                                                <textarea
+                                                    name="description"
+                                                    rows={2}
+                                                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white"
+                                                    placeholder="Descripción detallada..."
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Manual Image Upload */}
+                                    <div className="border-t border-zinc-800 pt-4">
+                                        <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+                                            <Sparkles size={16} className="text-amber-500" />
+                                            Fotos de la Propiedad
+                                        </h3>
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                                            {tempAddImages.map((src, idx) => (
+                                                <div key={idx} className="relative aspect-square bg-zinc-800 rounded-xl overflow-hidden group border border-zinc-700">
+                                                    <img src={src} className="w-full h-full object-cover" alt="" />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRemoveManualAddImage(idx)}
+                                                        className="absolute top-2 right-2 p-1.5 bg-red-500 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    >
+                                                        <X size={14} />
+                                                    </button>
+                                                    {idx === 0 && (
+                                                        <div className="absolute top-2 left-2 bg-amber-500 text-black text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                                            Principal
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
+                                            {tempAddImages.length < 10 && (
+                                                <label className="border-2 border-dashed border-zinc-800 rounded-xl aspect-square flex flex-col items-center justify-center cursor-pointer hover:border-zinc-700 hover:bg-white/5 transition-all group">
+                                                    <Plus className="text-zinc-600 group-hover:text-amber-500 mb-1 transition-colors" size={24} />
+                                                    <span className="text-[10px] text-zinc-600 group-hover:text-amber-500 font-bold uppercase tracking-widest transition-colors">Añadir</span>
+                                                    <input
+                                                        type="file"
+                                                        multiple
+                                                        accept="image/*,video/*"
+                                                        className="hidden"
+                                                        onChange={handleManualAddImageUpload}
+                                                    />
+                                                </label>
+                                            )}
+                                        </div>
+                                        <p className="text-[10px] text-zinc-600 italic">Sube hasta 10 fotos. La primera será la principal.</p>
+                                    </div>
+
+                                    {/* Actions */}
+                                    <div className="flex gap-4 pt-4 pb-2">
                                         <button
                                             type="button"
-                                            onClick={() => handleRemoveImage(idx)}
-                                            className="absolute top-1 right-1 p-1 bg-red-500/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                            onClick={() => {
+                                                setShowAddModal(false);
+                                                setTempAddImages([]);
+                                            }}
+                                            className="flex-1 py-3 bg-zinc-800 rounded-xl text-white font-semibold hover:bg-zinc-700 transition-colors"
                                         >
-                                            <X size={12} />
+                                            Cancelar
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            className="flex-1 py-3 rounded-xl font-bold text-black shadow-lg shadow-amber-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                                            style={{ backgroundColor: brandColor }}
+                                        >
+                                            Agregar Propiedad
                                         </button>
                                     </div>
-                                ))}
-                                <label className={`aspect-square rounded-lg border-2 border-dashed border-zinc-700 flex flex-col items-center justify-center cursor-pointer hover:border-zinc-500 hover:bg-zinc-800 transition-all ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}>
-                                    {isUploading ? (
-                                        <Loader2 size={24} className="animate-spin text-zinc-500" />
-                                    ) : (
-                                        <>
-                                            <Plus size={24} className="text-zinc-500 mb-1" />
-                                            <span className="text-[10px] text-zinc-500 font-bold uppercase">Agregar</span>
-                                        </>
-                                    )}
-                                    <input
-                                        type="file"
-                                        multiple
-                                        accept="image/*,video/*"
-                                        className="hidden"
-                                        onChange={handleImageUpload}
-                                        disabled={isUploading}
-                                    />
-                                </label>
+                                </form>
                             </div>
                         </div>
+                    </div>
+                )
+            }
 
-                        {/* Basic Info */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="col-span-2">
-                                <label className="text-xs text-zinc-400 block mb-1">Título</label>
-                                <input
-                                    name="title"
-                                    type="text"
-                                    required
-                                    defaultValue={editingProperty.title}
-                                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white"
-                                />
-                            </div>
 
-                            <div>
-                                <label className="text-xs text-zinc-400 block mb-1">Tipo</label>
-                                <select name="type" defaultValue={editingProperty.type} required className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white">
-                                    {Object.values(PropertyType).map(type => (
-                                        <option key={type} value={type}>{t.property_types[type as keyof typeof t.property_types]}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="text-xs text-zinc-400 block mb-1">Operación</label>
-                                <select name="operation" defaultValue={editingProperty.operation} required className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white">
-                                    {Object.values(OperationType).map(op => (
-                                        <option key={op} value={op}>{t.operations[op as keyof typeof t.operations]}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="text-xs text-zinc-400 block mb-1">País</label>
-                                <select name="country" defaultValue={editingProperty.address.country} required className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white">
-                                    <option value="MEXICO">México</option>
-                                    <option value="USA">USA</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="text-xs text-zinc-400 block mb-1">Precio</label>
-                                <div className="relative">
-                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">$</span>
-                                    <input
-                                        name="price"
-                                        type="text"
-                                        required
-                                        defaultValue={(editingProperty.operation === 'VENTA' ? editingProperty.salePrice : editingProperty.rentPrice)?.toLocaleString('en-US')}
-                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg pl-7 pr-3 py-2 text-white placeholder-zinc-500"
-                                        onInput={(e) => {
-                                            const input = e.currentTarget;
-                                            let value = input.value.replace(/\D/g, '');
-                                            if (value) {
-                                                value = parseInt(value).toLocaleString('en-US');
-                                                input.value = value;
-                                            }
+            {/* Edit Property Modal */}
+            {
+                showEditModal && editingProperty && onEditProperty && (
+                    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+                        <div className="bg-zinc-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
+                            <div className="p-6">
+                                <div className="flex items-center justify-between mb-6">
+                                    <h2 className="text-2xl font-bold text-white uppercase italic">EDITAR PROPIEDAD</h2>
+                                    <button
+                                        onClick={() => {
+                                            setShowEditModal(false);
+                                            setEditingProperty(null);
+                                            if (onClearEditingProperty) onClearEditingProperty();
                                         }}
-                                    />
+                                        className="p-2 bg-zinc-800 rounded-full text-zinc-400 hover:text-white"
+                                    >
+                                        <X size={24} />
+                                    </button>
                                 </div>
+
+                                <form
+                                    onSubmit={(e) => {
+                                        e.preventDefault();
+                                        const formData = new FormData(e.currentTarget);
+                                        const updatedProperty: Property = {
+                                            ...editingProperty!,
+                                            title: formData.get('title') as string,
+                                            type: formData.get('type') as PropertyType,
+                                            operation: formData.get('operation') as OperationType,
+                                            salePrice: formData.get('operation') === 'VENTA' ? Number(String(formData.get('price')).replace(/,/g, '')) : editingProperty!.salePrice,
+                                            rentPrice: formData.get('operation') === 'RENTA' ? Number(String(formData.get('price')).replace(/,/g, '')) : editingProperty!.rentPrice,
+                                            address: {
+                                                ...editingProperty!.address,
+                                                street: formData.get('street') as string,
+                                                exteriorNumber: formData.get('exteriorNumber') as string,
+                                                colony: formData.get('colony') as string,
+                                                city: formData.get('city') as string,
+                                                state: formData.get('state') as string,
+                                                zipCode: formData.get('zipCode') as string,
+                                                country: formData.get('country') as 'MEXICO' | 'USA'
+                                            },
+                                            currency: formData.get('country') === 'USA' ? 'USD' : 'MXN',
+                                            specs: {
+                                                ...editingProperty!.specs,
+                                                bedrooms: Number(formData.get('bedrooms')),
+                                                bathrooms: Number(formData.get('bathrooms')),
+                                                parking: Number(formData.get('parking')),
+                                                m2Built: Number(formData.get('m2Built')),
+                                                m2Total: Number(formData.get('m2Total')),
+                                                floors: Number(formData.get('floors'))
+                                            },
+                                            description: formData.get('description') as string,
+                                            status: formData.get('status') as PropertyStatus
+                                        };
+
+                                        onEditProperty(updatedProperty);
+                                        setShowEditModal(false);
+                                        setEditingProperty(null);
+                                        if (onClearEditingProperty) onClearEditingProperty();
+                                    }}
+                                    className="space-y-4"
+                                >
+                                    {/* Status Toggle */}
+                                    <div className="p-4 bg-zinc-800/50 rounded-xl border border-zinc-800">
+                                        <label className="text-xs text-zinc-400 block mb-2 uppercase font-black italic">Estado de Disponibilidad</label>
+                                        <div className="flex gap-2">
+                                            {Object.values(PropertyStatus).map(status => (
+                                                <label key={status} className="flex-1 cursor-pointer">
+                                                    <input
+                                                        type="radio"
+                                                        name="status"
+                                                        value={status}
+                                                        defaultChecked={editingProperty.status === status}
+                                                        className="hidden peer"
+                                                    />
+                                                    <div className="py-2 text-center rounded-lg border border-zinc-700 text-[10px] font-bold uppercase peer-checked:bg-white peer-checked:text-black transition-all">
+                                                        {status}
+                                                    </div>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Images Section */}
+                                    <div className="p-4 bg-zinc-800/30 rounded-xl border border-zinc-800">
+                                        <label className="text-xs text-zinc-400 block mb-3 uppercase font-black italic">Galería de Fotos</label>
+
+                                        <div className="grid grid-cols-4 gap-2 mb-4">
+                                            {editingProperty.images?.map((img, idx) => (
+                                                <div key={idx} className="relative aspect-square rounded-lg overflow-hidden group">
+                                                    <img src={img} alt={`Foto ${idx}`} className="w-full h-full object-cover" />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRemoveImage(idx)}
+                                                        className="absolute top-1 right-1 p-1 bg-red-500/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    >
+                                                        <X size={12} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            <label className={`aspect-square rounded-lg border-2 border-dashed border-zinc-700 flex flex-col items-center justify-center cursor-pointer hover:border-zinc-500 hover:bg-zinc-800 transition-all ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}>
+                                                {isUploading ? (
+                                                    <Loader2 size={24} className="animate-spin text-zinc-500" />
+                                                ) : (
+                                                    <>
+                                                        <Plus size={24} className="text-zinc-500 mb-1" />
+                                                        <span className="text-[10px] text-zinc-500 font-bold uppercase">Agregar</span>
+                                                    </>
+                                                )}
+                                                <input
+                                                    type="file"
+                                                    multiple
+                                                    accept="image/*,video/*"
+                                                    className="hidden"
+                                                    onChange={handleImageUpload}
+                                                    disabled={isUploading}
+                                                />
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    {/* Basic Info */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="col-span-2">
+                                            <label className="text-xs text-zinc-400 block mb-1">Título</label>
+                                            <input
+                                                name="title"
+                                                type="text"
+                                                required
+                                                defaultValue={editingProperty.title}
+                                                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="text-xs text-zinc-400 block mb-1">Tipo</label>
+                                            <select name="type" defaultValue={editingProperty.type} required className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white">
+                                                {Object.values(PropertyType).map(type => (
+                                                    <option key={type} value={type}>{t.property_types[type as keyof typeof t.property_types]}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label className="text-xs text-zinc-400 block mb-1">Operación</label>
+                                            <select name="operation" defaultValue={editingProperty.operation} required className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white">
+                                                {Object.values(OperationType).map(op => (
+                                                    <option key={op} value={op}>{t.operations[op as keyof typeof t.operations]}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label className="text-xs text-zinc-400 block mb-1">País</label>
+                                            <select name="country" defaultValue={editingProperty.address.country} required className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white">
+                                                <option value="MEXICO">México</option>
+                                                <option value="USA">USA</option>
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label className="text-xs text-zinc-400 block mb-1">Precio</label>
+                                            <div className="relative">
+                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">$</span>
+                                                <input
+                                                    name="price"
+                                                    type="text"
+                                                    required
+                                                    defaultValue={(editingProperty.operation === 'VENTA' ? editingProperty.salePrice : editingProperty.rentPrice)?.toLocaleString('en-US')}
+                                                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg pl-7 pr-3 py-2 text-white placeholder-zinc-500"
+                                                    onInput={(e) => {
+                                                        const input = e.currentTarget;
+                                                        let value = input.value.replace(/\D/g, '');
+                                                        if (value) {
+                                                            value = parseInt(value).toLocaleString('en-US');
+                                                            input.value = value;
+                                                        }
+                                                    }}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Address */}
+                                    <div className="border-t border-zinc-800 pt-4">
+                                        <h3 className="text-white font-semibold mb-3">Dirección</h3>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="text-xs text-zinc-400 block mb-1">Calle</label>
+                                                <input name="street" type="text" defaultValue={editingProperty.address.street} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs text-zinc-400 block mb-1">Número Exterior</label>
+                                                <input name="exteriorNumber" type="text" defaultValue={editingProperty.address.exteriorNumber} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs text-zinc-400 block mb-1">Colonia</label>
+                                                <input name="colony" type="text" required defaultValue={editingProperty.address.colony} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs text-zinc-400 block mb-1">Ciudad</label>
+                                                <input name="city" type="text" required defaultValue={editingProperty.address.city} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs text-zinc-400 block mb-1">Estado</label>
+                                                <input name="state" type="text" defaultValue={editingProperty.address.state} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs text-zinc-400 block mb-1">Código Postal</label>
+                                                <input name="zipCode" type="text" defaultValue={editingProperty.address.zipCode} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Specs */}
+                                    <div className="border-t border-zinc-800 pt-4">
+                                        <h3 className="text-white font-semibold mb-3">Especificaciones</h3>
+                                        <div className="grid grid-cols-3 gap-4">
+                                            <div>
+                                                <label className="text-xs text-zinc-400 block mb-1">Recámaras</label>
+                                                <input name="bedrooms" type="number" defaultValue={editingProperty.specs.bedrooms} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs text-zinc-400 block mb-1">Baños</label>
+                                                <input name="bathrooms" type="number" defaultValue={editingProperty.specs.bathrooms} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs text-zinc-400 block mb-1">Estacionamientos</label>
+                                                <input name="parking" type="number" defaultValue={editingProperty.specs.parking} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs text-zinc-400 block mb-1">M² Construidos</label>
+                                                <input name="m2Built" type="number" defaultValue={editingProperty.specs.m2Built} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs text-zinc-400 block mb-1">M² Terreno</label>
+                                                <input name="m2Total" type="number" defaultValue={editingProperty.specs.m2Total} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs text-zinc-400 block mb-1">Pisos</label>
+                                                <input name="floors" type="number" defaultValue={editingProperty.specs.floors} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Description */}
+                                    <div>
+                                        <label className="text-xs text-zinc-400 block mb-1">Descripción</label>
+                                        <textarea
+                                            name="description"
+                                            rows={3}
+                                            defaultValue={editingProperty.description}
+                                            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white"
+                                        />
+                                    </div>
+
+                                    {/* Actions */}
+                                    <div className="flex gap-3 pt-4">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setShowEditModal(false);
+                                                setEditingProperty(null);
+                                                if (onClearEditingProperty) onClearEditingProperty();
+                                            }}
+                                            className="flex-1 py-3 bg-zinc-800 rounded-xl text-white font-semibold hover:bg-zinc-700"
+                                        >
+                                            Cancelar
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            className="flex-1 py-3 rounded-xl font-semibold text-black"
+                                            style={{ backgroundColor: brandColor }}
+                                        >
+                                            Actualizar Propiedad
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
-
-                        {/* Address */}
-                        <div className="border-t border-zinc-800 pt-4">
-                            <h3 className="text-white font-semibold mb-3">Dirección</h3>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="text-xs text-zinc-400 block mb-1">Calle</label>
-                                    <input name="street" type="text" defaultValue={editingProperty.address.street} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
-                                </div>
-                                <div>
-                                    <label className="text-xs text-zinc-400 block mb-1">Número Exterior</label>
-                                    <input name="exteriorNumber" type="text" defaultValue={editingProperty.address.exteriorNumber} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
-                                </div>
-                                <div>
-                                    <label className="text-xs text-zinc-400 block mb-1">Colonia</label>
-                                    <input name="colony" type="text" required defaultValue={editingProperty.address.colony} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
-                                </div>
-                                <div>
-                                    <label className="text-xs text-zinc-400 block mb-1">Ciudad</label>
-                                    <input name="city" type="text" required defaultValue={editingProperty.address.city} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
-                                </div>
-                                <div>
-                                    <label className="text-xs text-zinc-400 block mb-1">Estado</label>
-                                    <input name="state" type="text" defaultValue={editingProperty.address.state} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
-                                </div>
-                                <div>
-                                    <label className="text-xs text-zinc-400 block mb-1">Código Postal</label>
-                                    <input name="zipCode" type="text" defaultValue={editingProperty.address.zipCode} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Specs */}
-                        <div className="border-t border-zinc-800 pt-4">
-                            <h3 className="text-white font-semibold mb-3">Especificaciones</h3>
-                            <div className="grid grid-cols-3 gap-4">
-                                <div>
-                                    <label className="text-xs text-zinc-400 block mb-1">Recámaras</label>
-                                    <input name="bedrooms" type="number" defaultValue={editingProperty.specs.bedrooms} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
-                                </div>
-                                <div>
-                                    <label className="text-xs text-zinc-400 block mb-1">Baños</label>
-                                    <input name="bathrooms" type="number" defaultValue={editingProperty.specs.bathrooms} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
-                                </div>
-                                <div>
-                                    <label className="text-xs text-zinc-400 block mb-1">Estacionamientos</label>
-                                    <input name="parking" type="number" defaultValue={editingProperty.specs.parking} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
-                                </div>
-                                <div>
-                                    <label className="text-xs text-zinc-400 block mb-1">M² Construidos</label>
-                                    <input name="m2Built" type="number" defaultValue={editingProperty.specs.m2Built} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
-                                </div>
-                                <div>
-                                    <label className="text-xs text-zinc-400 block mb-1">M² Terreno</label>
-                                    <input name="m2Total" type="number" defaultValue={editingProperty.specs.m2Total} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
-                                </div>
-                                <div>
-                                    <label className="text-xs text-zinc-400 block mb-1">Pisos</label>
-                                    <input name="floors" type="number" defaultValue={editingProperty.specs.floors} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Description */}
-                        <div>
-                            <label className="text-xs text-zinc-400 block mb-1">Descripción</label>
-                            <textarea
-                                name="description"
-                                rows={3}
-                                defaultValue={editingProperty.description}
-                                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white"
-                            />
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex gap-3 pt-4">
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setShowEditModal(false);
-                                    setEditingProperty(null);
-                                    if (onClearEditingProperty) onClearEditingProperty();
-                                }}
-                                className="flex-1 py-3 bg-zinc-800 rounded-xl text-white font-semibold hover:bg-zinc-700"
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                type="submit"
-                                className="flex-1 py-3 rounded-xl font-semibold text-black"
-                                style={{ backgroundColor: brandColor }}
-                            >
-                                Actualizar Propiedad
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div >
-    )
-}
+                    </div >
+                )
+            }
         </div >
     );
 };

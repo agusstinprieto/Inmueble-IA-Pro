@@ -115,3 +115,37 @@ Cualquier duda estoy a la orden.
 
 Atte. **Agustín Prieto**
 📲 WhatsApp: https://wa.me/528711439941
+
+---
+
+## Opción 6: Lanzamiento Oficial + Docs Hub (La solicitada) 🌟
+
+**Asunto: 🏠🚀 Lanzamiento Oficial: Inmueble IA Pro (2026)**
+
+Hola, espero que estés teniendo un excelente día.
+
+Te presento **Inmueble IA Pro**, la herramienta definitiva que hemos desarrollado para revolucionar la gestión inmobiliaria con Inteligencia Artificial.
+
+Con esta plataforma podrás:
+✅ Generar descripciones de venta automáticas con IA.
+✅ Crear Tours Virtuales 360°.
+✅ Gestionar clientes y propiedades (CRM Integrado).
+✅ Obtener dictámenes de valor y comparativas de mercado.
+
+📲 **Acceso al DEMO Interactivo:**
+Prueba la app en tiempo real aquí:
+🔗 **Link:** https://inmueble-ia-pro.vercel.app/
+👤 **Usuario:** `demo`
+🔑 **Clave:** `demo123`
+
+📄 **Toda la Información y Planes:**
+Consulta todas las funcionalidades, especificaciones técnicas y precios centralizados aquí:
+👉 **Hub de Información:** https://inmueble-ia-pro.vercel.app/docs/index.html
+
+Cualquier duda o para agendar una implementación, estoy a tu disposición.
+
+Atte.
+**Agustín Prieto**
+📞 +52 871 143 9941
+🌐 https://agusstinprieto.wixsite.com/ia-agus
+🏢 **IA.AGUS**
