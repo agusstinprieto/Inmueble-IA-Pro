@@ -388,9 +388,15 @@ const TourView: React.FC<TourViewProps> = ({
                                     className="w-full bg-black border border-zinc-800 rounded-xl py-3 px-4 text-sm text-white focus:outline-none focus:border-amber-500 transition-all"
                                 >
                                     <option value="">{lang === 'es' ? 'Elija una propiedad...' : 'Choose a property...'}</option>
-                                    {properties.map(p => (
-                                        <option key={p.id} value={p.id}>{p.title}</option>
-                                    ))}
+                                    {properties
+                                        .filter(p => {
+                                            // Only show properties with equirectangular images
+                                            return p.images && p.images.some(img => isEquirectangular(img));
+                                        })
+                                        .map(p => (
+                                            <option key={p.id} value={p.id}>{p.title}</option>
+                                        ))
+                                    }
                                 </select>
                             </div>
 
