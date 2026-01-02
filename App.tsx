@@ -554,11 +554,11 @@ function App() {
         </div>
 
         {/* AI Voice Assistant - Always visible */}
-        {currentUser && (
+        {userId && (
           <AssistantView
             lang={lang}
-            userName={currentUser.name}
-            agencyName={currentUser.agencyName}
+            userName={userId}
+            agencyName={businessName}
           />
         )}
       </div>
