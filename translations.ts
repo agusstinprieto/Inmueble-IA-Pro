@@ -20,6 +20,8 @@ export const translations = {
     mortgage_calc: "CALCULADORA",
     analytics: "MÉTRICAS",
     settings: "CONFIGURACIÓN",
+    library: "BIBLIOTECA",
+    notaries: "NOTARIOS",
 
     // ============ DASHBOARD ============
     operational_dashboard: "DASHBOARD OPERATIVO",
@@ -291,6 +293,32 @@ export const translations = {
     powered_by: "Powered by",
     designed_by: "Diseñado por",
     support: "Soporte",
+
+    // ============ BIBLIOTECA ============
+    real_estate_library: "BIBLIOTECA INMOBILIARIA",
+    library_desc: "Biblioteca de recursos, contratos y capacitación experta.",
+    all_resources: "Todos los recursos",
+    categories: {
+      CONTRACTS: "Contratos y Legal",
+      MARKETING: "Marketing Inmobiliario",
+      REQUIREMENTS: "Requisitos de Venta",
+      INFONAVIT: "Infonavit / Créditos",
+      SUCCESS_STORIES: "Casos de Éxito",
+      TRAINING: "Capacitación"
+    },
+    resource_types: {
+      pdf: "Documento PDF",
+      video: "Video Tutorial",
+      course: "Curso Online",
+      link: "Enlace Externo"
+    },
+
+    // ============ NOTARIOS ============
+    notary_directory: "DIRECTORIO DE NOTARIOS",
+    notary_directory_desc: "Directorio de notarias aliadas y contactos legales.",
+    add_notary: "AGREGAR NOTARIA",
+    city_filter: "Filtrar por ciudad",
+    search_notaries: "Buscar notaría o nombre...",
   },
 
   en: {
@@ -313,6 +341,8 @@ export const translations = {
     mortgage_calc: "Calculator",
     analytics: "Analytics",
     settings: "Settings",
+    library: "LIBRARY",
+    notaries: "NOTARIES",
 
     // ============ DASHBOARD ============
     operational_dashboard: "Operational Dashboard",
@@ -577,5 +607,31 @@ export const translations = {
     powered_by: "Powered by",
     designed_by: "Designed by",
     support: "Support",
+
+    // ============ LIBRARY ============
+    real_estate_library: "REAL ESTATE LIBRARY",
+    library_desc: "Resource library, contracts, and expert training.",
+    all_resources: "All Resources",
+    categories: {
+      CONTRACTS: "Contracts & Legal",
+      MARKETING: "Real Estate Marketing",
+      REQUIREMENTS: "Sales Requirements",
+      INFONAVIT: "Infonavit / Credits",
+      SUCCESS_STORIES: "Success Stories",
+      TRAINING: "Training"
+    },
+    resource_types: {
+      pdf: "PDF Document",
+      video: "Video Tutorial",
+      course: "Online Course",
+      link: "External Link"
+    },
+
+    // ============ NOTARIES ============
+    notary_directory: "NOTARY DIRECTORY",
+    notary_directory_desc: "Directory of allied notaries and legal contacts.",
+    add_notary: "ADD NOTARY",
+    city_filter: "Filter by city",
+    search_notaries: "Search notary or name...",
   }
 };

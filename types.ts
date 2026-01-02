@@ -304,3 +304,43 @@ export interface ImportedProperty {
   property: Partial<Property>;
   imported: boolean;
 }
+
+// ============ RESOURCE LIBRARY ============
+
+export type ResourceType = 'pdf' | 'video' | 'course' | 'link';
+
+export enum ResourceCategory {
+  CONTRACTS = 'CONTRACTS',
+  MARKETING = 'MARKETING',
+  REQUIREMENTS = 'REQUIREMENTS',
+  INFONAVIT = 'INFONAVIT',
+  SUCCESS_STORIES = 'SUCCESS_STORIES',
+  TRAINING = 'TRAINING'
+}
+
+export interface LibraryResource {
+  id: string;
+  title: string;
+  type: ResourceType;
+  category: ResourceCategory;
+  url: string;
+  thumbnailUrl?: string;
+  description: string;
+  dateAdded: string;
+}
+
+// ============ NOTARY DIRECTORY ============
+
+export interface Notary {
+  id: string;
+  agencyId: string;
+  name: string;
+  notaryNumber: string;
+  city: string;
+  address: string;
+  phone: string;
+  email?: string;
+  website?: string;
+  coordinates?: { lat: number; lng: number };
+  dateAdded: string;
+}

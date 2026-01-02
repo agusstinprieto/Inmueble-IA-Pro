@@ -19,6 +19,8 @@ import LoginView from './components/LoginView';
 import SettingsView from './components/SettingsView';
 import PublicPortalView from './components/PublicPortalView';
 import PublicPropertyDetail from './components/PublicPropertyDetail';
+import LibraryView from './components/LibraryView';
+import NotaryDirectoryView from './components/NotaryDirectoryView';
 import AssistantView from './components/AssistantView';
 import { translations } from './translations';
 import {
@@ -556,7 +558,7 @@ function App() {
         {/* AI Voice Assistant - Always visible for all users */}
         <AssistantView
           lang={lang}
-          userName={userId || 'Invitado'}
+          userName={profile?.name || (userId ? 'Asociado' : 'Invitado')}
           agencyName={businessName}
         />
       </div>
@@ -566,12 +568,20 @@ function App() {
   // Login screen
   if (!isAuthenticated) {
     return (
-      <LoginView
-        brandColor={brandColor}
-        lang={lang}
-        onToggleLang={() => setLang(l => l === 'es' ? 'en' : 'es')}
-        onEnterGuest={() => setIsPublicView(true)}
-      />
+      <>
+        <LoginView
+          brandColor={brandColor}
+          lang={lang}
+          onToggleLang={() => setLang(l => l === 'es' ? 'en' : 'es')}
+          onEnterGuest={() => setIsPublicView(true)}
+        />
+        {/* AI Voice Assistant - Always visible */}
+        <AssistantView
+          lang={lang}
+          userName={'Invitado'}
+          agencyName={businessName}
+        />
+      </>
     );
   }
 
@@ -741,6 +751,23 @@ function App() {
             lang={lang}
             brandColor={brandColor}
             onUpdateProperty={handleEditProperty}
+          />
+        );
+
+      case 'library':
+        return (
+          <LibraryView
+            lang={lang}
+            brandColor={brandColor}
+          />
+        );
+
+      case 'notaries':
+        return (
+          <NotaryDirectoryView
+            lang={lang}
+            brandColor={brandColor}
+            agencyId={profile?.agencyId}
           />
         );
 
@@ -918,6 +945,13 @@ function App() {
           </p>
         </footer>
       </main>
+
+      {/* AI Voice Assistant - Always visible */}
+      <AssistantView
+        lang={lang}
+        userName={profile?.name || (userId ? 'Asociado' : 'Invitado')}
+        agencyName={businessName}
+      />
     </div>
   );
 }

@@ -15,6 +15,7 @@ import {
   Video,
   Calculator,
   BarChart3,
+  BookOpen,
   Settings,
   LogOut,
   Menu,
@@ -84,6 +85,8 @@ const Sidebar: React.FC<SidebarProps> = ({
     // Extras
     { id: 'map', label: t.map, icon: <Map size={20} /> },
     { id: 'tours', label: t.virtual_tours, icon: <Video size={20} /> },
+    { id: 'library', label: t.library, icon: <BookOpen size={20} /> },
+    { id: 'notaries', label: t.notaries, icon: <Globe size={20} /> },
     { id: 'calculator', label: t.mortgage_calc, icon: <Calculator size={20} /> },
 
     // Analytics (solo admin)
