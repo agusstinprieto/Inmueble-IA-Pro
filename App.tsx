@@ -76,22 +76,10 @@ function App() {
 
   // App state
   const [lang, setLang] = useState<'es' | 'en'>('es');
-  const [theme, setTheme] = useState<'light' | 'dark'>(() => (localStorage.getItem('theme') as 'light' | 'dark') || 'dark');
-  const [activeView, setActiveView] = useState('dashboard');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isPublicView, setIsPublicView] = useState(false);
-  const [selectedPublicProperty, setSelectedPublicProperty] = useState<Property | null>(null);
-  const [propertyToEdit, setPropertyToEdit] = useState<Property | null>(null);
-
-  // Theme Effect
+  // Enforce Dark Mode
   useEffect(() => {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    localStorage.setItem('theme', theme);
-  }, [theme]);
+    document.documentElement.classList.add('dark');
+  }, []);
 
   // Data state
   const [properties, setProperties] = useState<Property[]>([]);
@@ -908,8 +896,6 @@ function App() {
         onToggle={() => setSidebarOpen(!sidebarOpen)}
         onLogout={handleLogout}
         onViewPublic={() => setIsPublicView(true)}
-        theme={theme}
-        onToggleTheme={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}
       />
 
       {/* Main Content */}

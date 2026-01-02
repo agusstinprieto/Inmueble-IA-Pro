@@ -190,11 +190,11 @@ const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
 
             {/* Save Button */}
-            <div className="flex justify-end pt-4">
+            <div className="flex justify-end pt-4 w-full">
                 <button
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-lg transition-all active:scale-95 disabled:opacity-50"
+                    className="w-full md:w-auto flex items-center justify-center gap-2 px-8 py-4 rounded-2xl font-bold text-lg transition-all active:scale-95 disabled:opacity-50"
                     style={{ backgroundColor: brandColor, color: '#000' }}
                 >
                     {isSaving ? (

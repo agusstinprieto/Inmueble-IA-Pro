@@ -263,9 +263,9 @@ Firma del Representante
                             const client = getClient(contract.clientId);
 
                             return (
-                                <div key={contract.id} className="p-4 flex items-center justify-between hover:bg-zinc-800/50">
-                                    <div className="flex items-center gap-4">
-                                        <span className="text-3xl">{typeLabels[contract.type].icon}</span>
+                                <div key={contract.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between hover:bg-zinc-800/50 gap-4">
+                                    <div className="flex items-start gap-4">
+                                        <span className="text-3xl mt-1 sm:mt-0">{typeLabels[contract.type].icon}</span>
                                         <div>
                                             <div className="flex items-center gap-2">
                                                 <h3 className="text-white font-medium">{typeLabels[contract.type].label}</h3>
@@ -275,7 +275,7 @@ Firma del Representante
                                                     <XCircle className="text-zinc-500" size={16} />
                                                 )}
                                             </div>
-                                            <div className="flex items-center gap-3 text-zinc-400 text-sm mt-1">
+                                            <div className="flex flex-wrap items-center gap-3 text-zinc-400 text-sm mt-1">
                                                 <span className="flex items-center gap-1">
                                                     <Building2 size={14} /> {property?.title || 'Propiedad'}
                                                 </span>

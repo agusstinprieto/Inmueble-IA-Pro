@@ -376,7 +376,7 @@ const CRMView: React.FC<CRMViewProps> = ({
 
             {/* Filters & Search */}
             <div className="flex flex-col lg:flex-row gap-4">
-                <div className="relative flex-1">
+                <div className="relative w-full lg:flex-1">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={20} />
                     <input
                         type="text"
@@ -389,7 +389,7 @@ const CRMView: React.FC<CRMViewProps> = ({
                 <select
                     value={statusFilter}
                     onChange={e => setStatusFilter(e.target.value as ClientStatus | 'ALL')}
-                    className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white"
+                    className="w-full lg:w-auto bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white"
                 >
                     <option value="ALL">Todos los estados</option>
                     {Object.values(ClientStatus).map(status => (
@@ -421,29 +421,29 @@ const CRMView: React.FC<CRMViewProps> = ({
                 `}
                                 style={selectedClient?.id === client.id ? { borderColor: brandColor } : {}}
                             >
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
+                                <div className="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
+                                    <div className="flex items-center gap-3 min-w-0">
                                         <div
-                                            className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold"
+                                            className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0"
                                             style={{ backgroundColor: brandColor + '40' }}
                                         >
                                             {client.name.charAt(0).toUpperCase()}
                                         </div>
-                                        <div>
-                                            <h3 className="text-white font-semibold">{client.name}</h3>
-                                            <div className="flex items-center gap-3 text-zinc-400 text-sm">
+                                        <div className="min-w-0">
+                                            <h3 className="text-white font-semibold truncate">{client.name}</h3>
+                                            <div className="flex items-center gap-3 text-zinc-400 text-sm flex-wrap">
                                                 <span className="flex items-center gap-1">
-                                                    <Phone size={14} /> {client.phone}
+                                                    <Phone size={14} className="flex-shrink-0" /> {client.phone}
                                                 </span>
                                                 {client.email && (
-                                                    <span className="flex items-center gap-1">
-                                                        <Mail size={14} /> {client.email}
+                                                    <span className="flex items-center gap-1 truncate hidden sm:flex">
+                                                        <Mail size={14} className="flex-shrink-0" /> {client.email}
                                                     </span>
                                                 )}
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2 flex-shrink-0 ml-auto">
                                         {(() => {
                                             const segment = getClientSegment(client);
                                             const Config = segmentConfig[segment];

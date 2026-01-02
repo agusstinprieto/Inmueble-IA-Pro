@@ -206,7 +206,7 @@ const GalleryView: React.FC<GalleryViewProps> = ({
                                         {selectedProperty.images?.length || 0} {lang === 'es' ? 'recursos multimedia registrados' : 'multimedia assets registered'}
                                     </p>
                                 </div>
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-3 flex-wrap">
                                     <button
                                         onClick={() => {
                                             if (onEditRequest && selectedProperty) {

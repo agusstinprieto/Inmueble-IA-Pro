@@ -349,7 +349,7 @@ const AgentsView: React.FC<AgentsViewProps> = ({
                                 />
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-1">Email</label>
                                     <input

@@ -94,12 +94,12 @@ const DashboardView: React.FC<DashboardViewProps> = ({
     return (
         <div className="p-4 lg:p-6 space-y-6">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{t.operational_dashboard}</h1>
                     <p className="text-zinc-500 dark:text-zinc-400 text-sm">Bienvenido a {businessName}</p>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex flex-wrap items-center gap-4">
                     <div className="hidden md:flex items-center gap-2 text-zinc-400 text-sm">
                         <Clock size={16} />
                         {new Date().toLocaleDateString('es-MX', {

@@ -237,7 +237,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
       <div className="p-4 md:p-8 pt-16 md:pt-24 relative min-h-full pb-20 animate-in fade-in duration-500 overflow-x-hidden text-white">
         {adPart && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm text-white">
-            <div className="bg-zinc-900 border border-white/5 w-full max-w-2xl rounded-[2.5rem] p-8 md:p-12 shadow-2xl scale-in-center max-h-[90vh] flex flex-col">
+            <div className="bg-zinc-900 border border-white/5 w-full max-w-2xl rounded-[2.5rem] p-6 md:p-12 shadow-2xl scale-in-center max-h-[90vh] flex flex-col">
               <div className="flex justify-between items-center mb-8 shrink-0">
                 <div className="flex items-center gap-3">
                   <Megaphone className="w-6 h-6 text-amber-500" />
@@ -465,7 +465,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
         {/* Modals */}
         {strategyPart && (
           <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md text-white">
-            <div className="bg-zinc-900 border border-white/5 w-full max-w-2xl rounded-[2.5rem] p-10 shadow-2xl scale-in-center">
+            <div className="bg-zinc-900 border border-white/5 w-full max-w-2xl rounded-[2.5rem] p-6 md:p-10 shadow-2xl scale-in-center">
               <div className="flex justify-between items-center mb-8">
                 <div className="flex items-center gap-3">
                   <Sparkles className="w-6 h-6 text-green-500" />
@@ -497,7 +497,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
 
         {partToSell && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm text-white">
-            <div className="bg-zinc-900 border border-amber-500/30 w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl scale-in-center">
+            <div className="bg-zinc-900 border border-amber-500/30 w-full max-w-md rounded-[2.5rem] p-6 md:p-10 shadow-2xl scale-in-center">
               <h3 className="text-xl font-black text-white text-center uppercase italic tracking-tighter mb-6">REGISTRAR VENTA</h3>
               <div className="bg-black/40 border border-white/5 rounded-3xl p-6 mb-8 text-center">
                 <p className="text-amber-500 text-[10px] font-black uppercase tracking-widest mb-1 truncate">{partToSell.name}</p>
@@ -531,7 +531,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
 
         {partToDelete && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm text-white">
-            <div className="bg-zinc-900 border border-red-500/30 w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl scale-in-center overflow-hidden">
+            <div className="bg-zinc-900 border border-red-500/30 w-full max-w-md rounded-[2.5rem] p-6 md:p-10 shadow-2xl scale-in-center overflow-hidden">
               <div className="flex justify-center mb-6"><div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center border border-red-500/20"><AlertCircle className="w-8 h-8 text-red-500" /></div></div>
               <h3 className="text-xl font-black text-white text-center uppercase italic tracking-tighter mb-2">¿ELIMINAR PIEZA?</h3>
               <p className="text-white text-center text-sm mb-8">Mover "{partToDelete.name}" a ELIMINADOS de {businessName}.</p>
@@ -547,7 +547,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
 
         {isBatchModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm text-white overflow-hidden">
-            <div className="bg-zinc-900 border border-white/5 w-full max-w-2xl rounded-[2.5rem] p-8 md:p-12 shadow-2xl scale-in-center max-h-[90vh] flex flex-col">
+            <div className="bg-zinc-900 border border-white/5 w-full max-w-2xl rounded-[2.5rem] p-6 md:p-12 shadow-2xl scale-in-center max-h-[90vh] flex flex-col">
               <div className="flex justify-between items-center mb-6 md:mb-10 shrink-0">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-amber-500/10 rounded-xl">
@@ -608,7 +608,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
 
         {selectedVehicleKey && batchActionType === 'DELETE' && (
           <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md text-white">
-            <div className="bg-zinc-900 border border-red-500/30 w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl scale-in-center">
+            <div className="bg-zinc-900 border border-red-500/30 w-full max-w-md rounded-[2.5rem] p-6 md:p-10 shadow-2xl scale-in-center">
               <div className="flex justify-center mb-6"><div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center border border-red-500/20"><AlertCircle className="w-8 h-8 text-red-500" /></div></div>
               <h3 className="text-xl font-black text-white text-center uppercase italic tracking-tighter mb-2">¿ELIMINAR EL LOTE COMPLETO?</h3>
               <p className="text-white text-center text-sm mb-8">Se eliminarán permanentemente las {vehicles.find(v => v.key === selectedVehicleKey)?.partsCount} piezas de este vehículo.</p>
@@ -625,7 +625,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
         {/* Insight Modal */}
         {insightPart && (
           <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md text-white">
-            <div className="bg-zinc-900 border border-white/5 w-full max-w-2xl rounded-[2.5rem] p-10 shadow-2xl scale-in-center">
+            <div className="bg-zinc-900 border border-white/5 w-full max-w-2xl rounded-[2.5rem] p-6 md:p-10 shadow-2xl scale-in-center">
               <div className="flex justify-between items-center mb-8">
                 <div className="flex items-center gap-3">
                   <Zap className="w-6 h-6 text-amber-500" />
@@ -651,7 +651,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
 
         {selectedVehicleKey && batchActionType === 'SELL' && (
           <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md text-white">
-            <div className="bg-zinc-900 border border-green-500/30 w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl scale-in-center">
+            <div className="bg-zinc-900 border border-green-500/30 w-full max-w-md rounded-[2.5rem] p-6 md:p-10 shadow-2xl scale-in-center">
               <h3 className="text-xl font-black text-white text-center uppercase italic tracking-tighter mb-6">VENTA POR LOTE</h3>
               <div className="bg-black/40 border border-white/5 rounded-3xl p-6 mb-8 text-center">
                 <p className="text-green-500 text-[10px] font-black uppercase tracking-widest mb-1 truncate">

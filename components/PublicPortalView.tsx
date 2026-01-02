@@ -14,7 +14,8 @@ import {
     MessageCircle,
     Globe,
     Heart,
-    Share2
+    Share2,
+    Check
 } from 'lucide-react';
 import { Property, PropertyType, OperationType } from '../types';
 import { translations } from '../translations';
@@ -64,6 +65,8 @@ const PublicPortalView: React.FC<PublicPortalViewProps> = ({
         );
     };
 
+    const [isCopiedMap, setIsCopiedMap] = useState<Record<string, boolean>>({});
+
     const handleShare = async (property: Property) => {
         const shareData = {
             title: property.title,
@@ -80,7 +83,14 @@ const PublicPortalView: React.FC<PublicPortalViewProps> = ({
         } else {
             // Fallback: copy to clipboard
             await navigator.clipboard.writeText(`${shareData.text} - ${shareData.url}`);
-            alert('¡Enlace copiado al portapapeles!');
+
+            // Set copied state for this specific property
+            setIsCopiedMap(prev => ({ ...prev, [property.id]: true }));
+
+            // Reset after 2 seconds
+            setTimeout(() => {
+                setIsCopiedMap(prev => ({ ...prev, [property.id]: false }));
+            }, 2000);
         }
     };
 
@@ -255,11 +265,11 @@ const PublicPortalView: React.FC<PublicPortalViewProps> = ({
                                     >
                                         <Heart size={18} fill={favorites.includes(prop.id) ? 'currentColor' : 'none'} />
                                     </button>
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); handleShare(prop); }}
-                                        className="p-2.5 rounded-xl bg-black/40 text-white backdrop-blur-md hover:bg-black/60 transition-all hover:scale-110 active:scale-95"
+                                        className={`p-2.5 rounded-xl backdrop-blur-md transition-all hover:scale-110 active:scale-95 ${
+                                            isCopiedMap[prop.id] ? 'bg-green-500 text-white' : 'bg-black/40 text-white hover:bg-black/60'
+                                        }`}
                                     >
-                                        <Share2 size={18} />
+                                        {isCopiedMap[prop.id] ? <Check size={18} /> : <Share2 size={18} />}
                                     </button>
                                 </div>
                             </div>
@@ -306,18 +316,18 @@ const PublicPortalView: React.FC<PublicPortalViewProps> = ({
                         </div>
                     ))}
 
-                    {filteredProperties.length === 0 && (
-                        <div className="col-span-full py-40 text-center">
-                            <Search size={64} className="mx-auto text-zinc-800 mb-6 opacity-20" />
-                            <h4 className="text-3xl font-black italic uppercase tracking-tighter text-zinc-800">Sin coincidencias</h4>
-                            <p className="text-zinc-600 font-bold italic mt-2">Prueba ajustando los filtros de búsqueda</p>
-                        </div>
-                    )}
-                </div>
-            </main>
+                {filteredProperties.length === 0 && (
+                    <div className="col-span-full py-40 text-center">
+                        <Search size={64} className="mx-auto text-zinc-800 mb-6 opacity-20" />
+                        <h4 className="text-3xl font-black italic uppercase tracking-tighter text-zinc-800">Sin coincidencias</h4>
+                        <p className="text-zinc-600 font-bold italic mt-2">Prueba ajustando los filtros de búsqueda</p>
+                    </div>
+                )}
+        </div>
+            </main >
 
-            {/* CTA Footer */}
-            <footer className="bg-zinc-900 py-20 px-6 border-t border-white/5">
+    {/* CTA Footer */ }
+    < footer className = "bg-zinc-900 py-20 px-6 border-t border-white/5" >
                 <div className="max-w-4xl mx-auto text-center space-y-8">
                     <h3 className="text-4xl md:text-5xl font-black italic tracking-tighter uppercase text-white">¿Buscas algo específico?</h3>
                     <p className="text-zinc-500 font-medium italic">Nuestro equipo de expertos te ayudará a encontrar la propiedad ideal de forma personalizada.</p>
@@ -348,8 +358,8 @@ const PublicPortalView: React.FC<PublicPortalViewProps> = ({
                         <a href="#" className="text-[10px] font-black uppercase italic text-zinc-400 hover:text-white">Términos</a>
                     </div>
                 </div>
-            </footer>
-        </div>
+            </footer >
+        </div >
     );
 };
 

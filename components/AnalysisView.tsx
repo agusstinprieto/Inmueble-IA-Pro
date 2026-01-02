@@ -376,7 +376,7 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
   return (
     <div className="p-4 lg:p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <div
           className="w-12 h-12 rounded-xl flex items-center justify-center"
           style={{ backgroundColor: brandColor + '20' }}
@@ -422,7 +422,7 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
               {/* Upload Area */}
               <div
                 className={`
-                flex-1 relative border-2 border-dashed rounded-2xl p-8 transition-all cursor-pointer min-h-[300px] flex flex-col items-center justify-center
+                flex-1 relative border-2 border-dashed rounded-2xl p-4 lg:p-8 transition-all cursor-pointer min-h-[200px] lg:min-h-[300px] flex flex-col items-center justify-center
                 ${mediaItems.length > 0 ? 'border-zinc-800 bg-zinc-900/50 hidden lg:flex' : 'border-zinc-700 hover:border-amber-500/50 hover:bg-amber-500/5'}
                 `}
                 onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}

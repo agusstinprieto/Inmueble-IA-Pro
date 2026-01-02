@@ -241,18 +241,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
           {/* Settings & Logout */}
           <div className="px-3 space-y-1">
-            <button
-              onClick={onToggleTheme}
-              className={`
-                w-full flex items-center gap-3 px-3 py-2.5 rounded-lg
-                text-left text-sm font-medium
-                text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800
-                transition-all duration-150
-              `}
-            >
-              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-              <span>{theme === 'dark' ? (lang === 'es' ? 'Modo Claro' : 'Light Mode') : (lang === 'es' ? 'Modo Oscuro' : 'Dark Mode')}</span>
-            </button>
+
 
             <button
               onClick={() => onNavigate('settings')}

@@ -60,7 +60,7 @@ const LoginView: React.FC<LoginViewProps> = ({ brandColor, lang, onToggleLang, o
     <div className="fixed inset-0 z-[200] bg-[#0a0a0a] flex items-center justify-center p-4 overflow-hidden text-white">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(245,158,11,0.08),_transparent_70%)] pointer-events-none"></div>
 
-      <div className={`w-full max-w-md bg-zinc-900/50 border ${error ? 'border-red-500/50 shadow-red-500/5' : 'border-white/5'} backdrop-blur-xl rounded-[3rem] p-10 shadow-2xl transition-all duration-300 relative overflow-hidden`}>
+      <div className={`w-full max-w-md bg-zinc-900/50 border ${error ? 'border-red-500/50 shadow-red-500/5' : 'border-white/5'} backdrop-blur-xl rounded-[3rem] p-6 md:p-10 shadow-2xl transition-all duration-300 relative overflow-hidden`}>
         <div className="flex justify-center mb-8">
           <div className="w-20 h-20 bg-amber-500/10 rounded-full flex items-center justify-center border border-amber-500/20 relative group">
             <ShieldCheck className={`w-10 h-10 ${error ? 'text-red-500' : 'text-amber-500'} transition-colors`} />

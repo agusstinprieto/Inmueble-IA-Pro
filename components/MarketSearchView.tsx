@@ -567,11 +567,11 @@ const MarketSearchView: React.FC<MarketSearchViewProps> = ({
             {/* Compare Bar (Sticky) */}
             {compareList.length > 0 && (
                 <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-8 duration-500">
-                    <div className="bg-black/80 backdrop-blur-xl border border-white/10 p-3 rounded-[2rem] shadow-2xl flex items-center gap-6 pr-4">
-                        <div className="flex -space-x-4 pl-2">
+                    <div className="bg-black/90 backdrop-blur-xl border border-white/10 p-3 rounded-[2rem] shadow-2xl flex items-center gap-4 sm:gap-6 pr-4 max-w-[90vw] overflow-x-auto scrollbar-hide">
+                        <div className="flex -space-x-4 pl-2 shrink-0">
                             {compareList.map(prop => (
                                 <div key={prop.id} className="relative group">
-                                    <img src={prop.images[0]} className="w-12 h-12 rounded-full border-2 border-black object-cover shadow-lg" alt="" />
+                                    <img src={prop.images[0]} className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-black object-cover shadow-lg" alt="" />
                                     <button
                                         onClick={() => toggleCompare(prop)}
                                         className="absolute -top-1 -right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
@@ -581,25 +581,25 @@ const MarketSearchView: React.FC<MarketSearchViewProps> = ({
                                 </div>
                             ))}
                             {Array.from({ length: 3 - compareList.length }).map((_, i) => (
-                                <div key={i} className="w-12 h-12 rounded-full border-2 border-dashed border-zinc-800 bg-zinc-900/40 flex items-center justify-center text-zinc-700">
+                                <div key={i} className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-dashed border-zinc-800 bg-zinc-900/40 flex items-center justify-center text-zinc-700">
                                     <Plus size={16} />
                                 </div>
                             ))}
                         </div>
 
-                        <div className="h-8 w-px bg-zinc-800"></div>
+                        <div className="h-8 w-px bg-zinc-800 shrink-0"></div>
 
-                        <div className="flex items-center gap-4">
-                            <div className="text-left">
+                        <div className="flex items-center gap-4 shrink-0">
+                            <div className="text-left hidden sm:block">
                                 <p className="text-[9px] font-black text-amber-500 uppercase tracking-widest">{lang === 'es' ? 'Selección (Máx. 3)' : 'Selection (Max. 3)'}</p>
                                 <p className="text-white text-xs font-bold italic">{compareList.length}/3 {lang === 'es' ? 'Seleccionadas' : 'Selected'}</p>
                             </div>
                             <button
                                 onClick={() => setIsComparing(true)}
                                 disabled={compareList.length < 2}
-                                className="px-6 py-2.5 bg-amber-500 disabled:bg-zinc-800 disabled:text-zinc-600 text-black rounded-2xl font-black uppercase text-[10px] italic transition-all hover:scale-105 active:scale-95 shadow-lg shadow-amber-500/20"
+                                className="px-4 py-2 sm:px-6 sm:py-2.5 bg-amber-500 disabled:bg-zinc-800 disabled:text-zinc-600 text-black rounded-2xl font-black uppercase text-[10px] italic transition-all hover:scale-105 active:scale-95 shadow-lg shadow-amber-500/20 whitespace-nowrap"
                             >
-                                {lang === 'es' ? 'Comparar Ahora' : 'Compare Now'}
+                                {lang === 'es' ? 'Comparar' : 'Compare'}
                             </button>
                         </div>
                     </div>
