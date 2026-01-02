@@ -238,25 +238,6 @@ const TourView: React.FC<TourViewProps> = ({
                                                 <h3 className="text-2xl font-black text-white uppercase italic tracking-tighter">{activeTour.title}</h3>
                                                 <p className="text-zinc-400 text-xs font-bold italic">{lang === 'es' ? 'Vista: Estancia Principal' : 'View: Main Living Room'}</p>
                                             </div>
-                                            {activeTour.virtualTourUrl ? (
-                                                <button
-                                                    onClick={() => {
-                                                        console.log('🚀 BOTÓN INICIAR RECORRIDO CLICKEADO');
-                                                        console.log('📍 Antes - viewerStarted:', viewerStarted);
-                                                        setViewerStarted(true);
-                                                        console.log('✅ setViewerStarted(true) llamado');
-                                                    }}
-                                                    className="px-8 py-3 bg-white text-black rounded-xl font-black text-xs uppercase italic hover:bg-zinc-200 transition-all"
-                                                >
-                                                    {lang === 'es' ? 'Iniciar Recorrido' : 'Start Tour'}
-                                                </button>
-                                            ) : (
-                                                <div className="bg-amber-500/10 border border-amber-500/30 p-4 rounded-xl max-w-xs mx-auto">
-                                                    <p className="text-amber-500 text-[10px] font-black uppercase tracking-widest leading-normal">
-                                                        {lang === 'es' ? 'Esta propiedad aún no tiene un tour 360 habilitado.' : 'This property does not have a 360 tour yet.'}
-                                                    </p>
-                                                </div>
-                                            )}
                                         </div>
                                     </div>
                                 )}
@@ -276,6 +257,25 @@ const TourView: React.FC<TourViewProps> = ({
                             </div>
                         )}
                     </div>
+
+                    {/* Start Button - Outside viewer for better accessibility */}
+                    {activeTour && !viewerStarted && activeTour.virtualTourUrl && (
+                        <div className="flex justify-center -mt-4">
+                            <button
+                                onClick={() => {
+                                    console.log('🚀 BOTÓN INICIAR RECORRIDO CLICKEADO');
+                                    console.log('📍 Antes - viewerStarted:', viewerStarted);
+                                    setViewerStarted(true);
+                                    console.log('✅ setViewerStarted(true) llamado');
+                                }}
+                                style={{ backgroundColor: brandColor }}
+                                className="px-12 py-4 text-black rounded-2xl font-black text-sm uppercase italic hover:opacity-90 transition-all shadow-xl flex items-center gap-3 z-50"
+                            >
+                                <Play size={20} className="fill-current" />
+                                {lang === 'es' ? 'Iniciar Recorrido 360°' : 'Start 360° Tour'}
+                            </button>
+                        </div>
+                    )}
 
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 flex items-center gap-3">
