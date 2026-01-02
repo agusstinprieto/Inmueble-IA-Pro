@@ -190,7 +190,7 @@ export async function getPropertyValuation(
   if (!apiKey) throw new Error('VITE_GEMINI_API_KEY not found');
 
   const ai = new GoogleGenAI({ apiKey });
-  const model = 'gemini-2.0-flash'; // Fixed version
+  const model = 'gemini-1.5-flash'; // Fixed version
   const reg = getRegionalInfo(location);
 
   const prompt = `Realiza una valuación inmobiliaria profesional y un estudio de mercado para:
@@ -601,7 +601,7 @@ export async function chatWithAssistant(
   }
 
   const ai = new GoogleGenAI({ apiKey });
-  const model = 'gemini-2.5-flash';
+  const model = 'gemini-1.5-flash';
 
   const systemPrompt = lang === 'es'
     ? `Eres un asistente experto en bienes raíces.
