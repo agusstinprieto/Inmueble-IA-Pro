@@ -580,3 +580,90 @@ export async function extractPropertyFromHtml(
     return null;
   }
 }
+
+// ============ ASISTENTE CONVERSACIONAL ============
+
+interface AssistantMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export async function chatWithAssistant(
+  message: string,
+  history: AssistantMessage[],
+  lang: 'es' | 'en',
+  userName?: string,
+  agencyName?: string
+): Promise<string> {
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error('VITE_GEMINI_API_KEY is not configured');
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
+  const model = 'gemini-2.5-flash';
+
+  const systemPrompt = lang === 'es'
+    ? `Eres un asistente experto en bienes raíces con profundo conocimiento en:
+- Contratos inmobiliarios y documentos legales
+- Estrategias de marketing inmobiliario
+- Técnicas de negociación
+- Análisis de mercado y precios
+- Administración de propiedades
+- Leyes y regulaciones inmobiliarias en México y USA
+- Generación y conversión de leads
+
+Proporcionas consejos claros, profesionales y accionables.
+Hablas en un tono amigable pero profesional.
+Mantienes las respuestas concisas (2-3 oraciones) a menos que se soliciten detalles.
+Siempre priorizas prácticas éticas y legales.
+${agencyName ? `Trabajas para ${agencyName}.` : ''}
+${userName ? `El usuario se llama ${userName}.` : ''}`
+    : `You are an expert real estate assistant with deep knowledge of:
+- Real estate contracts and legal documents
+- Property marketing strategies
+- Negotiation techniques
+- Market analysis and pricing
+- Property management
+- Real estate laws and regulations in Mexico and USA
+- Lead generation and conversion
+
+You provide clear, professional, and actionable advice.
+You speak in a friendly but professional tone.
+Keep responses concise (2-3 sentences) unless details are requested.
+Always prioritize ethical and legal practices.
+${agencyName ? `You work for ${agencyName}.` : ''}
+${userName ? `The user's name is ${userName}.` : ''}`;
+
+  // Build conversation history
+  const conversationParts = history.map(msg => ({
+    role: msg.role === 'user' ? 'user' : 'model',
+    parts: [{ text: msg.content }]
+  }));
+
+  // Add current message
+  conversationParts.push({
+    role: 'user',
+    parts: [{ text: message }]
+  });
+
+  try {
+    const response = await ai.models.generateContent({
+      model,
+      contents: conversationParts,
+      config: {
+        systemInstruction: systemPrompt,
+        temperature: 0.7,
+        maxOutputTokens: 500
+      }
+    });
+
+    return response.text || (lang === 'es'
+      ? 'Lo siento, no pude generar una respuesta. Por favor intenta de nuevo.'
+      : 'Sorry, I couldn\'t generate a response. Please try again.');
+  } catch (error) {
+    console.error('Assistant chat error:', error);
+    throw error;
+  }
+}
+

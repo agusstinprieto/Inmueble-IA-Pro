@@ -19,6 +19,7 @@ import LoginView from './components/LoginView';
 import SettingsView from './components/SettingsView';
 import PublicPortalView from './components/PublicPortalView';
 import PublicPropertyDetail from './components/PublicPropertyDetail';
+import AssistantView from './components/AssistantView';
 import { translations } from './translations';
 import {
   supabase, getUserProfile, getAgencyProfile, signOut, addProperty, getProperties, uploadPropertyImages, updateProperty, deleteProperty, updateUserProfile, updateAgencyProfile, getAgents, addAgent, updateAgent, deleteAgent, addSale, updateClient,
@@ -551,6 +552,15 @@ function App() {
             </button>
           )}
         </div>
+
+        {/* AI Voice Assistant - Always visible */}
+        {currentUser && (
+          <AssistantView
+            lang={lang}
+            userName={currentUser.name}
+            agencyName={currentUser.agencyName}
+          />
+        )}
       </div>
     );
   }
