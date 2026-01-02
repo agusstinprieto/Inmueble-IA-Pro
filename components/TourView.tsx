@@ -56,8 +56,10 @@ const TourView: React.FC<TourViewProps> = ({
     const [tourImageUrl, setTourImageUrl] = useState('');
     const [showAllProperties, setShowAllProperties] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [isFullscreen, setIsFullscreen] = useState(false);
 
     const viewerRef = React.useRef<HTMLDivElement>(null);
+    const containerRef = React.useRef<HTMLDivElement>(null);
 
     React.useEffect(() => {
         if (viewerStarted && activeTour?.virtualTourUrl && viewerRef.current) {
@@ -114,6 +116,33 @@ const TourView: React.FC<TourViewProps> = ({
         }
     };
 
+    const handleShare = async () => {
+        if (!activeTour) return;
+        const shareUrl = `${window.location.origin}/public/property/${activeTour.id}`;
+        try {
+            await navigator.clipboard.writeText(shareUrl);
+            alert(lang === 'es' ? '¡Enlace copiado al portapapeles!' : 'Link copied to clipboard!');
+        } catch (error) {
+            console.error('Error sharing:', error);
+        }
+    };
+
+    const handleFullscreen = () => {
+        if (!containerRef.current) return;
+
+        if (!document.fullscreenElement) {
+            containerRef.current.requestFullscreen().then(() => {
+                setIsFullscreen(true);
+            }).catch(err => {
+                console.error('Error entering fullscreen:', err);
+            });
+        } else {
+            document.exitFullscreen().then(() => {
+                setIsFullscreen(false);
+            });
+        }
+    };
+
     return (
         <div className="p-4 lg:p-8 space-y-8 animate-in fade-in duration-500">
             {/* Header */}
@@ -138,7 +167,7 @@ const TourView: React.FC<TourViewProps> = ({
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Active Tour Viewer */}
                 <div className="lg:col-span-8 space-y-6">
-                    <div className="aspect-video bg-zinc-900 rounded-[2.5rem] border border-zinc-800 overflow-hidden relative group shadow-2xl">
+                    <div ref={containerRef} className="aspect-video bg-zinc-900 rounded-[2.5rem] border border-zinc-800 overflow-hidden relative group shadow-2xl">
                         {activeTour ? (
                             <>
                                 <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity p-8">
@@ -148,8 +177,18 @@ const TourView: React.FC<TourViewProps> = ({
                                             <span className="text-[10px] font-black text-white uppercase tracking-widest italic">{lang === 'es' ? 'VIVO' : 'LIVE'}</span>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <button className="p-2 bg-black/60 backdrop-blur-md rounded-lg text-white hover:bg-white/10 transition-all"><Share2 size={18} /></button>
-                                            <button className="p-2 bg-black/60 backdrop-blur-md rounded-lg text-white hover:bg-white/10 transition-all"><Maximize2 size={18} /></button>
+                                            <button
+                                                onClick={handleShare}
+                                                className="p-2 bg-black/60 backdrop-blur-md rounded-lg text-white hover:bg-white/10 transition-all"
+                                            >
+                                                <Share2 size={18} />
+                                            </button>
+                                            <button
+                                                onClick={handleFullscreen}
+                                                className="p-2 bg-black/60 backdrop-blur-md rounded-lg text-white hover:bg-white/10 transition-all"
+                                            >
+                                                <Maximize2 size={18} />
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
