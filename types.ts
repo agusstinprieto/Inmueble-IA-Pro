@@ -43,6 +43,14 @@ export enum ContractType {
   PROMESA = 'PROMESA'
 }
 
+export enum ClientSegment {
+  VIP = 'VIP',           // High budget, high interest
+  HOT = 'HOT',           // Ready to close, recent activity
+  WARM = 'WARM',         // Interested, but in research phase
+  COLD = 'COLD',         // No response or inactive
+  NEW = 'NEW'            // Just registered
+}
+
 // ============ INTERFACES ============
 
 export interface Address {
@@ -94,6 +102,8 @@ export interface Property {
   dateUpdated?: string;
   views: number;
   favorites: number;
+  pros?: string[];
+  cons?: string[];
 }
 
 export interface Client {
@@ -115,6 +125,7 @@ export interface Client {
   viewedProperties: string[];
   dateAdded: string;
   source?: string; // Facebook, WhatsApp, Portal, etc.
+  segment?: ClientSegment;
 }
 
 export interface FollowUp {

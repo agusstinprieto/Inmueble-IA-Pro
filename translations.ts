@@ -126,6 +126,13 @@ export const translations = {
       CERRADO: 'Cerrado',
       PERDIDO: 'Perdido'
     },
+    client_segments: {
+      VIP: 'Inversionista (VIP)',
+      HOT: 'Próximo (Hot)',
+      WARM: 'En Espera (Warm)',
+      COLD: 'Archivo (Cold)',
+      NEW: 'Nuevo (New)'
+    },
 
     // Tipos de seguimiento
     follow_up_types: {
@@ -191,6 +198,13 @@ export const translations = {
     price_range: "Rango de Precios",
     compare_properties: "Comparar Propiedades",
     import_from_portal: "Importar de Portal",
+    market_insights: "INSIGHTS DE MERCADO",
+    inventory_mix: "MIX DE INVENTARIO",
+    avg_price_m2: "Precio Prom. m²",
+    market_liquidity: "Liquidez del Mercado",
+    total_value: "Valor Total del Mercado",
+    pros: "PROS / VENTAJAS",
+    cons: "CONTRAS / DESVENTAJAS",
 
     // ============ MAPA ============
     property_map: "MAPA DE PROPIEDADES",
@@ -392,6 +406,13 @@ export const translations = {
       CERRADO: 'Closed',
       PERDIDO: 'Lost'
     },
+    client_segments: {
+      VIP: 'Investor (VIP)',
+      HOT: 'Hot Lead',
+      WARM: 'Warm Lead',
+      COLD: 'Cold (Archived)',
+      NEW: 'New Lead'
+    },
 
     follow_up_types: {
       LLAMADA: 'Call',
@@ -456,6 +477,13 @@ export const translations = {
     price_range: "Price Range",
     compare_properties: "Compare Properties",
     import_from_portal: "Import from Portal",
+    market_insights: "MARKET INSIGHTS",
+    inventory_mix: "INVENTORY MIX",
+    avg_price_m2: "Avg Price m²",
+    market_liquidity: "Market Liquidity",
+    total_value: "Total Market Value",
+    pros: "PROS / ADVANTAGES",
+    cons: "CONS / DISADVANTAGES",
 
     // ============ MAP ============
     property_map: "Property Map",

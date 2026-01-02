@@ -6,8 +6,10 @@ import {
     MapPin,
     ArrowRightLeft,
     Home,
+    AlertCircle,
     DollarSign,
     Maximize2,
+    TrendingUp,
     Layers,
     ChevronDown,
     X,
@@ -40,6 +42,20 @@ const MarketSearchView: React.FC<MarketSearchViewProps> = ({
     const [neighborhoodFilter, setNeighborhoodFilter] = useState('');
     const [compareList, setCompareList] = useState<Property[]>([]);
     const [isComparing, setIsComparing] = useState(false);
+
+    // Calculate Market Insights
+    const totalMarketValue = properties.reduce((acc, p) => acc + Number(p.operation === OperationType.VENTA ? p.salePrice || 0 : p.rentPrice || 0), 0);
+    const avgPrice = properties.length > 0 ? totalMarketValue / properties.length : 0;
+
+    const propertiesWithM2 = properties.filter(p => (p.specs.m2Built || 0) > 0);
+    const avgPriceM2 = propertiesWithM2.length > 0
+        ? propertiesWithM2.reduce((acc, p) => acc + (Number(p.operation === OperationType.VENTA ? p.salePrice || 0 : p.rentPrice || 0) / (p.specs.m2Built || 1)), 0) / propertiesWithM2.length
+        : 0;
+
+    const typeDistribution = properties.reduce((acc, p) => {
+        acc[p.type] = (acc[p.type] || 0) + 1;
+        return acc;
+    }, {} as Record<string, number>);
 
     const filteredProperties = properties.filter(p => {
         const matchesSearch = p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -106,42 +122,82 @@ const MarketSearchView: React.FC<MarketSearchViewProps> = ({
                     </div>
 
                     {compareList.map(prop => (
-                        <div key={prop.id} className="bg-zinc-900/50 border border-zinc-800 rounded-3xl overflow-hidden group">
+                        <div key={prop.id} className="bg-zinc-900/50 border border-zinc-800 rounded-3xl overflow-hidden group hover:border-amber-500/30 transition-all">
                             <div className="aspect-[4/3] relative">
                                 <img src={prop.images[0]} alt={prop.title} className="w-full h-full object-cover" />
-                                <div className="absolute top-4 right-4 p-2 bg-black/60 backdrop-blur-md rounded-xl text-white">
-                                    <Maximize2 size={16} />
-                                </div>
-                                <div className="absolute bottom-4 left-4 right-4">
-                                    <div className="bg-white/10 backdrop-blur-md border border-white/20 p-3 rounded-2xl shadow-xl">
-                                        <h4 className="text-xs font-black text-white uppercase italic truncate">{prop.title}</h4>
+                                <button
+                                    onClick={() => toggleCompare(prop)}
+                                    className="absolute top-4 right-4 p-2 bg-red-500/80 hover:bg-red-500 backdrop-blur-md rounded-xl text-white transition-colors"
+                                >
+                                    <X size={16} />
+                                </button>
+                                <div className="absolute bottom-4 left-4 right-4 group-hover:bottom-6 transition-all duration-500">
+                                    <div className="bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl shadow-xl">
+                                        <h4 className="text-sm font-black text-white uppercase italic truncate mb-1">{prop.title}</h4>
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
+                                            <span className="text-[8px] font-black text-white/60 uppercase tracking-widest italic">{prop.status}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
                             <div className="p-6 space-y-4">
-                                <div className="h-12 flex items-center justify-center border-b border-zinc-800/50">
-                                    <span className="text-lg font-black text-white">
-                                        {formatCurrency(prop.operation === OperationType.VENTA ? prop.salePrice || 0 : prop.rentPrice || 0, prop.currency)}
-                                    </span>
+                                {/* Technical Specs Section */}
+                                <div className="space-y-4">
+                                    <div className="h-14 flex flex-col items-center justify-center border-b border-zinc-800/50 group/item hover:bg-white/5 transition-colors rounded-xl">
+                                        <p className="text-[8px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-1">Inversión</p>
+                                        <span className="text-xl font-black text-white italic tracking-tighter">
+                                            {formatCurrency(prop.operation === OperationType.VENTA ? prop.salePrice || 0 : prop.rentPrice || 0, prop.currency)}
+                                        </span>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div className="h-12 flex flex-col items-center justify-center border-b border-zinc-800/50 hover:bg-white/5 transition-colors rounded-xl">
+                                            <p className="text-[7px] font-black text-zinc-600 uppercase tracking-widest">Superficie</p>
+                                            <span className="text-xs font-bold text-zinc-300">{prop.specs.m2Built} m²</span>
+                                        </div>
+                                        <div className="h-12 flex flex-col items-center justify-center border-b border-zinc-800/50 hover:bg-white/5 transition-colors rounded-xl">
+                                            <p className="text-[7px] font-black text-zinc-600 uppercase tracking-widest">Habitaciones</p>
+                                            <span className="text-xs font-bold text-zinc-300">{prop.specs.bedrooms} Rec.</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="h-12 flex items-center justify-center border-b border-zinc-800/50">
-                                    <span className="text-sm font-bold text-zinc-400">{prop.specs.m2Built} m²</span>
+
+                                {/* Analysis Section (PROS & CONS) */}
+                                <div className="pt-4 border-t border-zinc-800 space-y-4">
+                                    <div className="space-y-2">
+                                        <p className="text-[8px] font-black text-teal-500 uppercase tracking-widest italic flex items-center gap-2">
+                                            <TrendingUp size={10} /> {t.pros}
+                                        </p>
+                                        <div className="space-y-1.5">
+                                            {(prop.pros || ['Ubicación estratégica', 'Alta plusvalía']).map((pro, i) => (
+                                                <div key={i} className="flex gap-2 items-start">
+                                                    <div className="mt-1 w-1 h-1 rounded-full bg-teal-500"></div>
+                                                    <p className="text-[10px] text-zinc-400 font-medium leading-tight">{pro}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <p className="text-[8px] font-black text-rose-500 uppercase tracking-widest italic flex items-center gap-2">
+                                            <AlertCircle size={10} /> {t.cons}
+                                        </p>
+                                        <div className="space-y-1.5">
+                                            {(prop.cons || ['Requiere remodelación parcial']).map((con, i) => (
+                                                <div key={i} className="flex gap-2 items-start">
+                                                    <div className="mt-1 w-1 h-1 rounded-full bg-rose-500"></div>
+                                                    <p className="text-[10px] text-zinc-400 font-medium leading-tight">{con}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="h-12 flex items-center justify-center border-b border-zinc-800/50">
-                                    <span className="text-sm font-bold text-zinc-400">{prop.specs.bedrooms} Rec.</span>
-                                </div>
-                                <div className="h-12 flex items-center justify-center border-b border-zinc-800/50">
-                                    <span className="text-sm font-bold text-zinc-400">{prop.specs.bathrooms} Baños</span>
-                                </div>
-                                <div className="h-12 flex items-center justify-center border-b border-zinc-800/50">
-                                    <span className="text-sm font-bold text-zinc-400">{prop.specs.parking} Cajones</span>
-                                </div>
-                                <div className="h-12 flex items-center justify-center border-b border-zinc-800/50">
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 italic">{prop.type}</span>
-                                </div>
-                                <div className="h-12 flex items-center justify-center">
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-green-500 italic">{prop.status}</span>
+
+                                <div className="pt-4">
+                                    <div className="h-12 flex items-center justify-center bg-zinc-900/50 rounded-2xl border border-zinc-800">
+                                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-500 italic">{prop.type}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -165,6 +221,66 @@ const MarketSearchView: React.FC<MarketSearchViewProps> = ({
 
     return (
         <div className="p-4 lg:p-8 space-y-8 animate-in fade-in duration-500">
+            {/* Market Insights Dashboard */}
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <div className="lg:col-span-1 bg-zinc-900/50 border border-zinc-800 rounded-[2rem] p-6 space-y-4">
+                    <div className="flex items-center gap-3">
+                        <TrendingUp className="text-amber-500" size={20} />
+                        <h3 className="text-white font-black italic uppercase tracking-tighter text-sm">{t.market_insights}</h3>
+                    </div>
+                    <div className="space-y-4">
+                        <div className="p-4 bg-black/40 rounded-2xl border border-zinc-800/50">
+                            <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-1">{t.avg_price_m2}</p>
+                            <p className="text-xl font-black text-white italic tracking-tighter">{formatCurrency(avgPriceM2, 'MXN')}</p>
+                        </div>
+                        <div className="p-4 bg-black/40 rounded-2xl border border-zinc-800/50">
+                            <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-1">{lang === 'es' ? 'Valor Promedio' : 'Average Value'}</p>
+                            <p className="text-xl font-black text-white italic tracking-tighter">{formatCurrency(avgPrice, 'MXN')}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="lg:col-span-2 bg-zinc-900/30 border border-zinc-800 rounded-[2rem] p-6 space-y-4 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 blur-[80px] rounded-full translate-x-1/2 -translate-y-1/2"></div>
+                    <div className="flex items-center justify-between relative z-10">
+                        <div className="flex items-center gap-3">
+                            <Layers className="text-amber-500" size={20} />
+                            <h3 className="text-white font-black italic uppercase tracking-tighter text-sm">{t.inventory_mix}</h3>
+                        </div>
+                        <span className="text-[10px] font-black text-zinc-500">{properties.length} {lang === 'es' ? 'Activos' : 'Actives'}</span>
+                    </div>
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pt-2 relative z-10">
+                        {Object.entries(typeDistribution).slice(0, 4).map(([type, count]) => (
+                            <div key={type} className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[9px] font-black text-zinc-500 uppercase italic truncate">{t.property_types[type as PropertyType]}</span>
+                                    <span className="text-[9px] font-black text-white">{((Number(count) / properties.length) * 100).toFixed(0)}%</span>
+                                </div>
+                                <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full bg-amber-500 rounded-full transition-all duration-1000"
+                                        style={{ width: `${(Number(count) / properties.length) * 100}%` }}
+                                    ></div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="lg:col-span-1 bg-gradient-to-br from-zinc-900 to-black border border-zinc-800 rounded-[2rem] p-6 flex flex-col justify-between">
+                    <div className="space-y-1">
+                        <p className="text-[9px] font-black text-amber-500 uppercase tracking-widest italic">{t.market_liquidity}</p>
+                        <h4 className="text-xl font-black text-white italic tracking-tighter uppercase">{lang === 'es' ? 'ALTA DEMANDA' : 'HIGH DEMAND'}</h4>
+                    </div>
+                    <div className="pt-4 mt-4 border-t border-zinc-800/50">
+                        <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-1">{t.total_value}</p>
+                        <p className="text-2xl font-black text-amber-500 italic tracking-tighter">
+                            ${(Number(totalMarketValue) / 1000000).toFixed(1)}M
+                        </p>
+                    </div>
+                </div>
+            </div>
+
             {/* Search Header */}
             <div className="bg-gradient-to-br from-zinc-900 via-black to-black border border-zinc-800 rounded-[2.5rem] p-8 lg:p-12 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/5 blur-[100px] rounded-full translate-x-1/2 -translate-y-1/2"></div>
@@ -177,8 +293,8 @@ const MarketSearchView: React.FC<MarketSearchViewProps> = ({
                         </div>
                     </div>
                     <h1 className="text-4xl lg:text-5xl font-black text-white italic tracking-tighter uppercase leading-none">
-                        {lang === 'es' ? 'DESCUBRE TU PRÓXIMO' : 'DISCOVER YOUR NEXT'} <br />
-                        <span style={{ color: brandColor }}>{lang === 'es' ? 'ESPACIO IDEAL' : 'IDEAL SPACE'}</span>
+                        {lang === 'es' ? 'BUSCADOR DE' : 'DISCOVER THE'} <br />
+                        <span style={{ color: brandColor }}>{lang === 'es' ? 'OPORTUNIDADES' : 'OPPORTUNITIES'}</span>
                     </h1>
 
                     <div className="space-y-4 pt-4">
@@ -353,8 +469,11 @@ const MarketSearchView: React.FC<MarketSearchViewProps> = ({
                                             {formatCurrency(prop.operation === OperationType.VENTA ? prop.salePrice || 0 : prop.rentPrice || 0, prop.currency)}
                                         </p>
                                     </div>
-                                    <button className="w-12 h-12 bg-zinc-800/50 border border-zinc-700 rounded-2xl flex items-center justify-center text-zinc-300 hover:bg-white hover:text-black hover:border-white transition-all">
-                                        <Info size={20} />
+                                    <button
+                                        onClick={() => toggleCompare(prop)}
+                                        className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${isSelected ? 'bg-amber-500 text-black' : 'bg-zinc-800/50 border border-zinc-700 text-zinc-300 hover:bg-white hover:text-black hover:border-white'}`}
+                                    >
+                                        {isSelected ? <CheckCircle2 size={20} /> : <ArrowRightLeft size={20} />}
                                     </button>
                                 </div>
                             </div>

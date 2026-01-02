@@ -19,10 +19,17 @@ import {
     DollarSign,
     Building2,
     MapPin,
-    X
+    X,
+    Flame,
+    Snowflake,
+    Zap,
+    Target,
+    Sparkles,
+    ShieldCheck,
+    TrendingUp
 } from 'lucide-react';
 import { translations } from '../translations';
-import { Client, ClientStatus, FollowUp, Property, OperationType, PropertyType } from '../types';
+import { Client, ClientStatus, FollowUp, Property, OperationType, PropertyType, ClientSegment } from '../types';
 import { sendFollowUp, sendPropertyInfo, sendGreeting, openWhatsApp } from '../services/whatsapp';
 
 interface CRMViewProps {
@@ -52,10 +59,36 @@ const CRMView: React.FC<CRMViewProps> = ({
 
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState<ClientStatus | 'ALL'>('ALL');
+    const [segmentFilter, setSegmentFilter] = useState<ClientSegment | 'ALL'>('ALL');
     const [selectedClient, setSelectedClient] = useState<Client | null>(null);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showFollowUpModal, setShowFollowUpModal] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
+
+    // Segmentation Logic
+    const getClientSegment = (client: Client): ClientSegment => {
+        // 1. VIP (Inversionista)
+        if (client.budgetMax >= 5000000) return ClientSegment.VIP;
+
+        // 2. HOT (Próximo)
+        if (client.status === ClientStatus.EN_NEGOCIACION) return ClientSegment.HOT;
+
+        // 3. COLD (Archivo)
+        if (client.status === ClientStatus.PERDIDO) return ClientSegment.COLD;
+
+        const lastFollowUp = client.followUps.length > 0
+            ? new Date(client.followUps[client.followUps.length - 1].date)
+            : new Date(client.dateAdded);
+        const daysSinceActivity = (Date.now() - lastFollowUp.getTime()) / (1000 * 60 * 60 * 24);
+
+        if (daysSinceActivity > 15) return ClientSegment.COLD;
+
+        // 4. WARM (En Espera)
+        if (client.status === ClientStatus.CONTACTADO || client.followUps.length > 2) return ClientSegment.WARM;
+
+        // 5. NEW (Nuevo)
+        return ClientSegment.NEW;
+    };
 
     // New client form
     const [newClient, setNewClient] = useState<Partial<Client>>({
@@ -89,9 +122,19 @@ const CRMView: React.FC<CRMViewProps> = ({
             client.email?.toLowerCase().includes(searchQuery.toLowerCase());
 
         const matchesStatus = statusFilter === 'ALL' || client.status === statusFilter;
+        const matchesSegment = segmentFilter === 'ALL' || getClientSegment(client) === segmentFilter;
 
-        return matchesSearch && matchesStatus;
+        return matchesSearch && matchesStatus && matchesSegment;
     });
+
+    // Segment UI Data
+    const segmentConfig: Record<ClientSegment, { color: string, icon: any }> = {
+        [ClientSegment.VIP]: { color: '#f59e0b', icon: Sparkles },
+        [ClientSegment.HOT]: { color: '#ef4444', icon: Flame },
+        [ClientSegment.WARM]: { color: '#8b5cf6', icon: Zap },
+        [ClientSegment.COLD]: { color: '#6b7280', icon: Snowflake },
+        [ClientSegment.NEW]: { color: '#3b82f6', icon: Target }
+    };
 
     // Status colors
     const getStatusColor = (status: ClientStatus) => {
@@ -202,7 +245,8 @@ const CRMView: React.FC<CRMViewProps> = ({
         total: clients.length,
         new: clients.filter(c => c.status === ClientStatus.NUEVO).length,
         negotiating: clients.filter(c => c.status === ClientStatus.EN_NEGOCIACION).length,
-        closed: clients.filter(c => c.status === ClientStatus.CERRADO).length
+        closed: clients.filter(c => c.status === ClientStatus.CERRADO).length,
+        vip: clients.filter(c => getClientSegment(c) === ClientSegment.VIP).length
     };
 
     return (
@@ -250,9 +294,37 @@ const CRMView: React.FC<CRMViewProps> = ({
                     <p className="text-3xl font-bold text-amber-400 mt-1">{stats.negotiating}</p>
                 </div>
                 <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
-                    <p className="text-zinc-400 text-sm">Cerrados</p>
-                    <p className="text-3xl font-bold text-green-400 mt-1">{stats.closed}</p>
+                    <p className="text-zinc-400 text-sm">Inversionistas VIP</p>
+                    <p className="text-3xl font-bold text-amber-500 mt-1">{stats.vip}</p>
                 </div>
+            </div>
+
+            {/* Segmentation Bar */}
+            <div className="bg-zinc-900 border border-zinc-800 p-2 rounded-2xl flex flex-wrap gap-2">
+                <button
+                    onClick={() => setSegmentFilter('ALL')}
+                    className={`px-4 py-2 rounded-xl text-xs font-black uppercase italic transition-all ${segmentFilter === 'ALL' ? 'bg-white text-black' : 'text-zinc-500 hover:text-white'}`}
+                >
+                    Todos
+                </button>
+                {Object.values(ClientSegment).map(segment => {
+                    const Config = segmentConfig[segment];
+                    const Icon = Config.icon;
+                    return (
+                        <button
+                            key={segment}
+                            onClick={() => setSegmentFilter(segment)}
+                            className={`
+                                flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase italic transition-all
+                                ${segmentFilter === segment ? 'bg-zinc-800 ring-1 ring-zinc-700' : 'text-zinc-500 hover:text-white'}
+                            `}
+                            style={segmentFilter === segment ? { color: Config.color } : {}}
+                        >
+                            <Icon size={14} />
+                            {t.client_segments[segment]}
+                        </button>
+                    );
+                })}
             </div>
 
             {/* Filters & Search */}
@@ -325,8 +397,22 @@ const CRMView: React.FC<CRMViewProps> = ({
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
+                                        {(() => {
+                                            const segment = getClientSegment(client);
+                                            const Config = segmentConfig[segment];
+                                            const Icon = Config.icon;
+                                            return (
+                                                <span
+                                                    className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase italic"
+                                                    style={{ backgroundColor: Config.color + '20', color: Config.color }}
+                                                >
+                                                    <Icon size={10} />
+                                                    {t.client_segments[segment]}
+                                                </span>
+                                            );
+                                        })()}
                                         <span
-                                            className="px-3 py-1 rounded-full text-xs font-semibold"
+                                            className="px-3 py-1 rounded-full text-[10px] font-black uppercase italic"
                                             style={{
                                                 backgroundColor: getStatusColor(client.status) + '20',
                                                 color: getStatusColor(client.status)
