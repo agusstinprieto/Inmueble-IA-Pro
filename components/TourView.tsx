@@ -61,6 +61,16 @@ const TourView: React.FC<TourViewProps> = ({
     const viewerRef = React.useRef<HTMLDivElement>(null);
     const containerRef = React.useRef<HTMLDivElement>(null);
 
+    // Debug logging
+    React.useEffect(() => {
+        if (activeTour) {
+            console.log('🎯 Active Tour:', activeTour.title);
+            console.log('🔗 Virtual Tour URL:', activeTour.virtualTourUrl);
+            console.log('▶️ Viewer Started:', viewerStarted);
+            console.log('⏳ Is Loading:', isLoading);
+        }
+    }, [activeTour, viewerStarted, isLoading]);
+
     React.useEffect(() => {
         if (viewerStarted && activeTour?.virtualTourUrl && viewerRef.current) {
             setIsLoading(true);
