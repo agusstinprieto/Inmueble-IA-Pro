@@ -99,10 +99,9 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
     // Welcome message
     useEffect(() => {
         if (messages.length === 0) {
-            const safeName = userName && !userName.includes('-') ? userName : (lang === 'es' ? 'Asociado' : 'Associate');
             const welcomeText = lang === 'es'
-                ? `¡Hola ${safeName}! Soy tu asistente de ${agencyName || 'Inmueble IA Pro'}. ¿En qué puedo ayudarte?`
-                : `Hello ${safeName}! I'm your ${agencyName || 'Inmueble IA Pro'} assistant. How can I help you?`;
+                ? `¡Hola! ¿En qué te ayudo hoy?`
+                : `Hi! How can I help you today?`;
 
             setMessages([{
                 role: 'assistant',
@@ -110,7 +109,7 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
                 timestamp: new Date()
             }]);
         }
-    }, [userName, agencyName, lang]);
+    }, [lang]);
 
     // Auto-scroll to bottom
     useEffect(() => {
@@ -197,33 +196,43 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
             const voices = window.speechSynthesis.getVoices();
             if (voices.length === 0) return;
 
-            // Log available voices once to help debug if needed
-            // console.log('Available voices:', voices.map(v => `${v.name} (${v.lang})`));
-
             const femalePatterns = [
                 'Google español', 'Dalia', 'Helena', 'Sabina', 'Elsa', 'Zira', 'Microsoft Salma',
-                'Microsoft Larisa', 'Monica', 'Libby', 'Lucia', 'google us english female', 'swara'
+                'Microsoft Larisa', 'Monica', 'Libby', 'Lucia', 'google us english female', 'swara',
+                'Hilda', 'Pilar', 'Rosa', 'Lorena', 'Google UK English Female', 'Microsoft Elena',
+                'Microsoft Laura', 'Microsoft Dalia', 'Google US English'
             ];
 
             const maleExclusions = [
                 'male', 'guy', 'david', 'pablo', 'raul', 'antonio', 'sergio', 'kevin', 'james',
-                'microsoft paul', 'microsoft stefan', 'google us english male', 'jorge', 'juan'
+                'paul', 'stefan', 'jorge', 'juan', 'ricardo', 'diego', 'carlos', 'paco', 'luis',
+                'enrique', 'fernando', 'manuel', 'jose', 'javier', 'alberto', 'rafael', 'antonio'
             ];
 
             const qualityPatterns = ['Natural', 'Online', 'Neural', 'Premium'];
             const targetLang = lang === 'es' ? 'es' : 'en';
 
-            const availableVoices = voices.filter(v =>
+            // Filter strictly: exclude males AND must be target language
+            let availableVoices = voices.filter(v =>
+                v.lang.toLowerCase().startsWith(targetLang) &&
                 !maleExclusions.some(m => v.name.toLowerCase().includes(m))
             );
 
+            // If no voices left after strict filtering, allow any for that lang but still exclude males
+            if (availableVoices.length === 0) {
+                availableVoices = voices.filter(v =>
+                    v.lang.toLowerCase().startsWith(targetLang) &&
+                    !v.name.toLowerCase().includes('male') &&
+                    !v.name.toLowerCase().includes('guy')
+                );
+            }
+
             let selectedVoice = null;
 
-            // Tier 1: Lang + Pattern + Quality
+            // Tier 1: Search for known high-quality female voices (Online/Natural)
             for (const q of qualityPatterns) {
                 for (const name of femalePatterns) {
                     selectedVoice = availableVoices.find(v =>
-                        v.lang.toLowerCase().startsWith(targetLang) &&
                         (v.name.includes(name) || v.name.toLowerCase().includes(name.toLowerCase())) &&
                         v.name.includes(q)
                     );
@@ -232,50 +241,45 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
                 if (selectedVoice) break;
             }
 
-            // Tier 2: Lang + Quality
+            // Tier 2: Any Online voice for the language
             if (!selectedVoice) {
-                for (const q of qualityPatterns) {
-                    selectedVoice = availableVoices.find(v =>
-                        v.lang.toLowerCase().startsWith(targetLang) &&
-                        v.name.includes(q)
-                    );
-                    if (selectedVoice) break;
-                }
+                selectedVoice = availableVoices.find(v => v.name.includes('Online'));
             }
 
-            // Tier 3: Lang + Female Pattern (ignore quality)
+            // Tier 3: Search for any quality female voice pattern
             if (!selectedVoice) {
                 for (const name of femalePatterns) {
                     selectedVoice = availableVoices.find(v =>
-                        v.lang.toLowerCase().startsWith(targetLang) &&
                         v.name.toLowerCase().includes(name.toLowerCase())
                     );
                     if (selectedVoice) break;
                 }
             }
 
-            // Tier 4: Lang + Check for 'female' or 'f' in metadata (some browsers)
+            // Tier 4: Search for quality tags in target language
             if (!selectedVoice) {
-                selectedVoice = availableVoices.find(v =>
-                    v.lang.toLowerCase().startsWith(targetLang) &&
-                    (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes(' f '))
-                );
+                for (const q of qualityPatterns) {
+                    selectedVoice = availableVoices.find(v => v.name.includes(q));
+                    if (selectedVoice) break;
+                }
             }
 
-            // Tier 5: Just any non-male voice for the language
+            // Tier 5: Just pick the first non-male voice for the language
             if (!selectedVoice) {
-                selectedVoice = availableVoices.find(v => v.lang.toLowerCase().startsWith(targetLang));
+                selectedVoice = availableVoices[0] || voices.find(v => v.lang.startsWith(targetLang));
             }
 
             if (selectedVoice) {
                 utterance.voice = selectedVoice;
                 const isVerifiedFemale = femalePatterns.some(p => selectedVoice!.name.toLowerCase().includes(p.toLowerCase()));
-                // If not verified female, go much higher to guarantee feminine sound
-                utterance.pitch = isVerifiedFemale ? 1.1 : 1.55;
-                utterance.rate = 0.92; // Slightly slower for warmth
+                const isMicrosoft = selectedVoice.name.includes('Microsoft');
+
+                // Fine-tuning for naturalness
+                utterance.pitch = isVerifiedFemale ? 1.05 : 1.2;
+                utterance.rate = isMicrosoft ? 0.95 : 1.0;
             } else {
-                utterance.pitch = 1.6; // Extremely high to fail-safe into feminine tone
-                utterance.rate = 0.92;
+                utterance.pitch = 1.25;
+                utterance.rate = 1.0;
             }
 
             utterance.onstart = () => setIsSpeaking(true);
