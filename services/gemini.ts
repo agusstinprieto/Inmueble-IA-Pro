@@ -145,7 +145,7 @@ export async function analyzePropertyImages(
     throw new Error('VITE_GEMINI_API_KEY is not configured');
   }
   const ai = new GoogleGenAI({ apiKey });
-  const model = 'gemini-1.5-flash';
+  const model = 'gemini-2.5-flash';
 
   const imageParts = base64Images.map(img => ({
     inlineData: {
@@ -190,7 +190,7 @@ export async function getPropertyValuation(
   if (!apiKey) throw new Error('VITE_GEMINI_API_KEY not found');
 
   const ai = new GoogleGenAI({ apiKey });
-  const model = 'gemini-2.0-flash-exp'; // Using experimental for broader availability
+  const model = 'gemini-2.5-flash'; // Using experimental for broader availability
   const reg = getRegionalInfo(location);
 
   const prompt = `Realiza una valuación inmobiliaria profesional y un estudio de mercado para:
@@ -238,7 +238,7 @@ export async function searchSimilarProperties(
 ): Promise<MarketAnalysis> {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   const ai = new GoogleGenAI({ apiKey });
-  const model = 'gemini-1.5-flash';
+  const model = 'gemini-2.5-flash';
   const reg = getRegionalInfo(location);
 
   const prompt = `Busca propiedades similares en el mercado de ${location}:
@@ -290,7 +290,7 @@ export async function generatePropertyListing(
 ): Promise<string> {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   const ai = new GoogleGenAI({ apiKey });
-  const model = 'gemini-1.5-flash';
+  const model = 'gemini-2.5-flash';
   const reg = getRegionalInfo(location);
 
   const operationText = property.operation === 'VENTA' ? 'venta' : 'renta';
@@ -346,7 +346,7 @@ export async function generateSocialAd(
 ): Promise<string> {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   const ai = new GoogleGenAI({ apiKey });
-  const model = 'gemini-1.5-flash';
+  const model = 'gemini-2.5-flash';
   const reg = getRegionalInfo(location);
 
   const operationText = property.operation === 'VENTA' ? 'venta' : 'renta';
@@ -414,7 +414,7 @@ export async function analyzePropertyText(
 ): Promise<{ properties: PropertyAnalysis[] }> {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   const ai = new GoogleGenAI({ apiKey });
-  const model = 'gemini-1.5-flash';
+  const model = 'gemini-2.5-flash';
 
   const response = await ai.models.generateContent({
     model,
@@ -441,7 +441,7 @@ export async function getImprovementSuggestions(
 ): Promise<string> {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   const ai = new GoogleGenAI({ apiKey });
-  const model = 'gemini-1.5-flash';
+  const model = 'gemini-2.5-flash';
   const reg = getRegionalInfo(location);
 
   const prompt = `Como experto en valorización inmobiliaria, analiza esta propiedad y sugiere mejoras para aumentar su valor:
@@ -481,7 +481,7 @@ export async function generatePropertyDescription(
 ): Promise<string> {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   const ai = new GoogleGenAI({ apiKey });
-  const model = 'gemini-1.5-flash';
+  const model = 'gemini-2.5-flash';
 
   const prompt = `Genera una descripción profesional para esta propiedad:
   Tipo: ${property.type}
@@ -521,7 +521,7 @@ export async function extractPropertyFromHtml(
   if (!apiKey) return null;
 
   const ai = new GoogleGenAI({ apiKey });
-  const model = 'gemini-1.5-flash';
+  const model = 'gemini-2.5-flash';
 
   // Clean HTML to reduce noise
   const cleanHtml = html
@@ -606,7 +606,7 @@ export async function chatWithAssistant(
   }
 
   const ai = new GoogleGenAI({ apiKey });
-  const model = 'gemini-1.5-flash';
+  const model = 'gemini-2.5-flash';
 
   const systemPrompt = lang === 'es'
     ? `Eres un asistente experto en bienes raíces.
