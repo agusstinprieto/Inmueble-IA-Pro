@@ -55,19 +55,31 @@ const TourView: React.FC<TourViewProps> = ({
     const [isSaving, setIsSaving] = useState(false);
     const [tourImageUrl, setTourImageUrl] = useState('');
     const [showAllProperties, setShowAllProperties] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const viewerRef = React.useRef<HTMLDivElement>(null);
 
     React.useEffect(() => {
         if (viewerStarted && activeTour?.virtualTourUrl && viewerRef.current) {
-            // Give time for the container to be ready
+            setIsLoading(true);
             const timer = setTimeout(() => {
                 if (window.pannellum) {
-                    window.pannellum.viewer(viewerRef.current, {
+                    const viewer = window.pannellum.viewer(viewerRef.current, {
                         type: 'equirectangular',
                         panorama: activeTour.virtualTourUrl,
                         autoLoad: true,
                         showControls: true
+                    });
+
+                    // Listen for load event
+                    viewer.on('load', () => {
+                        setIsLoading(false);
+                    });
+
+                    // Handle errors
+                    viewer.on('error', () => {
+                        setIsLoading(false);
+                        console.error('Error loading 360 tour');
                     });
                 }
             }, 100);
@@ -136,7 +148,29 @@ const TourView: React.FC<TourViewProps> = ({
                                     </div>
                                 </div>
                                 {viewerStarted && activeTour.virtualTourUrl ? (
-                                    <div ref={viewerRef} className="absolute inset-0 z-20" />
+                                    <>
+                                        <div ref={viewerRef} className="absolute inset-0 z-20" />
+                                        {isLoading && (
+                                            <div className="absolute inset-0 z-30 bg-black/80 backdrop-blur-md flex items-center justify-center">
+                                                <div className="text-center space-y-4">
+                                                    <div className="relative">
+                                                        <Loader2 className="text-amber-500 animate-spin" size={48} />
+                                                        <div className="absolute inset-0 flex items-center justify-center">
+                                                            <div className="w-8 h-8 border-2 border-amber-500/20 rounded-full"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <p className="text-white font-black text-sm uppercase italic tracking-wider">
+                                                            {lang === 'es' ? 'Cargando Experiencia 360°' : 'Loading 360° Experience'}
+                                                        </p>
+                                                        <p className="text-zinc-400 text-xs font-bold italic">
+                                                            {lang === 'es' ? 'Preparando vista inmersiva...' : 'Preparing immersive view...'}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </>
                                 ) : (
                                     <div className="absolute inset-0 flex items-center justify-center">
                                         <img src={activeTour.images[0]} className="w-full h-full object-cover blur-[2px] opacity-40 scale-110" alt="" />
