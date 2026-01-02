@@ -96,23 +96,84 @@ const MarketSearchView: React.FC<MarketSearchViewProps> = ({
     };
 
     const renderDuelView = () => {
-        const [p1, p2] = compareList;
-        const p1Price = p1.operation === OperationType.VENTA ? p1.salePrice || 0 : p1.rentPrice || 0;
-        const p2Price = p2.operation === OperationType.VENTA ? p2.salePrice || 0 : p2.rentPrice || 0;
+        const isTriple = compareList.length === 3;
+        const [p1, p2, p3] = compareList;
+
+        const getPrice = (p: Property) => p.operation === OperationType.VENTA ? p.salePrice || 0 : p.rentPrice || 0;
+        const p1Price = getPrice(p1);
+        const p2Price = getPrice(p2);
+        const p3Price = isTriple ? getPrice(p3!) : null;
+
         const p1PriceM2 = Number(p1Price) / (p1.specs.m2Built || 1);
         const p2PriceM2 = Number(p2Price) / (p2.specs.m2Built || 1);
+        const p3PriceM2 = isTriple ? Number(p3Price) / (p3!.specs.m2Built || 1) : null;
+
+        const getWinner = (v1: number, v2: number, v3: number | null, mode: 'min' | 'max') => {
+            const vals = [v1, v2];
+            if (v3 !== null) vals.push(v3);
+            const target = mode === 'min' ? Math.min(...vals) : Math.max(...vals);
+            if (v1 === target) return 1;
+            if (v2 === target) return 2;
+            if (v3 === target) return 3;
+            return null;
+        };
 
         const rows = [
-            { label: lang === 'es' ? 'Precio' : 'Price', v1: formatCurrencyInternal(Number(p1Price), p1.currency || 'MXN'), v2: formatCurrencyInternal(Number(p2Price), p2.currency || 'MXN'), better: Number(p1Price) < Number(p2Price) ? 1 : 2 },
-            { label: lang === 'es' ? 'Precio m²' : 'Price m²', v1: formatCurrencyInternal(p1PriceM2, p1.currency || 'MXN'), v2: formatCurrencyInternal(p2PriceM2, p2.currency || 'MXN'), better: p1PriceM2 < p2PriceM2 ? 1 : 2 },
-            { label: lang === 'es' ? 'Superficie' : 'Area', v1: `${p1.specs.m2Built} m²`, v2: `${p2.specs.m2Built} m²`, better: p1.specs.m2Built > p2.specs.m2Built ? 1 : 2 },
-            { label: lang === 'es' ? 'Habitaciones' : 'Bedrooms', v1: p1.specs.bedrooms, v2: p2.specs.bedrooms, better: p1.specs.bedrooms > p2.specs.bedrooms ? 1 : 2 },
-            { label: lang === 'es' ? 'Baños' : 'Bathrooms', v1: p1.specs.bathrooms, v2: p2.specs.bathrooms, better: p1.specs.bathrooms > p2.specs.bathrooms ? 1 : 2 },
-            { label: lang === 'es' ? 'Cajones' : 'Parking', v1: p1.specs.parking, v2: p2.specs.parking, better: p1.specs.parking > p2.specs.parking ? 1 : 2 },
+            {
+                label: lang === 'es' ? 'Precio' : 'Price',
+                v1: formatCurrencyInternal(Number(p1Price), p1.currency || 'MXN'),
+                v2: formatCurrencyInternal(Number(p2Price), p2.currency || 'MXN'),
+                v3: isTriple ? formatCurrencyInternal(Number(p3Price), p3!.currency || 'MXN') : null,
+                better: getWinner(Number(p1Price), Number(p2Price), p3Price ? Number(p3Price) : null, 'min')
+            },
+            {
+                label: lang === 'es' ? 'Precio m²' : 'Price m²',
+                v1: formatCurrencyInternal(p1PriceM2, p1.currency || 'MXN'),
+                v2: formatCurrencyInternal(p2PriceM2, p2.currency || 'MXN'),
+                v3: isTriple ? formatCurrencyInternal(p3PriceM2!, p3!.currency || 'MXN') : null,
+                better: getWinner(p1PriceM2, p2PriceM2, p3PriceM2, 'min')
+            },
+            {
+                label: lang === 'es' ? 'Superficie' : 'Area',
+                v1: `${p1.specs.m2Built} m²`,
+                v2: `${p2.specs.m2Built} m²`,
+                v3: isTriple ? `${p3!.specs.m2Built} m²` : null,
+                better: getWinner(p1.specs.m2Built, p2.specs.m2Built, p3?.specs.m2Built || null, 'max')
+            },
+            {
+                label: lang === 'es' ? 'Habitaciones' : 'Bedrooms',
+                v1: p1.specs.bedrooms,
+                v2: p2.specs.bedrooms,
+                v3: isTriple ? p3!.specs.bedrooms : null,
+                better: getWinner(p1.specs.bedrooms, p2.specs.bedrooms, p3?.specs.bedrooms || null, 'max')
+            },
+            {
+                label: lang === 'es' ? 'Baños' : 'Bathrooms',
+                v1: p1.specs.bathrooms,
+                v2: p2.specs.bathrooms,
+                v3: isTriple ? p3!.specs.bathrooms : null,
+                better: getWinner(p1.specs.bathrooms, p2.specs.bathrooms, p3?.specs.bathrooms || null, 'max')
+            },
+            {
+                label: lang === 'es' ? 'Cajones' : 'Parking',
+                v1: p1.specs.parking,
+                v2: p2.specs.parking,
+                v3: isTriple ? p3!.specs.parking : null,
+                better: getWinner(p1.specs.parking, p2.specs.parking, p3?.specs.parking || null, 'max')
+            },
         ];
 
+        const bestProp = (() => {
+            const m2vals = [p1PriceM2, p2PriceM2];
+            if (p3PriceM2 !== null) m2vals.push(p3PriceM2);
+            const minM2 = Math.min(...m2vals);
+            if (minM2 === p1PriceM2) return p1;
+            if (minM2 === p2PriceM2) return p2;
+            return p3!;
+        })();
+
         return (
-            <div className="min-h-screen bg-black p-4 lg:p-8 space-y-8 animate-in fade-in zoom-in duration-500 overflow-y-auto">
+            <div className="min-h-screen bg-black p-4 lg:p-8 space-y-8 animate-in fade-in zoom-in duration-500 overflow-y-auto pb-32">
                 {/* Duel Header */}
                 <div className="flex items-center justify-between bg-zinc-900/50 border border-zinc-800 p-6 rounded-[2.5rem]">
                     <button
@@ -124,22 +185,25 @@ const MarketSearchView: React.FC<MarketSearchViewProps> = ({
                     </button>
                     <div className="flex items-center gap-3">
                         <ArrowRightLeft className="text-amber-500" size={24} />
-                        <h1 className="text-2xl font-black text-white italic tracking-tighter uppercase">{t.duel_mode}</h1>
+                        <h1 className="text-2xl font-black text-white italic tracking-tighter uppercase">
+                            {isTriple ? (lang === 'es' ? 'Duelo Triple' : 'Triple Duel') : t.duel_mode}
+                        </h1>
                     </div>
                     <div className="w-20 lg:block hidden"></div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 gap-8">
                     {/* Duel Table */}
-                    <div className="lg:col-span-2 bg-zinc-900/30 border border-zinc-800 rounded-[3rem] overflow-hidden">
-                        <div className="grid grid-cols-3 bg-zinc-800/50 p-6 border-b border-zinc-800">
-                            <div className="text-zinc-500 text-[10px] font-black uppercase italic tracking-widest">{t.difference}</div>
-                            <div className="text-center font-black uppercase italic text-amber-500 truncate">{p1.title}</div>
-                            <div className="text-center font-black uppercase italic text-amber-500 truncate">{p2.title}</div>
+                    <div className="bg-zinc-900/30 border border-zinc-800 rounded-[3rem] overflow-hidden">
+                        <div className={`grid ${isTriple ? 'grid-cols-4' : 'grid-cols-3'} bg-zinc-800/50 p-6 border-b border-zinc-800`}>
+                            <div className="text-zinc-500 text-[10px] font-black uppercase italic tracking-widest self-center">{t.difference}</div>
+                            <div className="text-center font-black uppercase italic text-amber-500 truncate px-2">{p1.title}</div>
+                            <div className="text-center font-black uppercase italic text-amber-500 truncate px-2">{p2.title}</div>
+                            {isTriple && <div className="text-center font-black uppercase italic text-amber-500 truncate px-2">{p3!.title}</div>}
                         </div>
                         <div className="divide-y divide-zinc-800/50">
                             {rows.map((row, i) => (
-                                <div key={i} className="grid grid-cols-3 p-6 hover:bg-white/5 transition-colors group">
+                                <div key={i} className={`grid ${isTriple ? 'grid-cols-4' : 'grid-cols-3'} p-6 hover:bg-white/5 transition-colors group`}>
                                     <div className="text-zinc-400 text-xs font-black uppercase italic tracking-tighter self-center">{row.label}</div>
                                     <div className={`text-center transition-all ${row.better === 1 ? 'scale-110' : 'opacity-40'}`}>
                                         <span className={`text-lg font-black italic tracking-tighter ${row.better === 1 ? 'text-white' : 'text-zinc-500'}`}>{row.v1}</span>
@@ -149,54 +213,65 @@ const MarketSearchView: React.FC<MarketSearchViewProps> = ({
                                         <span className={`text-lg font-black italic tracking-tighter ${row.better === 2 ? 'text-white' : 'text-zinc-500'}`}>{row.v2}</span>
                                         {row.better === 2 && <div className="text-[8px] text-green-500 font-bold uppercase mt-1">+{t.winner}</div>}
                                     </div>
+                                    {isTriple && (
+                                        <div className={`text-center transition-all ${row.better === 3 ? 'scale-110' : 'opacity-40'}`}>
+                                            <span className={`text-lg font-black italic tracking-tighter ${row.better === 3 ? 'text-white' : 'text-zinc-500'}`}>{row.v3}</span>
+                                            {row.better === 3 && <div className="text-[8px] text-green-500 font-bold uppercase mt-1">+{t.winner}</div>}
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </div>
                     </div>
 
                     {/* Qualitative Analysis */}
-                    {[p1, p2].map((prop, idx) => (
-                        <div key={prop.id} className="bg-zinc-900/50 border border-zinc-800 rounded-[3rem] p-8 space-y-8 relative overflow-hidden group">
-                            <div className="flex items-center gap-4 border-b border-zinc-800/50 pb-6">
-                                <img src={prop.images[0]} className="w-16 h-16 rounded-2xl object-cover shrink-0" alt="" />
-                                <div>
-                                    <p className="text-[10px] font-black text-amber-500 uppercase tracking-widest italic">{lang === 'es' ? 'Propiedad' : 'Property'} {idx + 1}</p>
-                                    <h4 className="text-xl font-black text-white italic tracking-tighter uppercase truncate">{prop.title}</h4>
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="space-y-4">
-                                    <p className="text-xs font-black text-teal-500 uppercase tracking-widest italic flex items-center gap-2"><TrendingUp size={14} /> {t.pros}</p>
-                                    <div className="space-y-3">
-                                        {(prop.pros || [lang === 'es' ? 'Ubicación' : 'Location']).map((pro, i) => (
-                                            <div key={i} className="flex gap-3 items-start bg-teal-500/5 p-3 rounded-2xl border border-teal-500/10"><div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-teal-500 shrink-0"></div><p className="text-xs text-zinc-400">{pro}</p></div>
-                                        ))}
+                    <div className={`grid grid-cols-1 ${isTriple ? 'lg:grid-cols-3' : 'lg:grid-cols-2'} gap-8`}>
+                        {compareList.map((prop, idx) => (
+                            <div key={prop.id} className="bg-zinc-900/50 border border-zinc-800 rounded-[3rem] p-8 space-y-8 relative overflow-hidden group">
+                                <div className="flex items-center gap-4 border-b border-zinc-800/50 pb-6">
+                                    <img src={prop.images[0]} className="w-16 h-16 rounded-2xl object-cover shrink-0 shadow-xl" alt="" />
+                                    <div className="min-w-0">
+                                        <p className="text-[10px] font-black text-amber-500 uppercase tracking-widest italic">{lang === 'es' ? 'Propiedad' : 'Property'} {idx + 1}</p>
+                                        <h4 className="text-lg font-black text-white italic tracking-tighter uppercase truncate leading-tight">{prop.title}</h4>
                                     </div>
                                 </div>
-                                <div className="space-y-4">
-                                    <p className="text-xs font-black text-rose-500 uppercase tracking-widest italic flex items-center gap-2"><AlertCircle size={14} /> {t.cons}</p>
-                                    <div className="space-y-3">
-                                        {(prop.cons || [lang === 'es' ? 'Mantenimiento' : 'Maintenance']).map((con, i) => (
-                                            <div key={i} className="flex gap-3 items-start bg-rose-500/5 p-3 rounded-2xl border border-rose-500/10"><div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0"></div><p className="text-xs text-zinc-400">{con}</p></div>
-                                        ))}
+                                <div className="space-y-6">
+                                    <div className="space-y-4">
+                                        <p className="text-xs font-black text-teal-500 uppercase tracking-widest italic flex items-center gap-2"><TrendingUp size={14} /> {t.pros}</p>
+                                        <div className="space-y-3">
+                                            {(prop.pros || [lang === 'es' ? 'Ubicación' : 'Location']).map((pro, i) => (
+                                                <div key={i} className="flex gap-3 items-start bg-teal-500/5 p-3 rounded-2xl border border-teal-500/10"><div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-teal-500 shrink-0"></div><p className="text-xs text-zinc-400 font-medium">{pro}</p></div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className="space-y-4">
+                                        <p className="text-xs font-black text-rose-500 uppercase tracking-widest italic flex items-center gap-2"><AlertCircle size={14} /> {t.cons}</p>
+                                        <div className="space-y-3">
+                                            {(prop.cons || [lang === 'es' ? 'Mantenimiento' : 'Maintenance']).map((con, i) => (
+                                                <div key={i} className="flex gap-3 items-start bg-rose-500/5 p-3 rounded-2xl border border-rose-500/10"><div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0"></div><p className="text-xs text-zinc-400 font-medium">{con}</p></div>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
 
                     {/* Verdict */}
-                    <div className="lg:col-span-2 bg-gradient-to-br from-amber-500 to-amber-600 rounded-[3rem] p-10 flex flex-col lg:flex-row items-center gap-8 relative overflow-hidden">
-                        <div className="relative z-10 bg-black/20 backdrop-blur-xl p-6 rounded-[2rem] border border-white/10 shrink-0"><Sparkles className="text-white animate-pulse" size={40} /></div>
-                        <div className="relative z-10 flex-1 text-center lg:text-left space-y-2">
-                            <h2 className="text-3xl font-black text-black italic tracking-tighter uppercase leading-none">{t.verdict}</h2>
-                            <p className="text-amber-950 font-bold text-sm">
+                    <div className="bg-gradient-to-br from-amber-500 to-amber-600 rounded-[3rem] p-10 flex flex-col lg:flex-row items-center gap-8 relative overflow-hidden shadow-2xl shadow-amber-500/20">
+                        <div className="relative z-10 bg-black/20 backdrop-blur-xl p-6 rounded-[2rem] border border-white/10 shrink-0 shadow-inner"><Sparkles className="text-white animate-pulse" size={40} /></div>
+                        <div className="relative z-10 flex-1 text-center lg:text-left space-y-3">
+                            <h2 className="text-4xl font-black text-black italic tracking-tighter uppercase leading-none">{t.verdict}</h2>
+                            <p className="text-amber-950 font-bold text-base max-w-3xl">
                                 {lang === 'es'
-                                    ? `Tras analizar ambas opciones, la propiedad "${p1PriceM2 < p2PriceM2 ? p1.title : p2.title}" destaca por tener un mejor precio por metro cuadrado (${formatCurrencyInternal(Math.min(p1PriceM2, p2PriceM2), p1.currency || 'MXN')}).`
-                                    : `After analyzing both options, "${p1PriceM2 < p2PriceM2 ? p1.title : p2.title}" stands out with a better price per sqm (${formatCurrencyInternal(Math.min(p1PriceM2, p2PriceM2), p1.currency || 'MXN')}).`}
+                                    ? `Tras analizar las ${compareList.length} opciones, la propiedad "${bestProp.title}" destaca por ofrecer el mejor costo-beneficio con un precio por m² de ${formatCurrencyInternal(Math.min(p1PriceM2, p2PriceM2, p3PriceM2 || Infinity), bestProp.currency || 'MXN')}.`
+                                    : `After analyzing all ${compareList.length} options, "${bestProp.title}" stands out by offering the best cost-benefit ratio with a price per sqm of ${formatCurrencyInternal(Math.min(p1PriceM2, p2PriceM2, p3PriceM2 || Infinity), bestProp.currency || 'MXN')}.`}
                             </p>
                         </div>
-                        <div className="relative z-10 bg-black text-white px-8 py-4 rounded-2xl font-black italic uppercase text-[10px]">{t.best_value}: {p1PriceM2 < p2PriceM2 ? p1.title : p2.title}</div>
+                        <div className="relative z-10 bg-black text-white px-8 py-4 rounded-[2rem] font-black italic uppercase text-[12px] tracking-widest shadow-2xl">
+                            {t.best_value}: {bestProp.title}
+                        </div>
+                        <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-white/10 blur-[80px] rounded-full"></div>
                     </div>
                 </div>
             </div>
@@ -204,7 +279,7 @@ const MarketSearchView: React.FC<MarketSearchViewProps> = ({
     };
 
     if (isComparing) {
-        if (compareList.length === 2) return renderDuelView();
+        if (compareList.length >= 2) return renderDuelView();
 
         return (
             <div className="p-4 lg:p-8 space-y-8 animate-in zoom-in-95 duration-500">
@@ -411,10 +486,14 @@ const MarketSearchView: React.FC<MarketSearchViewProps> = ({
                             AI Intelligent Search
                         </div>
                     </div>
-                    <h1 className="text-4xl lg:text-5xl font-black text-white italic tracking-tighter uppercase leading-none">
-                        {lang === 'es' ? 'BUSCADOR DE' : 'DISCOVER THE'} <br />
-                        <span style={{ color: brandColor }}>{lang === 'es' ? 'OPORTUNIDADES' : 'OPPORTUNITIES'}</span>
-                    </h1>
+                    <div className="space-y-4">
+                        <h1 className="text-4xl lg:text-5xl font-black text-white italic tracking-tighter uppercase leading-none">
+                            {t.property_comparator_title}
+                        </h1>
+                        <p className="text-zinc-600 font-bold italic text-sm tracking-wide max-w-2xl">
+                            {t.property_comparator_desc}
+                        </p>
+                    </div>
 
                     <div className="space-y-4 pt-4">
                         <div className="flex flex-col md:flex-row gap-4">
