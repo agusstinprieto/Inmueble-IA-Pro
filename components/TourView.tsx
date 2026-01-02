@@ -264,7 +264,12 @@ const TourView: React.FC<TourViewProps> = ({
                                 <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">{lang === 'es' ? 'Selecciona Propiedad' : 'Select Property'}</label>
                                 <select
                                     value={selectedPropertyId}
-                                    onChange={(e) => setSelectedPropertyId(e.target.value)}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        console.log('Inmueble seleccionado ID:', val);
+                                        setSelectedPropertyId(val);
+                                        setTourImageUrl('');
+                                    }}
                                     className="w-full bg-black border border-zinc-800 rounded-xl py-3 px-4 text-sm text-white focus:outline-none focus:border-amber-500 transition-all"
                                 >
                                     <option value="">{lang === 'es' ? 'Elija una propiedad...' : 'Choose a property...'}</option>
@@ -273,6 +278,36 @@ const TourView: React.FC<TourViewProps> = ({
                                     ))}
                                 </select>
                             </div>
+
+                            {selectedPropertyId && (
+                                <div className="space-y-3">
+                                    <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+                                        {lang === 'es' ? 'Selecciona de la Galería' : 'Select from Gallery'}
+                                    </label>
+                                    <div className="grid grid-cols-4 gap-2 bg-black/50 p-3 rounded-xl border border-zinc-800 max-h-48 overflow-y-auto custom-scrollbar">
+                                        {properties.find(p => String(p.id) === String(selectedPropertyId))?.images.map((img, idx) => (
+                                            <div
+                                                key={idx}
+                                                onClick={() => {
+                                                    console.log('Imagen 360 seleccionada:', img);
+                                                    setTourImageUrl(img);
+                                                }}
+                                                className={`aspect-square rounded-lg overflow-hidden cursor-pointer border-2 transition-all relative group ${tourImageUrl === img ? 'border-amber-500 scale-95' : 'border-zinc-800 hover:border-zinc-600'}`}
+                                            >
+                                                <img src={img} className="w-full h-full object-cover" alt="" />
+                                                {tourImageUrl === img && (
+                                                    <div className="absolute inset-0 bg-amber-500/20 flex items-center justify-center">
+                                                        <CheckCircle className="text-white drop-shadow-lg" size={20} />
+                                                    </div>
+                                                )}
+                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                    <span className="text-[8px] text-white font-black uppercase tracking-tighter shadow-sm">{lang === 'es' ? 'USAR' : 'USE'}</span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
 
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">{lang === 'es' ? 'URL de Imagen 360 (Equirectangular)' : '360 Image URL (Equirectangular)'}</label>
