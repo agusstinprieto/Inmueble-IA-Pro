@@ -163,31 +163,35 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = lang === 'es' ? 'es-MX' : 'en-US';
 
-        // Human-like cadence tuning
-        utterance.rate = lang === 'es' ? 0.95 : 1.0;
-        utterance.pitch = 1.0;
-        utterance.volume = 1.0;
-
         const setVoice = () => {
             const voices = window.speechSynthesis.getVoices();
             if (voices.length === 0) return;
 
-            // Priority: High-Fidelity "Natural" and "Online" Female Voices
-            // Patterns for the most realistic browser voices (Edge/Chrome/Safari)
+            // 1. Defined Preferred Female Patterns
             const femalePatterns = [
-                'Dalia', 'Helena', 'Sabina', 'Elsa', 'Zira', 'Microsoft Salma',
-                'Microsoft Larisa', 'Google español', 'Google US English'
+                'Google español', 'Dalia', 'Helena', 'Sabina', 'Elsa', 'Zira',
+                'Microsoft Salma Online', 'Microsoft Larisa Online', 'Monica',
+                'Google UK English Female', 'Google US English Female'
             ];
 
             const qualityPatterns = ['Natural', 'Online', 'Neural', 'Premium'];
-
-            let selectedVoice = null;
             const targetLang = lang === 'es' ? 'es' : 'en';
 
-            // 1. Precise Match: Language + Female Name Pattern + Quality Tag
+            // 2. Filter out known male voices immediately to avoid accidental selection
+            const availableVoices = voices.filter(v =>
+                !v.name.toLowerCase().includes('male') &&
+                !v.name.toLowerCase().includes('guy') &&
+                !v.name.toLowerCase().includes('david') &&
+                !v.name.toLowerCase().includes('pablo')
+            );
+
+            let selectedVoice = null;
+
+            // 3. Selection Logic (Tiered)
+            // Tier 1: Language + Pattern + Quality
             for (const q of qualityPatterns) {
                 for (const name of femalePatterns) {
-                    selectedVoice = voices.find(v =>
+                    selectedVoice = availableVoices.find(v =>
                         v.lang.toLowerCase().startsWith(targetLang) &&
                         v.name.includes(name) &&
                         v.name.includes(q)
@@ -197,10 +201,10 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
                 if (selectedVoice) break;
             }
 
-            // 2. Secondary Match: Language + Any Quality Tag
+            // Tier 2: Language + Quality (Any)
             if (!selectedVoice) {
                 for (const q of qualityPatterns) {
-                    selectedVoice = voices.find(v =>
+                    selectedVoice = availableVoices.find(v =>
                         v.lang.toLowerCase().startsWith(targetLang) &&
                         v.name.includes(q)
                     );
@@ -208,10 +212,10 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
                 }
             }
 
-            // 3. Fallback: Any Female Name Pattern
+            // Tier 3: Language + Female Name Pattern
             if (!selectedVoice) {
                 for (const name of femalePatterns) {
-                    selectedVoice = voices.find(v =>
+                    selectedVoice = availableVoices.find(v =>
                         v.lang.toLowerCase().startsWith(targetLang) &&
                         v.name.includes(name)
                     );
@@ -219,26 +223,40 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
                 }
             }
 
-            // 3. Fallback to any natural voice if still no match
+            // Tier 4: Just Language (non-male)
             if (!selectedVoice) {
-                selectedVoice = voices.find(v =>
-                    v.lang.toLowerCase().startsWith(targetLang) &&
-                    qualityPatterns.some(q => v.name.includes(q))
-                );
+                selectedVoice = availableVoices.find(v => v.lang.toLowerCase().startsWith(targetLang));
             }
 
-            // 4. Ultimate fallback
-            if (!selectedVoice) {
-                selectedVoice = voices.find(v => v.lang.toLowerCase().startsWith(targetLang));
-            }
-
+            // 4. Set Voice and Adjust Attributes
             if (selectedVoice) {
                 utterance.voice = selectedVoice;
-                // Adjust pitch slightly for a "warmer" female tone if needed
-                if (selectedVoice.name.includes('Dalia') || selectedVoice.name.includes('Sabina')) {
-                    utterance.pitch = 1.05;
-                }
+                // Significant pitch increase if it's not a verified neural feminine voice
+                const isVerifiedFemale = femalePatterns.some(p => selectedVoice!.name.includes(p));
+                utterance.pitch = isVerifiedFemale ? 1.05 : 1.35;
+                utterance.rate = 0.95;
+            } else {
+                // Last ditch effort if still no voice (using system default)
+                utterance.pitch = 1.35;
+                utterance.rate = 0.95;
             }
+
+            utterance.onstart = () => setIsSpeaking(true);
+            utterance.onend = () => {
+                setIsSpeaking(false);
+                if (isHandsFree && recognitionRef.current && isOpen) {
+                    setTimeout(() => {
+                        if (!isThinking && !isSpeaking) {
+                            try {
+                                recognitionRef.current.start();
+                                setIsListening(true);
+                            } catch (e) { }
+                        }
+                    }, 500);
+                }
+            };
+
+            window.speechSynthesis.speak(utterance);
         };
 
         // Voices are sometimes loaded asynchronously
@@ -247,23 +265,6 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
         } else {
             setVoice();
         }
-
-        utterance.onstart = () => setIsSpeaking(true);
-        utterance.onend = () => {
-            setIsSpeaking(false);
-            if (isHandsFree && recognitionRef.current && isOpen) {
-                setTimeout(() => {
-                    if (!isThinking && !isSpeaking) {
-                        try {
-                            recognitionRef.current.start();
-                            setIsListening(true);
-                        } catch (e) { }
-                    }
-                }, 500);
-            }
-        };
-
-        window.speechSynthesis.speak(utterance);
     };
 
     return (

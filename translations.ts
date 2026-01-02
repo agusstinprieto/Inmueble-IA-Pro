@@ -318,7 +318,6 @@ export const translations = {
     resource_category: "Categoría",
 
     // ============ NOTARIOS ============
-    notaries: "NOTARIOS",
     notary_directory: "DIRECTORIO DE NOTARIOS",
     notary_directory_desc: "Directorio de notarias aliadas y contactos legales.",
     add_notary: "AGREGAR NOTARIA",
