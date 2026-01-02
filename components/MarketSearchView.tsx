@@ -591,7 +591,7 @@ const MarketSearchView: React.FC<MarketSearchViewProps> = ({
 
                         <div className="flex items-center gap-4">
                             <div className="text-left">
-                                <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">{lang === 'es' ? 'Lista de Comparativa' : 'Comparison List'}</p>
+                                <p className="text-[9px] font-black text-amber-500 uppercase tracking-widest">{lang === 'es' ? 'Selección (Máx. 3)' : 'Selection (Max. 3)'}</p>
                                 <p className="text-white text-xs font-bold italic">{compareList.length}/3 {lang === 'es' ? 'Seleccionadas' : 'Selected'}</p>
                             </div>
                             <button

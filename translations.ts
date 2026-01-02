@@ -210,8 +210,8 @@ export const translations = {
     total_value: "Valor Total del Mercado",
     pros: "PROS / VENTAJAS",
     cons: "CONTRAS / DESVENTAJAS",
-    property_comparator_title: "COMPARADOR DE PROPIEDADES",
-    property_comparator_desc: "Selecciona las propiedades que te interesen haciendo clic en el botón de duelo (flechas) en cada tarjeta. Una vez seleccionadas, presiona el botón 'Someter a Duelo' para realizar un análisis técnico detallado y obtener un dictamen inteligente.",
+    property_comparator_title: "COMPARADOR DE PROPIEDADES ELITE",
+    property_comparator_desc: "Analiza y compara hasta 3 propiedades simultáneamente. Haz clic en el icono de flechas (⇄) de cada propiedad para añadirla a tu lista de duelo. Cuando tengas tus opciones listas, presiona 'Comparar Ahora' para obtener un desglose técnico y el dictamen inteligente de Rentabilidad.",
 
     // ============ MAPA ============
     property_map: "MAPA DE PROPIEDADES",
@@ -496,8 +496,8 @@ export const translations = {
     total_value: "Total Market Value",
     pros: "PROS / ADVANTAGES",
     cons: "CONS / DISADVANTAGES",
-    property_comparator_title: "PROPERTY COMPARATOR",
-    property_comparator_desc: "Select the properties you are interested in by clicking the duel button (arrows) on each card. Once selected, press the 'Submit to Duel' button to perform a detailed technical analysis and get a smart verdict.",
+    property_comparator_title: "ELITE PROPERTY COMPARATOR",
+    property_comparator_desc: "Analyze and compare up to 3 properties simultaneously. Click the arrows icon (⇄) on each property to add it to your duel list. Once your options are ready, press 'Compare Now' to get a technical breakdown and the smart Profitability verdict.",
 
     // ============ MAP ============
     property_map: "Property Map",
