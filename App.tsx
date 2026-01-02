@@ -553,14 +553,12 @@ function App() {
           )}
         </div>
 
-        {/* AI Voice Assistant - Always visible */}
-        {userId && (
-          <AssistantView
-            lang={lang}
-            userName={userId}
-            agencyName={businessName}
-          />
-        )}
+        {/* AI Voice Assistant - Always visible for all users */}
+        <AssistantView
+          lang={lang}
+          userName={userId || 'Invitado'}
+          agencyName={businessName}
+        />
       </div>
     );
   }
