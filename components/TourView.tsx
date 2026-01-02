@@ -61,16 +61,6 @@ const TourView: React.FC<TourViewProps> = ({
     const viewerRef = React.useRef<HTMLDivElement>(null);
     const containerRef = React.useRef<HTMLDivElement>(null);
 
-    // Debug logging
-    React.useEffect(() => {
-        if (activeTour) {
-            console.log('🎯 Active Tour:', activeTour.title);
-            console.log('🔗 Virtual Tour URL:', activeTour.virtualTourUrl);
-            console.log('▶️ Viewer Started:', viewerStarted);
-            console.log('⏳ Is Loading:', isLoading);
-        }
-    }, [activeTour, viewerStarted, isLoading]);
-
     React.useEffect(() => {
         if (viewerStarted && activeTour?.virtualTourUrl && viewerRef.current) {
             setIsLoading(true);
@@ -262,12 +252,7 @@ const TourView: React.FC<TourViewProps> = ({
                     {activeTour && !viewerStarted && activeTour.virtualTourUrl && (
                         <div className="flex justify-center -mt-4">
                             <button
-                                onClick={() => {
-                                    console.log('🚀 BOTÓN INICIAR RECORRIDO CLICKEADO');
-                                    console.log('📍 Antes - viewerStarted:', viewerStarted);
-                                    setViewerStarted(true);
-                                    console.log('✅ setViewerStarted(true) llamado');
-                                }}
+                                onClick={() => setViewerStarted(true)}
                                 style={{ backgroundColor: brandColor }}
                                 className="px-12 py-4 text-black rounded-2xl font-black text-sm uppercase italic hover:opacity-90 transition-all shadow-xl flex items-center gap-3 z-50"
                             >
