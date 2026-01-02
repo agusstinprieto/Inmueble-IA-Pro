@@ -24,6 +24,7 @@ import {
 import { analyzePropertyImages, generatePropertyDescription, extractPropertyFromHtml } from '../services/gemini';
 import { translations } from '../translations';
 import { Property, PropertyType, OperationType, PropertyStatus, PropertyAnalysis } from '../types';
+import { supabase } from '../services/supabase';
 
 interface AnalysisViewProps {
   onAddProperty: (property: Partial<Property>) => void;
@@ -69,6 +70,7 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
   const [manualMode, setManualMode] = useState(false);
   const [importUrl, setImportUrl] = useState('');
   const [isImporting, setIsImporting] = useState(false);
+  const [importStatus, setImportStatus] = useState<string>('');
 
   // Manual form state
   const [formData, setFormData] = useState<Partial<Property>>({
@@ -139,9 +141,21 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      if (!file.type.startsWith('image/')) continue;
+      const isVideo = file.type.startsWith('video/');
+      if (!file.type.startsWith('image/') && !isVideo) continue;
 
       try {
+        if (isVideo) {
+          newItems.push({
+            id: `media_${Date.now()}_${i}`,
+            src: URL.createObjectURL(file),
+            type: 'video',
+            fileName: file.name,
+            fileSize: file.size
+          });
+          continue;
+        }
+
         const b64 = await processImage(file);
         newItems.push({
           id: `media_${Date.now()}_${i}`,
@@ -269,32 +283,21 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
   const handleImportUrl = async () => {
     if (!importUrl) return;
     setIsImporting(true);
+    setImportStatus(lang === 'es' ? 'Conectando con el portal...' : 'Connecting to portal...');
     setError(null);
 
     try {
-      // Intentar primero con AllOrigins
-      let html = '';
-      try {
-        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(importUrl)}`;
-        const response = await fetch(proxyUrl);
-        if (!response.ok) throw new Error('Proxy error');
-        const data = await response.json();
-        html = data.contents;
-      } catch (err) {
-        console.warn('AllOrigins failed, trying backup proxy...', err);
-        // Fallback simple si falla el primero
-        try {
-          const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(importUrl)}`;
-          const response = await fetch(proxyUrl);
-          if (!response.ok) throw new Error('Backup proxy error');
-          html = await response.text();
-        } catch (err2) {
-          throw new Error('All proxies failed');
-        }
-      }
+      setImportStatus(lang === 'es' ? 'Conectando de forma segura...' : 'Connecting securely...');
+      const { data, error: funcError } = await supabase.functions.invoke('fetch-url', {
+        body: { url: importUrl }
+      });
+
+      if (funcError) throw funcError;
+      const html = data?.html;
 
       if (!html) throw new Error('No se pudo obtener el contenido de la página');
 
+      setImportStatus(lang === 'es' ? 'Analizando contenido con IA...' : 'Analyzing content with AI...');
       const extracted = await extractPropertyFromHtml(html, businessName, location);
 
       if (extracted) {
@@ -318,6 +321,7 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
       setError(lang === 'es' ? 'Error al conectar con la página externa.' : 'Error connecting to external page.');
     } finally {
       setIsImporting(false);
+      setImportStatus('');
     }
   };
   // Remove media item
@@ -413,7 +417,12 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
                   style={{ backgroundColor: brandColor, color: '#000' }}
                   className="px-6 py-2.5 disabled:opacity-50 rounded-xl font-black text-xs uppercase italic transition-all"
                 >
-                  {isImporting ? <Loader2 size={16} className="animate-spin" /> : 'Importar'}
+                  {isImporting ? (
+                    <div className="flex flex-col items-center gap-1">
+                      <Loader2 size={16} className="animate-spin" />
+                      <span className="text-[8px] whitespace-nowrap">{importStatus}</span>
+                    </div>
+                  ) : 'Importar'}
                 </button>
               </div>
             </div>
@@ -440,7 +449,7 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/*"
+                  accept="image/*,video/*"
                   multiple
                   onChange={handleFileUpload}
                   className="hidden"
@@ -489,11 +498,19 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
               {mediaItems.length > 0 && !showCamera && (
                 <div className="flex-1 w-full">
                   <div className="relative group rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 aspect-video mb-4">
-                    <img
-                      src={mediaItems[mediaItems.length - 1].src}
-                      alt="Main Preview"
-                      className="w-full h-full object-cover"
-                    />
+                    {mediaItems[mediaItems.length - 1].type === 'video' ? (
+                      <video
+                        src={mediaItems[mediaItems.length - 1].src}
+                        className="w-full h-full object-cover"
+                        controls
+                      />
+                    ) : (
+                      <img
+                        src={mediaItems[mediaItems.length - 1].src}
+                        alt="Main Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    )}
                     <button
                       onClick={() => removeMedia(mediaItems[mediaItems.length - 1].id)}
                       className="absolute top-4 right-4 p-2 rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors shadow-lg"
@@ -506,8 +523,12 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
                   {mediaItems.length > 1 && (
                     <div className="flex gap-2 overflow-x-auto pb-2">
                       {mediaItems.slice(0, -1).reverse().map((item) => (
-                        <div key={item.id} className="relative w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden border border-zinc-800">
-                          <img src={item.src} className="w-full h-full object-cover opacity-60 hover:opacity-100 transition-opacity" />
+                        <div key={item.id} className="relative w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden border border-zinc-800 bg-black">
+                          {item.type === 'video' ? (
+                            <video src={item.src} className="w-full h-full object-cover opacity-60 hover:opacity-100 transition-opacity" />
+                          ) : (
+                            <img src={item.src} className="w-full h-full object-cover opacity-60 hover:opacity-100 transition-opacity" />
+                          )}
                           <button
                             onClick={() => removeMedia(item.id)}
                             className="absolute top-1 right-1 p-1 bg-red-500/80 rounded-full text-white"

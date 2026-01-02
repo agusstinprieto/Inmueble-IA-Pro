@@ -246,12 +246,23 @@ const PublicPortalView: React.FC<PublicPortalViewProps> = ({
                             key={prop.id}
                             className="bg-zinc-900/30 border border-zinc-800 rounded-[2.5rem] overflow-hidden group hover:border-amber-500/30 transition-all hover:-translate-y-2 relative"
                         >
-                            <div className="aspect-[4/3] relative overflow-hidden">
-                                <img
-                                    src={prop.images[0]}
-                                    alt={prop.title}
-                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                />
+                            <div className="aspect-[4/3] relative overflow-hidden bg-black">
+                                {prop.images[0].toLowerCase().includes('.mp4') || prop.images[0].toLowerCase().includes('.webm') || prop.images[0].toLowerCase().includes('.mov') ? (
+                                    <video
+                                        src={prop.images[0]}
+                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                        autoPlay
+                                        muted
+                                        loop
+                                        playsInline
+                                    />
+                                ) : (
+                                    <img
+                                        src={prop.images[0]}
+                                        alt={prop.title}
+                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                    />
+                                )}
                                 <div className="absolute top-5 left-5">
                                     <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase italic backdrop-blur-md shadow-lg ${prop.operation === OperationType.VENTA ? 'bg-amber-500 text-black' : 'bg-blue-500 text-white'}`}>
                                         {prop.operation}

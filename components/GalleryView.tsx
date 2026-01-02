@@ -228,33 +228,40 @@ const GalleryView: React.FC<GalleryViewProps> = ({
 
                             {selectedProperty.images && selectedProperty.images.length > 0 ? (
                                 <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-                                    {selectedProperty.images.map((img, idx) => (
-                                        <div key={idx} className="group relative aspect-square rounded-2xl overflow-hidden bg-zinc-800 border border-zinc-700/50 hover:border-amber-500/50 transition-all cursor-pointer">
-                                            <img src={img} alt={`${selectedProperty.title} ${idx}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        setExpandedImage(img);
-                                                    }}
-                                                    className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white backdrop-blur-md transition-all shadow-lg"
-                                                >
-                                                    <Maximize2 size={18} />
-                                                </button>
-                                                <button
-                                                    onClick={(e) => handleDeleteImage(img, e)}
-                                                    className="p-2 bg-red-500/80 hover:bg-red-500 rounded-lg text-white transition-all shadow-lg"
-                                                >
-                                                    <Trash2 size={18} />
-                                                </button>
-                                            </div>
-                                            {idx === 0 && (
-                                                <div className="absolute top-2 left-2 px-2 py-0.5 bg-amber-500 text-black text-[9px] font-black uppercase rounded shadow-lg italic">
-                                                    PRINCIPAL
+                                    {selectedProperty.images.map((img, idx) => {
+                                        const isVideo = img.toLowerCase().includes('.mp4') || img.toLowerCase().includes('.webm') || img.toLowerCase().includes('.mov');
+                                        return (
+                                            <div key={idx} className="group relative aspect-square rounded-2xl overflow-hidden bg-zinc-800 border border-zinc-700/50 hover:border-amber-500/50 transition-all cursor-pointer">
+                                                {isVideo ? (
+                                                    <video src={img} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                                ) : (
+                                                    <img src={img} alt={`${selectedProperty.title} ${idx}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                                )}
+                                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setExpandedImage(img);
+                                                        }}
+                                                        className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white backdrop-blur-md transition-all shadow-lg"
+                                                    >
+                                                        <Maximize2 size={18} />
+                                                    </button>
+                                                    <button
+                                                        onClick={(e) => handleDeleteImage(img, e)}
+                                                        className="p-2 bg-red-500/80 hover:bg-red-500 rounded-lg text-white transition-all shadow-lg"
+                                                    >
+                                                        <Trash2 size={18} />
+                                                    </button>
                                                 </div>
-                                            )}
-                                        </div>
-                                    ))}
+                                                {idx === 0 && (
+                                                    <div className="absolute top-2 left-2 px-2 py-0.5 bg-amber-500 text-black text-[9px] font-black uppercase rounded shadow-lg italic">
+                                                        PRINCIPAL
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
                                     <label className="flex flex-col items-center justify-center gap-3 border-2 border-dashed border-zinc-800 rounded-2xl hover:border-zinc-600 hover:bg-white/5 transition-all cursor-pointer aspect-square">
                                         <Plus size={32} className="text-zinc-600" />
                                         <span className="text-zinc-500 text-[10px] font-black uppercase italic tracking-widest">{lang === 'es' ? 'Añadir Más' : 'Add More'}</span>
@@ -305,12 +312,16 @@ const GalleryView: React.FC<GalleryViewProps> = ({
                     >
                         <X size={32} />
                     </button>
-                    <img
-                        src={expandedImage}
-                        alt="Expanded"
-                        className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
-                        onClick={(e) => e.stopPropagation()}
-                    />
+                    {expandedImage.toLowerCase().includes('.mp4') || expandedImage.toLowerCase().includes('.webm') || expandedImage.toLowerCase().includes('.mov') ? (
+                        <video src={expandedImage} className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" controls autoPlay />
+                    ) : (
+                        <img
+                            src={expandedImage}
+                            alt="Expanded"
+                            className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+                            onClick={(e) => e.stopPropagation()}
+                        />
+                    )}
                 </div>
             )}
         </div>

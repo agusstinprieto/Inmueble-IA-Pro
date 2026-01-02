@@ -306,11 +306,15 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                 {/* Image */}
                 <div className="relative aspect-[4/3] bg-zinc-800">
                     {property.images?.[0] ? (
-                        <img
-                            src={property.images[0]}
-                            alt={property.title}
-                            className="w-full h-full object-cover"
-                        />
+                        property.images[0].toLowerCase().match(/\.(mp4|webm|mov|avi)($|\?)/) ? (
+                            <video src={property.images[0]} className="w-full h-full object-cover" />
+                        ) : (
+                            <img
+                                src={property.images[0]}
+                                alt={property.title}
+                                className="w-full h-full object-cover"
+                            />
+                        )
                     ) : (
                         <div className="w-full h-full flex items-center justify-center">
                             <Building2 className="text-zinc-600" size={48} />
@@ -661,11 +665,15 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                         {/* Gallery */}
                         <div className="relative aspect-video bg-zinc-800">
                             {selectedProperty.images?.[0] ? (
-                                <img
-                                    src={selectedProperty.images[0]}
-                                    alt={selectedProperty.title}
-                                    className="w-full h-full object-cover"
-                                />
+                                selectedProperty.images[0].toLowerCase().match(/\.(mp4|webm|mov|avi)($|\?)/) ? (
+                                    <video src={selectedProperty.images[0]} className="w-full h-full object-cover" controls />
+                                ) : (
+                                    <img
+                                        src={selectedProperty.images[0]}
+                                        alt={selectedProperty.title}
+                                        className="w-full h-full object-cover"
+                                    />
+                                )
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center group cursor-pointer relative">
                                     <Building2 className="text-zinc-600 group-hover:opacity-50 transition-opacity" size={80} />
