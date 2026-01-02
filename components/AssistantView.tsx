@@ -76,8 +76,8 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
         if (messages.length === 0) {
             const safeName = userName && !userName.includes('-') ? userName : (lang === 'es' ? 'Asociado' : 'Associate');
             const welcomeText = lang === 'es'
-                ? `¡Hola ${safeName}! Soy tu asistente experto en bienes raíces de ${agencyName || 'Inmueble IA Pro'}. Puedo ayudarte con contratos, marketing, estrategias de venta y más. ¿En qué puedo ayudarte hoy?`
-                : `Hello ${safeName}! I'm your expert real estate assistant at ${agencyName || 'Inmueble IA Pro'}. I can help you with contracts, marketing, sales strategies, and more. How can I help you today?`;
+                ? `¡Hola ${safeName}! Soy tu asistente de ${agencyName || 'Inmueble IA Pro'}. ¿En qué puedo ayudarte?`
+                : `Hello ${safeName}! I'm your ${agencyName || 'Inmueble IA Pro'} assistant. How can I help you?`;
 
             setMessages([{
                 role: 'assistant',
