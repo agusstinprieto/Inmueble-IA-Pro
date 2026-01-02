@@ -312,8 +312,13 @@ export const translations = {
       course: "Curso Online",
       link: "Enlace Externo"
     },
+    add_resource: "AGREGAR RECURSO",
+    resource_url: "URL del Recurso (PDF o YouTube)",
+    resource_type: "Tipo de Recurso",
+    resource_category: "Categoría",
 
     // ============ NOTARIOS ============
+    notaries: "NOTARIOS",
     notary_directory: "DIRECTORIO DE NOTARIOS",
     notary_directory_desc: "Directorio de notarias aliadas y contactos legales.",
     add_notary: "AGREGAR NOTARIA",
@@ -626,6 +631,10 @@ export const translations = {
       course: "Online Course",
       link: "External Link"
     },
+    add_resource: "ADD RESOURCE",
+    resource_url: "Resource URL (PDF or YouTube)",
+    resource_type: "Resource Type",
+    resource_category: "Category",
 
     // ============ NOTARIES ============
     notary_directory: "NOTARY DIRECTORY",

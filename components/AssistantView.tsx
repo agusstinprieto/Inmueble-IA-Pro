@@ -172,30 +172,43 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
             const voices = window.speechSynthesis.getVoices();
             if (voices.length === 0) return;
 
-            // Priority: Friendly Female Neural Voices
-            // Patterns for common high-quality female voices in ES and EN
+            // Priority: High-Fidelity "Natural" and "Online" Female Voices
+            // Patterns for the most realistic browser voices (Edge/Chrome/Safari)
             const femalePatterns = [
-                'Dalia', 'Helena', 'Sabina', 'Elsa', 'Zira',
-                'Microsoft Salma', 'Microsoft Larisa',
-                'Google español', 'Google US English'
+                'Dalia', 'Helena', 'Sabina', 'Elsa', 'Zira', 'Microsoft Salma',
+                'Microsoft Larisa', 'Google español', 'Google US English'
             ];
 
-            const qualityPatterns = ['Natural', 'Neural', 'Premium'];
+            const qualityPatterns = ['Natural', 'Online', 'Neural', 'Premium'];
 
             let selectedVoice = null;
             const targetLang = lang === 'es' ? 'es' : 'en';
 
-            // 1. Try to find a matching female neural voice
-            for (const name of femalePatterns) {
-                selectedVoice = voices.find(v =>
-                    v.lang.toLowerCase().startsWith(targetLang) &&
-                    v.name.includes(name) &&
-                    qualityPatterns.some(q => v.name.includes(q))
-                );
+            // 1. Precise Match: Language + Female Name Pattern + Quality Tag
+            for (const q of qualityPatterns) {
+                for (const name of femalePatterns) {
+                    selectedVoice = voices.find(v =>
+                        v.lang.toLowerCase().startsWith(targetLang) &&
+                        v.name.includes(name) &&
+                        v.name.includes(q)
+                    );
+                    if (selectedVoice) break;
+                }
                 if (selectedVoice) break;
             }
 
-            // 2. Try any female name pattern if neural not found
+            // 2. Secondary Match: Language + Any Quality Tag
+            if (!selectedVoice) {
+                for (const q of qualityPatterns) {
+                    selectedVoice = voices.find(v =>
+                        v.lang.toLowerCase().startsWith(targetLang) &&
+                        v.name.includes(q)
+                    );
+                    if (selectedVoice) break;
+                }
+            }
+
+            // 3. Fallback: Any Female Name Pattern
             if (!selectedVoice) {
                 for (const name of femalePatterns) {
                     selectedVoice = voices.find(v =>

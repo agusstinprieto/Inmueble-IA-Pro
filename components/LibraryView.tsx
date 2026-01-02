@@ -13,38 +13,54 @@ import {
     SearchX
 } from 'lucide-react';
 import { translations } from '../translations';
-import { LibraryResource, ResourceCategory } from '../types';
+import { LibraryResource, ResourceCategory, ResourceType } from '../types';
 import { supabase } from '../services/supabase';
 
 interface LibraryViewProps {
     lang: 'es' | 'en';
     brandColor: string;
+    agencyId?: string;
 }
 
-const LibraryView: React.FC<LibraryViewProps> = ({ lang, brandColor }) => {
+const LibraryView: React.FC<LibraryViewProps> = ({ lang, brandColor, agencyId }) => {
     const t = translations[lang];
     const [resources, setResources] = useState<LibraryResource[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState<ResourceCategory | 'ALL'>('ALL');
+    const [showAddForm, setShowAddForm] = useState(false);
+    const [newResource, setNewResource] = useState({
+        title: '',
+        url: '',
+        type: 'pdf' as ResourceType,
+        category: ResourceCategory.CONTRACTS,
+        description: ''
+    });
 
     useEffect(() => {
         fetchResources();
-    }, []);
+    }, [agencyId]);
 
     const fetchResources = async () => {
         try {
             setLoading(true);
-            const { data, error } = await supabase
+            let query = supabase
                 .from('real_estate_resources')
                 .select('*')
                 .order('created_at', { ascending: false });
 
+            if (agencyId) {
+                query = query.or(`agency_id.is.null,agency_id.eq.${agencyId}`);
+            } else {
+                query = query.is('agency_id', null);
+            }
+
+            const { data, error } = await query;
             if (error) throw error;
 
-            // Map Snake Case to Camel Case if necessary (Supabase might already do it depends on config)
             const mappedData: LibraryResource[] = (data || []).map(item => ({
                 id: item.id,
+                agencyId: item.agency_id,
                 title: item.title,
                 type: item.type,
                 category: item.category,
@@ -53,10 +69,45 @@ const LibraryView: React.FC<LibraryViewProps> = ({ lang, brandColor }) => {
                 description: item.description,
                 dateAdded: item.created_at
             }));
-
             setResources(mappedData);
         } catch (error) {
             console.error('Error fetching resources:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleAddResource = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!agencyId) return;
+
+        try {
+            setLoading(true);
+            const { error } = await supabase
+                .from('real_estate_resources')
+                .insert([{
+                    title: newResource.title,
+                    url: newResource.url,
+                    type: newResource.type,
+                    category: newResource.category,
+                    description: newResource.description,
+                    agency_id: agencyId
+                }]);
+
+            if (error) throw error;
+
+            setNewResource({
+                title: '',
+                url: '',
+                type: 'pdf',
+                category: ResourceCategory.CONTRACTS,
+                description: ''
+            });
+            setShowAddForm(false);
+            fetchResources();
+        } catch (error) {
+            console.error('Error adding resource:', error);
+            alert('Error al agregar el recurso.');
         } finally {
             setLoading(false);
         }
@@ -81,10 +132,92 @@ const LibraryView: React.FC<LibraryViewProps> = ({ lang, brandColor }) => {
     return (
         <div className="p-4 lg:p-6 space-y-6">
             {/* Header */}
-            <div>
-                <h1 className="text-2xl font-bold text-white">{t.real_estate_library}</h1>
-                <p className="text-zinc-400 text-sm">{t.library_desc}</p>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-2xl font-bold text-white uppercase tracking-tight">{t.real_estate_library}</h1>
+                    <p className="text-zinc-500 text-sm mt-1">{t.library_desc}</p>
+                </div>
+                {agencyId && (
+                    <button
+                        onClick={() => setShowAddForm(!showAddForm)}
+                        className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-black font-bold rounded-xl transition-all shadow-lg shadow-amber-500/20 text-sm"
+                    >
+                        {showAddForm ? t.cancel : t.add_resource}
+                    </button>
+                )}
             </div>
+
+            {/* Add Resource Form */}
+            {showAddForm && (
+                <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 animate-in slide-in-from-top duration-300">
+                    <form onSubmit={handleAddResource} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <label className="text-xs text-zinc-400 font-bold uppercase tracking-widest">{t.name}</label>
+                            <input
+                                required
+                                type="text"
+                                placeholder="Nombre del recurso..."
+                                value={newResource.title}
+                                onChange={(e) => setNewResource({ ...newResource, title: e.target.value })}
+                                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-xs text-zinc-400 font-bold uppercase tracking-widest">{t.resource_url}</label>
+                            <input
+                                required
+                                type="url"
+                                placeholder="https://..."
+                                value={newResource.url}
+                                onChange={(e) => setNewResource({ ...newResource, url: e.target.value })}
+                                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-xs text-zinc-400 font-bold uppercase tracking-widest">{t.resource_type}</label>
+                            <select
+                                value={newResource.type}
+                                onChange={(e) => setNewResource({ ...newResource, type: e.target.value as ResourceType })}
+                                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                            >
+                                <option value="pdf">PDF Document</option>
+                                <option value="video">YouTube Video</option>
+                                <option value="link">External Link</option>
+                            </select>
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-xs text-zinc-400 font-bold uppercase tracking-widest">{t.resource_category}</label>
+                            <select
+                                value={newResource.category}
+                                onChange={(e) => setNewResource({ ...newResource, category: e.target.value as ResourceCategory })}
+                                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                            >
+                                {Object.values(ResourceCategory).map(cat => (
+                                    <option key={cat} value={cat}>{t.categories[cat]}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="md:col-span-2 space-y-2">
+                            <label className="text-xs text-zinc-400 font-bold uppercase tracking-widest">{t.description}</label>
+                            <textarea
+                                rows={2}
+                                placeholder="Breve descripción..."
+                                value={newResource.description}
+                                onChange={(e) => setNewResource({ ...newResource, description: e.target.value })}
+                                className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none"
+                            />
+                        </div>
+                        <div className="md:col-span-2 flex justify-end">
+                            <button
+                                type="submit"
+                                className="px-8 py-3 bg-white text-black font-bold rounded-xl hover:bg-zinc-200 transition-colors"
+                            >
+                                {t.save}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            )}
 
             {/* Filters */}
             <div className="flex flex-col md:flex-row gap-4">
@@ -102,8 +235,8 @@ const LibraryView: React.FC<LibraryViewProps> = ({ lang, brandColor }) => {
                     <button
                         onClick={() => setSelectedCategory('ALL')}
                         className={`px-4 py-2 rounded-xl text-sm whitespace-nowrap transition-all ${selectedCategory === 'ALL'
-                                ? 'bg-white text-black font-bold'
-                                : 'bg-zinc-900 text-zinc-400 border border-zinc-800 hover:border-zinc-700'
+                            ? 'bg-white text-black font-bold'
+                            : 'bg-zinc-900 text-zinc-400 border border-zinc-800 hover:border-zinc-700'
                             }`}
                     >
                         {t.all_resources}
@@ -113,8 +246,8 @@ const LibraryView: React.FC<LibraryViewProps> = ({ lang, brandColor }) => {
                             key={cat}
                             onClick={() => setSelectedCategory(cat)}
                             className={`px-4 py-2 rounded-xl text-sm whitespace-nowrap transition-all ${selectedCategory === cat
-                                    ? 'bg-white text-black font-bold'
-                                    : 'bg-zinc-900 text-zinc-400 border border-zinc-800 hover:border-zinc-700'
+                                ? 'bg-white text-black font-bold'
+                                : 'bg-zinc-900 text-zinc-400 border border-zinc-800 hover:border-zinc-700'
                                 }`}
                         >
                             {t.categories[cat]}

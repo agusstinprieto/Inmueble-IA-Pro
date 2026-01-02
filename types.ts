@@ -320,6 +320,7 @@ export enum ResourceCategory {
 
 export interface LibraryResource {
   id: string;
+  agencyId?: string;
   title: string;
   type: ResourceType;
   category: ResourceCategory;

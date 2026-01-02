@@ -759,6 +759,7 @@ function App() {
           <LibraryView
             lang={lang}
             brandColor={brandColor}
+            agencyId={profile?.agencyId}
           />
         );
 
