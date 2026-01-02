@@ -61,8 +61,17 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
                 handleSendMessage(transcript);
             };
 
-            recognitionRef.current.onerror = () => {
+            recognitionRef.current.onerror = (event: any) => {
+                console.error('Speech recognition error:', event.error);
                 setIsListening(false);
+                // Restart if hands-free and not a critical error
+                if (isHandsFree && event.error !== 'not-allowed') {
+                    setTimeout(() => {
+                        if (isHandsFree && !isSpeaking && !isThinking && isOpen) {
+                            try { recognitionRef.current.start(); setIsListening(true); } catch (e) { }
+                        }
+                    }, 1000);
+                }
             };
 
             recognitionRef.current.onend = () => {
@@ -70,6 +79,22 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
             };
         }
     }, [lang]);
+
+    // Centralized Mic Orchestrator for Hands-Free Mode
+    useEffect(() => {
+        let timer: any;
+        if (isHandsFree && isOpen && !isSpeaking && !isThinking && !isListening) {
+            timer = setTimeout(() => {
+                try {
+                    recognitionRef.current?.start();
+                    setIsListening(true);
+                } catch (e) {
+                    // Silently fail if already started
+                }
+            }, 500);
+        }
+        return () => clearTimeout(timer);
+    }, [isHandsFree, isSpeaking, isThinking, isListening, isOpen]);
 
     // Welcome message
     useEffect(() => {
@@ -146,16 +171,6 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
 
             if (!isMuted && 'speechSynthesis' in window) {
                 speakText(response);
-            } else if (isHandsFree) {
-                // If muted but hands-free, restart listening after a delay
-                setTimeout(() => {
-                    if (isHandsFree && recognitionRef.current && !isListening && !isThinking) {
-                        try {
-                            recognitionRef.current.start();
-                            setIsListening(true);
-                        } catch (e) { }
-                    }
-                }, 1000);
             }
         } catch (error) {
             console.error('Assistant error:', error);
@@ -165,7 +180,7 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
                 timestamp: new Date()
             };
             setMessages(prev => [...prev, errorMessage]);
-            if (isHandsFree) setIsHandsFree(false); // Disable on error
+            if (isHandsFree) setIsHandsFree(false);
         } finally {
             setIsThinking(false);
         }
@@ -182,15 +197,17 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
             const voices = window.speechSynthesis.getVoices();
             if (voices.length === 0) return;
 
+            // Log available voices once to help debug if needed
+            // console.log('Available voices:', voices.map(v => `${v.name} (${v.lang})`));
+
             const femalePatterns = [
-                'Google español', 'Dalia', 'Helena', 'Sabina', 'Elsa', 'Zira',
-                'Microsoft Salma Online', 'Microsoft Larisa Online', 'Monica',
-                'Google UK English Female', 'Google US English Female', 'Microsoft Libby Online'
+                'Google español', 'Dalia', 'Helena', 'Sabina', 'Elsa', 'Zira', 'Microsoft Salma',
+                'Microsoft Larisa', 'Monica', 'Libby', 'Lucia', 'google us english female', 'swara'
             ];
 
             const maleExclusions = [
-                'male', 'guy', 'david', 'pablo', 'raul', 'antonio', 'sergio',
-                'microsoft paul', 'microsoft stefan', 'google us english male'
+                'male', 'guy', 'david', 'pablo', 'raul', 'antonio', 'sergio', 'kevin', 'james',
+                'microsoft paul', 'microsoft stefan', 'google us english male', 'jorge', 'juan'
             ];
 
             const qualityPatterns = ['Natural', 'Online', 'Neural', 'Premium'];
@@ -202,12 +219,12 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
 
             let selectedVoice = null;
 
-            // Tiered Selection
+            // Tier 1: Lang + Pattern + Quality
             for (const q of qualityPatterns) {
                 for (const name of femalePatterns) {
                     selectedVoice = availableVoices.find(v =>
                         v.lang.toLowerCase().startsWith(targetLang) &&
-                        v.name.includes(name) &&
+                        (v.name.includes(name) || v.name.toLowerCase().includes(name.toLowerCase())) &&
                         v.name.includes(q)
                     );
                     if (selectedVoice) break;
@@ -215,6 +232,7 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
                 if (selectedVoice) break;
             }
 
+            // Tier 2: Lang + Quality
             if (!selectedVoice) {
                 for (const q of qualityPatterns) {
                     selectedVoice = availableVoices.find(v =>
@@ -225,46 +243,45 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
                 }
             }
 
+            // Tier 3: Lang + Female Pattern (ignore quality)
             if (!selectedVoice) {
                 for (const name of femalePatterns) {
                     selectedVoice = availableVoices.find(v =>
                         v.lang.toLowerCase().startsWith(targetLang) &&
-                        v.name.includes(name)
+                        v.name.toLowerCase().includes(name.toLowerCase())
                     );
                     if (selectedVoice) break;
                 }
             }
 
+            // Tier 4: Lang + Check for 'female' or 'f' in metadata (some browsers)
+            if (!selectedVoice) {
+                selectedVoice = availableVoices.find(v =>
+                    v.lang.toLowerCase().startsWith(targetLang) &&
+                    (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes(' f '))
+                );
+            }
+
+            // Tier 5: Just any non-male voice for the language
             if (!selectedVoice) {
                 selectedVoice = availableVoices.find(v => v.lang.toLowerCase().startsWith(targetLang));
             }
 
             if (selectedVoice) {
                 utterance.voice = selectedVoice;
-                const isVerifiedFemale = femalePatterns.some(p => selectedVoice!.name.includes(p));
-                utterance.pitch = isVerifiedFemale ? 1.05 : 1.45; // Increased pitch for gen-voices
-                utterance.rate = 0.95;
+                const isVerifiedFemale = femalePatterns.some(p => selectedVoice!.name.toLowerCase().includes(p.toLowerCase()));
+                // If not verified female, go much higher to guarantee feminine sound
+                utterance.pitch = isVerifiedFemale ? 1.1 : 1.55;
+                utterance.rate = 0.92; // Slightly slower for warmth
             } else {
-                utterance.pitch = 1.45;
-                utterance.rate = 0.95;
+                utterance.pitch = 1.6; // Extremely high to fail-safe into feminine tone
+                utterance.rate = 0.92;
             }
 
             utterance.onstart = () => setIsSpeaking(true);
             utterance.onend = () => {
                 setIsSpeaking(false);
-                if (isHandsFree && recognitionRef.current && isOpen) {
-                    // Slight delay to ensure mic is ready
-                    setTimeout(() => {
-                        if (isHandsFree && recognitionRef.current && !isThinking && !isSpeaking) {
-                            try {
-                                recognitionRef.current.start();
-                                setIsListening(true);
-                            } catch (e) {
-                                console.error('Restart recognition failed:', e);
-                            }
-                        }
-                    }, 300);
-                }
+                // Mic restart is now handled by the centralized effect
             };
 
             window.speechSynthesis.speak(utterance);
@@ -286,23 +303,25 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
                 >
                     <Mic className="w-8 h-8 text-black" />
                     <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="absolute -left-32 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">Asistente de Voz</span>
+                    <span className="absolute -left-32 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Asistente de Voz</span>
                 </button>
             )}
 
             {isOpen && (
                 <div className="fixed bottom-6 right-6 z-[9999] w-96 h-[600px] bg-zinc-900 border border-zinc-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden">
-                    <div className="bg-gradient-to-r from-amber-500 to-amber-600 p-4 flex items-center justify-between">
+                    <div className={`p-4 flex items-center justify-between transition-colors duration-500 ${isHandsFree ? 'bg-gradient-to-r from-green-600/50 to-amber-600/50 animate-pulse' : 'bg-gradient-to-r from-amber-500 to-amber-600'}`}>
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-black/20 rounded-full flex items-center justify-center relative">
                                 <MessageCircle className="w-6 h-6 text-white" />
                                 {isHandsFree && (
-                                    <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-amber-500 animate-pulse"></div>
+                                    <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-zinc-900 animate-ping"></div>
                                 )}
                             </div>
                             <div>
                                 <h3 className="font-bold text-white text-sm">{t[lang].title}</h3>
-                                <p className="text-xs text-black/60">{isHandsFree ? 'Conversación Abierta' : 'IA Experta 24/7'}</p>
+                                <p className="text-xs text-black/70 font-medium">
+                                    {isHandsFree ? 'ESCUCHANDO SIEMPRE' : 'IA Experta 24/7'}
+                                </p>
                             </div>
                         </div>
                         <button
@@ -321,7 +340,7 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
                     <div className="flex-1 overflow-y-auto p-4 space-y-4">
                         {messages.map((msg, idx) => (
                             <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${msg.role === 'user' ? 'bg-amber-500 text-black' : 'bg-zinc-800 text-white'}`}>
+                                <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${msg.role === 'user' ? 'bg-amber-500 text-black shadow-lg' : 'bg-zinc-800 text-white border border-zinc-700'}`}>
                                     <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
                                     <p className="text-xs opacity-50 mt-1">
                                         {msg.timestamp.toLocaleTimeString(lang === 'es' ? 'es-MX' : 'en-US', { hour: '2-digit', minute: '2-digit' })}
@@ -331,7 +350,7 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
                         ))}
                         {isThinking && (
                             <div className="flex justify-start">
-                                <div className="bg-zinc-800 rounded-2xl px-4 py-3 flex gap-1">
+                                <div className="bg-zinc-800 rounded-2xl px-4 py-3 flex gap-1 border border-zinc-700">
                                     <div className="w-2 h-2 bg-amber-400 rounded-full animate-bounce"></div>
                                     <div className="w-2 h-2 bg-amber-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
                                     <div className="w-2 h-2 bg-amber-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
@@ -341,14 +360,14 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
                         <div ref={messagesEndRef} />
                     </div>
 
-                    <div className="p-4 border-t border-zinc-800">
+                    <div className="p-4 border-t border-zinc-800 bg-zinc-900/50 backdrop-blur-sm">
                         <div className="flex items-center gap-2">
                             <button
                                 onClick={() => setIsMuted(!isMuted)}
-                                className="w-10 h-10 hover:bg-zinc-800 rounded-full flex items-center justify-center transition-colors"
+                                className="w-10 h-10 hover:bg-zinc-800 rounded-full flex items-center justify-center transition-colors group"
                                 title={isMuted ? 'Activar Sonido' : 'Silenciar'}
                             >
-                                {isMuted ? <VolumeX className="w-5 h-5 text-zinc-500" /> : <Volume2 className="w-5 h-5 text-amber-400" />}
+                                {isMuted ? <VolumeX className="w-5 h-5 text-zinc-500" /> : <Volume2 className="w-5 h-5 text-amber-400 group-hover:scale-110 transition-transform" />}
                             </button>
 
                             <input
@@ -357,13 +376,13 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
                                 onChange={(e) => setInputText(e.target.value)}
                                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                                 placeholder={isListening ? 'Habla ahora...' : t[lang].placeholder}
-                                className="flex-1 bg-zinc-800 text-white px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                                className={`flex-1 bg-zinc-800 text-white px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all ${isListening ? 'ring-2 ring-green-500/50' : ''}`}
                                 disabled={isListening || isThinking}
                             />
 
                             <button
                                 onClick={toggleListening}
-                                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${isListening ? 'bg-red-500 animate-pulse' : 'bg-zinc-800 hover:bg-zinc-700'}`}
+                                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${isListening ? 'bg-red-500 shadow-lg shadow-red-500/20' : 'bg-zinc-800 hover:bg-zinc-700'}`}
                                 title={isHandsFree ? 'Desactivar Manos Libres' : 'Activar Micrófono'}
                             >
                                 {isListening ? <MicOff className="w-5 h-5 text-white" /> : <Mic className="w-5 h-5 text-amber-400" />}
@@ -372,13 +391,19 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
                             <button
                                 onClick={() => handleSendMessage()}
                                 disabled={!inputText.trim() || isThinking}
-                                className="w-10 h-10 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-full flex items-center justify-center transition-colors"
+                                className="w-10 h-10 bg-amber-500 hover:bg-amber-600 disabled:opacity-30 disabled:cursor-not-allowed rounded-full flex items-center justify-center transition-all shadow-lg shadow-amber-500/10"
                             >
                                 <Send className="w-5 h-5 text-black" />
                             </button>
                         </div>
                         {isHandsFree && (
-                            <p className="text-[10px] text-green-400 text-center mt-2 font-mono">MODO CONVERSACIÓN ABIERTA ACTIVO</p>
+                            <div className="flex items-center justify-center gap-2 mt-3 overflow-hidden">
+                                <div className="w-1 h-1 bg-green-500 rounded-full animate-ping"></div>
+                                <p className="text-[9px] text-green-400 font-bold uppercase tracking-widest animate-pulse">
+                                    Modo Conversación Abierta Activo
+                                </p>
+                                <div className="w-1 h-1 bg-green-500 rounded-full animate-ping"></div>
+                            </div>
                         )}
                     </div>
                 </div>
