@@ -76,6 +76,12 @@ function App() {
 
   // App state
   const [lang, setLang] = useState<'es' | 'en'>('es');
+  const [activeView, setActiveView] = useState('dashboard');
+  const [isPublicView, setIsPublicView] = useState(false);
+  const [selectedPublicProperty, setSelectedPublicProperty] = useState<Property | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [propertyToEdit, setPropertyToEdit] = useState<Property | null>(null);
+
   // Enforce Dark Mode
   useEffect(() => {
     document.documentElement.classList.add('dark');

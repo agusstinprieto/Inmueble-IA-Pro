@@ -165,7 +165,8 @@ export function convertToProperty(
             colony: location.colony,
             city: location.city,
             state: location.state,
-            zipCode: ''
+            zipCode: '',
+            country: 'MEXICO'
         },
         specs: {
             m2Total: scraped.m2,
