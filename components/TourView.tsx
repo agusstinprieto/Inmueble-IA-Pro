@@ -240,7 +240,12 @@ const TourView: React.FC<TourViewProps> = ({
                                             </div>
                                             {activeTour.virtualTourUrl ? (
                                                 <button
-                                                    onClick={() => setViewerStarted(true)}
+                                                    onClick={() => {
+                                                        console.log('🚀 BOTÓN INICIAR RECORRIDO CLICKEADO');
+                                                        console.log('📍 Antes - viewerStarted:', viewerStarted);
+                                                        setViewerStarted(true);
+                                                        console.log('✅ setViewerStarted(true) llamado');
+                                                    }}
                                                     className="px-8 py-3 bg-white text-black rounded-xl font-black text-xs uppercase italic hover:bg-zinc-200 transition-all"
                                                 >
                                                     {lang === 'es' ? 'Iniciar Recorrido' : 'Start Tour'}
