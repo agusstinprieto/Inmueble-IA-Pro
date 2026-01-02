@@ -26,7 +26,8 @@ import {
     Target,
     Sparkles,
     ShieldCheck,
-    TrendingUp
+    TrendingUp,
+    Download
 } from 'lucide-react';
 import { translations } from '../translations';
 import { Client, ClientStatus, FollowUp, Property, OperationType, PropertyType, ClientSegment } from '../types';
@@ -249,6 +250,40 @@ const CRMView: React.FC<CRMViewProps> = ({
         vip: clients.filter(c => getClientSegment(c) === ClientSegment.VIP).length
     };
 
+    const handleExportClients = () => {
+        // Headers
+        const headers = ['Nombre', 'Teléfono', 'Email', 'Interés', 'Estatus', 'Presupuesto Min', 'Presupuesto Max', 'Segmento', 'Fecha Registro'];
+
+        // Rows
+        const rows = filteredClients.map(client => [
+            client.name,
+            client.phone,
+            client.email || '',
+            client.interest,
+            client.status,
+            client.budgetMin,
+            client.budgetMax,
+            getClientSegment(client),
+            new Date(client.dateAdded).toLocaleDateString()
+        ]);
+
+        // CSV Content
+        const csvContent = [
+            headers.join(','),
+            ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+        ].join('\n');
+
+        // Download
+        const blob = new Blob([`\uFEFF${csvContent}`], { type: 'text/csv;charset=utf-8;' }); // Add BOM for Excel
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `clientes_export_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     return (
         <div className="p-4 lg:p-6 space-y-6">
             {/* Header */}
@@ -266,17 +301,29 @@ const CRMView: React.FC<CRMViewProps> = ({
                     </div>
                 </div>
 
-                <button
-                    onClick={() => setShowAddModal(true)}
-                    className="
-            flex items-center justify-center gap-2 px-5 py-3
-            rounded-xl font-semibold
-          "
-                    style={{ backgroundColor: brandColor, color: '#000' }}
-                >
-                    <UserPlus size={20} />
-                    {t.add_client}
-                </button>
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={handleExportClients}
+                        className="
+                flex items-center justify-center gap-2 px-5 py-3
+                rounded-xl font-semibold bg-zinc-800 text-white hover:bg-zinc-700 transition-all
+              "
+                    >
+                        <Download size={20} />
+                        Exportar CSV
+                    </button>
+                    <button
+                        onClick={() => setShowAddModal(true)}
+                        className="
+                flex items-center justify-center gap-2 px-5 py-3
+                rounded-xl font-semibold
+              "
+                        style={{ backgroundColor: brandColor, color: '#000' }}
+                    >
+                        <UserPlus size={20} />
+                        {t.add_client}
+                    </button>
+                </div>
             </div>
 
             {/* Stats Cards */}

@@ -21,7 +21,9 @@ import {
   Menu,
   X,
   Sparkles,
-  Globe
+  Globe,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { translations } from '../translations';
 import { UserRole } from '../types';
@@ -37,6 +39,8 @@ interface SidebarProps {
   onToggle: () => void;
   onLogout: () => void;
   onViewPublic: () => void;
+  theme: 'light' | 'dark';
+  onToggleTheme: () => void;
 }
 
 interface NavItem {
@@ -57,7 +61,9 @@ const Sidebar: React.FC<SidebarProps> = ({
   isOpen,
   onToggle,
   onLogout,
-  onViewPublic
+  onViewPublic,
+  theme,
+  onToggleTheme
 }) => {
   const t = translations[lang];
 
@@ -123,7 +129,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       <aside
         className={`
           fixed lg:static inset-y-0 left-0 z-50
-          w-64 bg-zinc-900 border-r border-zinc-800
+          w-64 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800
           transform transition-transform duration-200 ease-in-out
           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
           flex flex-col
@@ -131,7 +137,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       >
         {/* Header */}
         <div
-          className="p-4 border-b border-zinc-800"
+          className="p-4 border-b border-zinc-200 dark:border-zinc-800"
           style={{ backgroundColor: brandColor }}
         >
           <div className="flex items-center justify-between">
@@ -180,8 +186,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                     text-left text-sm font-medium
                     transition-all duration-150
                     ${isActive
-                      ? 'text-white'
-                      : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
+                      ? 'text-zinc-900 dark:text-white'
+                      : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800'
                     }
                   `}
                   style={isActive ? {
@@ -210,7 +216,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           </div>
 
           {/* Separator */}
-          <div className="my-4 mx-3 border-t border-zinc-800" />
+          <div className="my-4 mx-3 border-t border-zinc-200 dark:border-zinc-800" />
 
           <div className="px-3 mb-4">
             <button
@@ -236,11 +242,24 @@ const Sidebar: React.FC<SidebarProps> = ({
           {/* Settings & Logout */}
           <div className="px-3 space-y-1">
             <button
+              onClick={onToggleTheme}
+              className={`
+                w-full flex items-center gap-3 px-3 py-2.5 rounded-lg
+                text-left text-sm font-medium
+                text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800
+                transition-all duration-150
+              `}
+            >
+              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+              <span>{theme === 'dark' ? (lang === 'es' ? 'Modo Claro' : 'Light Mode') : (lang === 'es' ? 'Modo Oscuro' : 'Dark Mode')}</span>
+            </button>
+
+            <button
               onClick={() => onNavigate('settings')}
               className={`
                 w-full flex items-center gap-3 px-3 py-2.5 rounded-lg
                 text-left text-sm font-medium
-                text-zinc-400 hover:text-white hover:bg-zinc-800
+                text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800
                 transition-all duration-150
               `}
             >
@@ -264,7 +283,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         </nav>
 
         {/* Footer */}
-        <div className="p-4 border-t border-zinc-800">
+        <div className="p-4 border-t border-zinc-200 dark:border-zinc-800">
           <p className="text-xs text-zinc-500 text-center">
             Powered by <span className="text-zinc-400">Gemini AI</span>
           </p>

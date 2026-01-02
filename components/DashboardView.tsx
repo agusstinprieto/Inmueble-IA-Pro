@@ -96,8 +96,8 @@ const DashboardView: React.FC<DashboardViewProps> = ({
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-white">{t.operational_dashboard}</h1>
-                    <p className="text-zinc-400 text-sm">Bienvenido a {businessName}</p>
+                    <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{t.operational_dashboard}</h1>
+                    <p className="text-zinc-500 dark:text-zinc-400 text-sm">Bienvenido a {businessName}</p>
                 </div>
                 <div className="flex items-center gap-4">
                     <div className="hidden md:flex items-center gap-2 text-zinc-400 text-sm">
@@ -122,7 +122,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
 
             {/* Main Stats */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+                <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm dark:shadow-none">
                     <div className="flex items-center justify-between mb-3">
                         <div
                             className="w-10 h-10 rounded-lg flex items-center justify-center"
@@ -139,7 +139,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                     <p className="text-zinc-500 text-xs mt-1">de {metrics.totalProperties} totales</p>
                 </div>
 
-                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+                <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm dark:shadow-none">
                     <div className="flex items-center justify-between mb-3">
                         <div
                             className="w-10 h-10 rounded-lg flex items-center justify-center"
@@ -156,7 +156,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                     <p className="text-zinc-500 text-xs mt-1">de {metrics.totalClients} totales</p>
                 </div>
 
-                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+                <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm dark:shadow-none">
                     <div className="flex items-center justify-between mb-3">
                         <div
                             className="w-10 h-10 rounded-lg flex items-center justify-center"
@@ -173,7 +173,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                     <p className="text-zinc-500 text-xs mt-1">{formatCurrency(metrics.monthlyRevenue)}</p>
                 </div>
 
-                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+                <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm dark:shadow-none">
                     <div className="flex items-center justify-between mb-3">
                         <div
                             className="w-10 h-10 rounded-lg flex items-center justify-center"
@@ -193,8 +193,8 @@ const DashboardView: React.FC<DashboardViewProps> = ({
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Inventory Value */}
-                <div className="lg:col-span-2 bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-                    <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+                <div className="lg:col-span-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm dark:shadow-none">
+                    <h3 className="text-zinc-900 dark:text-white font-semibold mb-4 flex items-center gap-2">
                         <TrendingUp size={20} style={{ color: brandColor }} />
                         VALOR DEL INVENTARIO
                     </h3>
@@ -234,8 +234,8 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                 </div>
 
                 {/* Recent Activity */}
-                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-                    <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+                <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm dark:shadow-none">
+                    <h3 className="text-zinc-900 dark:text-white font-semibold mb-4 flex items-center gap-2">
                         <Activity size={20} style={{ color: brandColor }} />
                         {t.recent_activity}
                     </h3>
@@ -263,8 +263,8 @@ const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
 
             {/* Top Properties */}
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-                <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm dark:shadow-none">
+                <h3 className="text-zinc-900 dark:text-white font-semibold mb-4 flex items-center gap-2">
                     <BarChart3 size={20} style={{ color: brandColor }} />
                     PROPIEDADES MÁS VISTAS
                 </h3>
@@ -332,15 +332,15 @@ const DashboardView: React.FC<DashboardViewProps> = ({
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
                 <button
                     onClick={() => onNavigate('properties')}
-                    className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-left hover:border-zinc-600 transition-all cursor-pointer relative z-20"
+                    className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 text-left hover:border-zinc-400 dark:hover:border-zinc-600 transition-all cursor-pointer relative z-20 shadow-sm dark:shadow-none"
                 >
                     <Building2 size={24} style={{ color: brandColor }} />
-                    <p className="text-white font-medium mt-2">AGREGAR PROPIEDAD</p>
-                    <p className="text-zinc-500 text-sm">Registrar nueva</p>
+                    <p className="text-zinc-900 dark:text-white font-medium mt-2">AGREGAR PROPIEDAD</p>
+                    <p className="text-zinc-500 dark:text-zinc-400 text-sm">Registrar nueva</p>
                 </button>
                 <button
                     onClick={() => onNavigate('clients')}
-                    className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-left hover:border-zinc-600 transition-all cursor-pointer relative z-20"
+                    className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 text-left hover:border-zinc-400 dark:hover:border-zinc-600 transition-all cursor-pointer relative z-20 shadow-sm dark:shadow-none"
                 >
                     <Users size={24} style={{ color: brandColor }} />
                     <p className="text-white font-medium mt-2">NUEVO CLIENTE</p>

@@ -40,13 +40,43 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
 }) => {
     const t = translations[lang];
     const [exporting, setExporting] = React.useState(false);
+    const [dateRange, setDateRange] = React.useState('30'); // '30', '90', '365', 'all'
 
-    // Cálculos Reales
-    const totalVolume = sales.reduce((acc, s) => acc + s.finalPrice, 0);
-    const totalCommissions = sales.reduce((acc, s) => acc + s.commission, 0);
-    const conversionRate = clients.length > 0 ? ((sales.length / clients.length) * 100).toFixed(1) : "0";
+    // Filtro de Fechas
+    const filterDate = (dateStr: string) => {
+        if (dateRange === 'all') return true;
+        if (!dateStr) return false;
+        const date = new Date(dateStr);
+        const now = new Date();
+        const diffTime = Math.abs(now.getTime() - date.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays <= parseInt(dateRange);
+    };
 
-    // Distribución por Tipo de Propiedad
+    const filteredSales = sales.filter(s => filterDate(s.dateClosed));
+    const filteredClients = clients.filter(c => filterDate(c.dateAdded));
+    const filteredProperties = properties.filter(p => filterDate(p.dateAdded));
+
+    // Cálculos Reales (Usando datos filtrados)
+    const totalVolume = filteredSales.reduce((acc, s) => acc + s.finalPrice, 0);
+    const totalCommissions = filteredSales.reduce((acc, s) => acc + s.commission, 0);
+    const conversionRate = filteredClients.length > 0 ? ((filteredSales.length / filteredClients.length) * 100).toFixed(1) : "0";
+
+    // Distribución por Tipo de Propiedad (Usando inventario total o filtrado? Usualmente inventario actual es snapshot, pero ventas son logs. Usaremos filteredProperties para "Nuevas props en periodo" o properties total?
+    // Para "Mix de Inventario", suele ser el estado ACTUAL. Pero si filtramos "Últimos 30 días", ¿queremos ver qué se agregó?
+    // El dashboard muestra "Available Properties" en metrics generales, pero aquí es Analytics.
+    // Voy a usar properties TOTALES para el Mix de Inventario (Snapshot actual) porque eso no depende del rango de tiempo histórico de ventas,
+    // PERO si el usuario quiere ver "Qué se movió", debería ser sobre sales.
+    // El gráfico de Pie es "Mix de Inventario". Eso es snapshot. Lo dejaré con `properties` (todas las actuales).
+    // O mejor, filteredProperties para ver "Propiedades captadas en el periodo".
+    // El usuario pidió "Reporte Ejecutivo", que suele ser "Qué pasó en este periodo".
+    // Voy a usar `filteredProperties` para ser consistente con el filtro. "Nuevas propiedades captadas".
+    // Si filteredProperties es muy bajo, mostrará poco chart.
+    // Mmm, mejor dejo el Mix de Inventario como snapshot global (properties) para no vaciar el gráfico,
+    // pero los KPIs financieros SÍ filtrados.
+
+    // DECISION: Mix Inventario = Global. KPIs = Filtrados.
+
     const typeDistribution = properties.reduce((acc, p) => {
         acc[p.type] = (acc[p.type] || 0) + 1;
         return acc;
@@ -93,9 +123,18 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
                             {exporting ? 'Exportando...' : 'Exportar Reporte Ejecutivo'}
                         </span>
                     </button>
-                    <div className="flex items-center gap-2 px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-xl">
-                        <Calendar className="text-zinc-500" size={18} />
-                        <span className="text-xs font-black text-white uppercase italic">{lang === 'es' ? 'Últimos 30 días' : 'Last 30 days'}</span>
+                    <div className="flex items-center gap-2 px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-xl relative">
+                        <Calendar className="text-zinc-500 pointer-events-none" size={18} />
+                        <select
+                            value={dateRange}
+                            onChange={(e) => setDateRange(e.target.value)}
+                            className="bg-transparent text-xs font-black text-white uppercase italic focus:outline-none appearance-none pr-4 cursor-pointer"
+                        >
+                            <option value="30">{lang === 'es' ? 'Últimos 30 días' : 'Last 30 days'}</option>
+                            <option value="90">{lang === 'es' ? 'Últimos 90 días' : 'Last 90 days'}</option>
+                            <option value="365">{lang === 'es' ? 'Último año' : 'Last year'}</option>
+                            <option value="all">{lang === 'es' ? 'Todo el tiempo' : 'All time'}</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -140,7 +179,7 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
                     <div className="flex items-start justify-between relative z-10">
                         <div>
                             <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">{lang === 'es' ? 'Prospectos' : 'Leads'}</p>
-                            <h3 className="text-2xl font-black text-white mt-2 italic tracking-tighter">{clients.length}</h3>
+                            <h3 className="text-2xl font-black text-white mt-2 italic tracking-tighter">{filteredClients.length}</h3>
                             <div className="flex items-center gap-1 mt-2 text-red-400 text-[10px] font-bold">
                                 <ArrowDownRight size={12} />
                                 <span>-1.2%</span>
@@ -270,7 +309,7 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
                         </thead>
                         <tbody className="divide-y divide-zinc-800/50">
                             {agents.map((agent) => {
-                                const agentSales = sales.filter(s => s.agentId === agent.id);
+                                const agentSales = sales.filter(s => s.agentId === agent.id && filterDate(s.dateClosed));
                                 const agentRevenue = agentSales.reduce((acc, s) => acc + s.finalPrice, 0);
                                 const agentComms = agentSales.reduce((acc, s) => acc + s.commission, 0);
                                 const avgTicket = agentSales.length > 0 ? (agentRevenue / agentSales.length) : 0;

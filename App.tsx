@@ -76,11 +76,22 @@ function App() {
 
   // App state
   const [lang, setLang] = useState<'es' | 'en'>('es');
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => (localStorage.getItem('theme') as 'light' | 'dark') || 'dark');
   const [activeView, setActiveView] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isPublicView, setIsPublicView] = useState(false);
   const [selectedPublicProperty, setSelectedPublicProperty] = useState<Property | null>(null);
   const [propertyToEdit, setPropertyToEdit] = useState<Property | null>(null);
+
+  // Theme Effect
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   // Data state
   const [properties, setProperties] = useState<Property[]>([]);
@@ -884,7 +895,7 @@ function App() {
 
   // ============ RENDER MAIN ============
   return (
-    <div className="min-h-screen bg-black text-white flex">
+    <div className="min-h-screen bg-zinc-50 dark:bg-black text-zinc-900 dark:text-white flex transition-colors duration-300">
       {/* Sidebar */}
       <Sidebar
         activeView={activeView}
@@ -897,12 +908,14 @@ function App() {
         onToggle={() => setSidebarOpen(!sidebarOpen)}
         onLogout={handleLogout}
         onViewPublic={() => setIsPublicView(true)}
+        theme={theme}
+        onToggleTheme={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}
       />
 
       {/* Main Content */}
-      <main className="flex-1 min-h-screen overflow-y-auto bg-black lg:ml-0">
+      <main className="flex-1 min-h-screen overflow-y-auto bg-zinc-50 dark:bg-black lg:ml-0 transition-colors duration-300">
         {/* Top Bar */}
-        <div className="sticky top-0 z-20 bg-black/80 backdrop-blur-lg border-b border-zinc-800 px-4 py-3 flex items-center justify-between">
+        <div className="sticky top-0 z-20 bg-white/80 dark:bg-black/80 backdrop-blur-lg border-b border-zinc-200 dark:border-zinc-800 px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {isOnline ? (
               <Wifi className="text-green-400" size={18} />
