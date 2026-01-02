@@ -71,6 +71,7 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
   const [importUrl, setImportUrl] = useState('');
   const [isImporting, setIsImporting] = useState(false);
   const [importStatus, setImportStatus] = useState<string>('');
+  const [elapsedTime, setElapsedTime] = useState(0);
 
   // Manual form state
   const [formData, setFormData] = useState<Partial<Property>>({
@@ -324,6 +325,20 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
       setImportStatus('');
     }
   };
+
+  // Update timer during import
+  useEffect(() => {
+    let interval: any;
+    if (isImporting) {
+      setElapsedTime(0);
+      interval = setInterval(() => {
+        setElapsedTime(prev => prev + 1);
+      }, 1000);
+    } else {
+      if (interval) clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [isImporting]);
   // Remove media item
   const removeMedia = (id: string) => {
     setMediaItems(prev => prev.filter(m => m.id !== id));
@@ -418,9 +433,10 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
                   className="px-6 py-2.5 disabled:opacity-50 rounded-xl font-black text-xs uppercase italic transition-all"
                 >
                   {isImporting ? (
-                    <div className="flex flex-col items-center gap-1">
+                    <div className="flex flex-col items-center gap-1 min-w-[80px]">
                       <Loader2 size={16} className="animate-spin" />
                       <span className="text-[8px] whitespace-nowrap">{importStatus}</span>
+                      <span className="text-[10px] font-black">{elapsedTime}s</span>
                     </div>
                   ) : 'Importar'}
                 </button>
@@ -783,11 +799,14 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
                   <label className="block text-zinc-400 text-sm mb-2">m² Terreno</label>
                   <input
                     type="number"
-                    value={formData.specs?.m2Total || ''}
-                    onChange={e => setFormData(prev => ({
-                      ...prev,
-                      specs: { ...prev.specs!, m2Total: parseInt(e.target.value) || 0 }
-                    }))}
+                    value={formData.specs?.m2Total || 0}
+                    onChange={e => {
+                      const val = parseInt(e.target.value.replace(/^0+/, '')) || 0;
+                      setFormData(prev => ({
+                        ...prev,
+                        specs: { ...prev.specs!, m2Total: val }
+                      }));
+                    }}
                     className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white"
                   />
                 </div>
@@ -795,11 +814,14 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
                   <label className="block text-zinc-400 text-sm mb-2">m² Construcción</label>
                   <input
                     type="number"
-                    value={formData.specs?.m2Built || ''}
-                    onChange={e => setFormData(prev => ({
-                      ...prev,
-                      specs: { ...prev.specs!, m2Built: parseInt(e.target.value) || 0 }
-                    }))}
+                    value={formData.specs?.m2Built || 0}
+                    onChange={e => {
+                      const val = parseInt(e.target.value.replace(/^0+/, '')) || 0;
+                      setFormData(prev => ({
+                        ...prev,
+                        specs: { ...prev.specs!, m2Built: val }
+                      }));
+                    }}
                     className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white"
                   />
                 </div>
@@ -807,11 +829,14 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
                   <label className="block text-zinc-400 text-sm mb-2">Recámaras</label>
                   <input
                     type="number"
-                    value={formData.specs?.bedrooms || ''}
-                    onChange={e => setFormData(prev => ({
-                      ...prev,
-                      specs: { ...prev.specs!, bedrooms: parseInt(e.target.value) || 0 }
-                    }))}
+                    value={formData.specs?.bedrooms || 0}
+                    onChange={e => {
+                      const val = parseInt(e.target.value.replace(/^0+/, '')) || 0;
+                      setFormData(prev => ({
+                        ...prev,
+                        specs: { ...prev.specs!, bedrooms: val }
+                      }));
+                    }}
                     className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white"
                   />
                 </div>
@@ -819,11 +844,14 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
                   <label className="block text-zinc-400 text-sm mb-2">Baños</label>
                   <input
                     type="number"
-                    value={formData.specs?.bathrooms || ''}
-                    onChange={e => setFormData(prev => ({
-                      ...prev,
-                      specs: { ...prev.specs!, bathrooms: parseInt(e.target.value) || 0 }
-                    }))}
+                    value={formData.specs?.bathrooms || 0}
+                    onChange={e => {
+                      const val = parseInt(e.target.value.replace(/^0+/, '')) || 0;
+                      setFormData(prev => ({
+                        ...prev,
+                        specs: { ...prev.specs!, bathrooms: val }
+                      }));
+                    }}
                     className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white"
                   />
                 </div>

@@ -1069,27 +1069,63 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                             <div>
                                                 <label className="text-xs text-zinc-400 block mb-1">Recámaras</label>
-                                                <input name="bedrooms" type="number" defaultValue={0} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                                <input
+                                                    name="bedrooms"
+                                                    type="number"
+                                                    defaultValue={0}
+                                                    onInput={(e) => e.currentTarget.value = e.currentTarget.value.replace(/^0+(?=\d)/, '')}
+                                                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white"
+                                                />
                                             </div>
                                             <div>
                                                 <label className="text-xs text-zinc-400 block mb-1">Baños</label>
-                                                <input name="bathrooms" type="number" defaultValue={0} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                                <input
+                                                    name="bathrooms"
+                                                    type="number"
+                                                    defaultValue={0}
+                                                    onInput={(e) => e.currentTarget.value = e.currentTarget.value.replace(/^0+(?=\d)/, '')}
+                                                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white"
+                                                />
                                             </div>
                                             <div>
                                                 <label className="text-xs text-zinc-400 block mb-1">Pisos</label>
-                                                <input name="floors" type="number" defaultValue={1} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                                <input
+                                                    name="floors"
+                                                    type="number"
+                                                    defaultValue={1}
+                                                    onInput={(e) => e.currentTarget.value = e.currentTarget.value.replace(/^0+(?=\d)/, '')}
+                                                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white"
+                                                />
                                             </div>
                                             <div>
                                                 <label className="text-xs text-zinc-400 block mb-1">M² Const.</label>
-                                                <input name="m2Built" type="number" defaultValue={0} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                                <input
+                                                    name="m2Built"
+                                                    type="number"
+                                                    defaultValue={0}
+                                                    onInput={(e) => e.currentTarget.value = e.currentTarget.value.replace(/^0+(?=\d)/, '')}
+                                                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white"
+                                                />
                                             </div>
                                             <div>
                                                 <label className="text-xs text-zinc-400 block mb-1">M² Terreno</label>
-                                                <input name="m2Total" type="number" defaultValue={0} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                                <input
+                                                    name="m2Total"
+                                                    type="number"
+                                                    defaultValue={0}
+                                                    onInput={(e) => e.currentTarget.value = e.currentTarget.value.replace(/^0+(?=\d)/, '')}
+                                                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white"
+                                                />
                                             </div>
                                             <div>
                                                 <label className="text-xs text-zinc-400 block mb-1">Estacionam.</label>
-                                                <input name="parking" type="number" defaultValue={0} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                                <input
+                                                    name="parking"
+                                                    type="number"
+                                                    defaultValue={0}
+                                                    onInput={(e) => e.currentTarget.value = e.currentTarget.value.replace(/^0+(?=\d)/, '')}
+                                                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white"
+                                                />
                                             </div>
                                             <div className="col-span-2 md:col-span-3">
                                                 <label className="text-xs text-zinc-400 block mb-1">Descripción</label>
@@ -1392,27 +1428,63 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                                         <div className="grid grid-cols-3 gap-4">
                                             <div>
                                                 <label className="text-xs text-zinc-400 block mb-1">Recámaras</label>
-                                                <input name="bedrooms" type="number" defaultValue={editingProperty.specs.bedrooms} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                                <input
+                                                    name="bedrooms"
+                                                    type="number"
+                                                    defaultValue={editingProperty.specs.bedrooms}
+                                                    onInput={(e) => e.currentTarget.value = e.currentTarget.value.replace(/^0+(?=\d)/, '')}
+                                                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white"
+                                                />
                                             </div>
                                             <div>
                                                 <label className="text-xs text-zinc-400 block mb-1">Baños</label>
-                                                <input name="bathrooms" type="number" defaultValue={editingProperty.specs.bathrooms} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                                <input
+                                                    name="bathrooms"
+                                                    type="number"
+                                                    defaultValue={editingProperty.specs.bathrooms}
+                                                    onInput={(e) => e.currentTarget.value = e.currentTarget.value.replace(/^0+(?=\d)/, '')}
+                                                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white"
+                                                />
                                             </div>
                                             <div>
                                                 <label className="text-xs text-zinc-400 block mb-1">Estacionamientos</label>
-                                                <input name="parking" type="number" defaultValue={editingProperty.specs.parking} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                                <input
+                                                    name="parking"
+                                                    type="number"
+                                                    defaultValue={editingProperty.specs.parking}
+                                                    onInput={(e) => e.currentTarget.value = e.currentTarget.value.replace(/^0+(?=\d)/, '')}
+                                                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white"
+                                                />
                                             </div>
                                             <div>
                                                 <label className="text-xs text-zinc-400 block mb-1">M² Construidos</label>
-                                                <input name="m2Built" type="number" defaultValue={editingProperty.specs.m2Built} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                                <input
+                                                    name="m2Built"
+                                                    type="number"
+                                                    defaultValue={editingProperty.specs.m2Built}
+                                                    onInput={(e) => e.currentTarget.value = e.currentTarget.value.replace(/^0+(?=\d)/, '')}
+                                                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white"
+                                                />
                                             </div>
                                             <div>
                                                 <label className="text-xs text-zinc-400 block mb-1">M² Terreno</label>
-                                                <input name="m2Total" type="number" defaultValue={editingProperty.specs.m2Total} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                                <input
+                                                    name="m2Total"
+                                                    type="number"
+                                                    defaultValue={editingProperty.specs.m2Total}
+                                                    onInput={(e) => e.currentTarget.value = e.currentTarget.value.replace(/^0+(?=\d)/, '')}
+                                                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white"
+                                                />
                                             </div>
                                             <div>
                                                 <label className="text-xs text-zinc-400 block mb-1">Pisos</label>
-                                                <input name="floors" type="number" defaultValue={editingProperty.specs.floors} className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" />
+                                                <input
+                                                    name="floors"
+                                                    type="number"
+                                                    defaultValue={editingProperty.specs.floors}
+                                                    onInput={(e) => e.currentTarget.value = e.currentTarget.value.replace(/^0+(?=\d)/, '')}
+                                                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white"
+                                                />
                                             </div>
                                         </div>
                                     </div>
