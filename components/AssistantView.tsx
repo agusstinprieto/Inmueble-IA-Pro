@@ -100,8 +100,8 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
     useEffect(() => {
         if (messages.length === 0) {
             const welcomeText = lang === 'es'
-                ? `¡Hola! ¿En qué te ayudo hoy?`
-                : `Hi! How can I help you today?`;
+                ? `Hola, soy tu asesor en bienes raíces. ¿En qué te puedo ayudar?`
+                : `Hi, I'm your real estate advisor. How can I help you?`;
 
             setMessages([{
                 role: 'assistant',
@@ -312,7 +312,7 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
             )}
 
             {isOpen && (
-                <div className="fixed bottom-6 right-6 z-[9999] w-96 h-[600px] bg-zinc-900 border border-zinc-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+                <div className="fixed bottom-6 right-6 z-[9999] w-96 h-[550px] max-h-[80vh] bg-zinc-900 border border-zinc-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden">
                     <div className={`p-4 flex items-center justify-between transition-colors duration-500 ${isHandsFree ? 'bg-gradient-to-r from-green-600/50 to-amber-600/50 animate-pulse' : 'bg-gradient-to-r from-amber-500 to-amber-600'}`}>
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-black/20 rounded-full flex items-center justify-center relative">
