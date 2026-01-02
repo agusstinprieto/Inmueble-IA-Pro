@@ -103,9 +103,13 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
             setIsListening(false);
             setIsHandsFree(false);
         } else {
-            recognitionRef.current.start();
-            setIsListening(true);
-            setIsHandsFree(true); // Enable hands-free mode when mic is manually activated
+            try {
+                recognitionRef.current.start();
+                setIsListening(true);
+                setIsHandsFree(true);
+            } catch (e) {
+                console.error('Recognition start error:', e);
+            }
         }
     };
 
@@ -142,6 +146,16 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
 
             if (!isMuted && 'speechSynthesis' in window) {
                 speakText(response);
+            } else if (isHandsFree) {
+                // If muted but hands-free, restart listening after a delay
+                setTimeout(() => {
+                    if (isHandsFree && recognitionRef.current && !isListening && !isThinking) {
+                        try {
+                            recognitionRef.current.start();
+                            setIsListening(true);
+                        } catch (e) { }
+                    }
+                }, 1000);
             }
         } catch (error) {
             console.error('Assistant error:', error);
@@ -151,6 +165,7 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
                 timestamp: new Date()
             };
             setMessages(prev => [...prev, errorMessage]);
+            if (isHandsFree) setIsHandsFree(false); // Disable on error
         } finally {
             setIsThinking(false);
         }
@@ -163,32 +178,31 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = lang === 'es' ? 'es-MX' : 'en-US';
 
-        const setVoice = () => {
+        const setVoiceAndSpeak = () => {
             const voices = window.speechSynthesis.getVoices();
             if (voices.length === 0) return;
 
-            // 1. Defined Preferred Female Patterns
             const femalePatterns = [
                 'Google español', 'Dalia', 'Helena', 'Sabina', 'Elsa', 'Zira',
                 'Microsoft Salma Online', 'Microsoft Larisa Online', 'Monica',
-                'Google UK English Female', 'Google US English Female'
+                'Google UK English Female', 'Google US English Female', 'Microsoft Libby Online'
+            ];
+
+            const maleExclusions = [
+                'male', 'guy', 'david', 'pablo', 'raul', 'antonio', 'sergio',
+                'microsoft paul', 'microsoft stefan', 'google us english male'
             ];
 
             const qualityPatterns = ['Natural', 'Online', 'Neural', 'Premium'];
             const targetLang = lang === 'es' ? 'es' : 'en';
 
-            // 2. Filter out known male voices immediately to avoid accidental selection
             const availableVoices = voices.filter(v =>
-                !v.name.toLowerCase().includes('male') &&
-                !v.name.toLowerCase().includes('guy') &&
-                !v.name.toLowerCase().includes('david') &&
-                !v.name.toLowerCase().includes('pablo')
+                !maleExclusions.some(m => v.name.toLowerCase().includes(m))
             );
 
             let selectedVoice = null;
 
-            // 3. Selection Logic (Tiered)
-            // Tier 1: Language + Pattern + Quality
+            // Tiered Selection
             for (const q of qualityPatterns) {
                 for (const name of femalePatterns) {
                     selectedVoice = availableVoices.find(v =>
@@ -201,7 +215,6 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
                 if (selectedVoice) break;
             }
 
-            // Tier 2: Language + Quality (Any)
             if (!selectedVoice) {
                 for (const q of qualityPatterns) {
                     selectedVoice = availableVoices.find(v =>
@@ -212,7 +225,6 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
                 }
             }
 
-            // Tier 3: Language + Female Name Pattern
             if (!selectedVoice) {
                 for (const name of femalePatterns) {
                     selectedVoice = availableVoices.find(v =>
@@ -223,21 +235,17 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
                 }
             }
 
-            // Tier 4: Just Language (non-male)
             if (!selectedVoice) {
                 selectedVoice = availableVoices.find(v => v.lang.toLowerCase().startsWith(targetLang));
             }
 
-            // 4. Set Voice and Adjust Attributes
             if (selectedVoice) {
                 utterance.voice = selectedVoice;
-                // Significant pitch increase if it's not a verified neural feminine voice
                 const isVerifiedFemale = femalePatterns.some(p => selectedVoice!.name.includes(p));
-                utterance.pitch = isVerifiedFemale ? 1.05 : 1.35;
+                utterance.pitch = isVerifiedFemale ? 1.05 : 1.45; // Increased pitch for gen-voices
                 utterance.rate = 0.95;
             } else {
-                // Last ditch effort if still no voice (using system default)
-                utterance.pitch = 1.35;
+                utterance.pitch = 1.45;
                 utterance.rate = 0.95;
             }
 
@@ -245,25 +253,27 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
             utterance.onend = () => {
                 setIsSpeaking(false);
                 if (isHandsFree && recognitionRef.current && isOpen) {
+                    // Slight delay to ensure mic is ready
                     setTimeout(() => {
-                        if (!isThinking && !isSpeaking) {
+                        if (isHandsFree && recognitionRef.current && !isThinking && !isSpeaking) {
                             try {
                                 recognitionRef.current.start();
                                 setIsListening(true);
-                            } catch (e) { }
+                            } catch (e) {
+                                console.error('Restart recognition failed:', e);
+                            }
                         }
-                    }, 500);
+                    }, 300);
                 }
             };
 
             window.speechSynthesis.speak(utterance);
         };
 
-        // Voices are sometimes loaded asynchronously
         if (window.speechSynthesis.getVoices().length === 0) {
-            window.speechSynthesis.onvoiceschanged = setVoice;
+            window.speechSynthesis.onvoiceschanged = setVoiceAndSpeak;
         } else {
-            setVoice();
+            setVoiceAndSpeak();
         }
     };
 
@@ -276,6 +286,7 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
                 >
                     <Mic className="w-8 h-8 text-black" />
                     <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="absolute -left-32 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">Asistente de Voz</span>
                 </button>
             )}
 
@@ -283,12 +294,15 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
                 <div className="fixed bottom-6 right-6 z-[9999] w-96 h-[600px] bg-zinc-900 border border-zinc-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden">
                     <div className="bg-gradient-to-r from-amber-500 to-amber-600 p-4 flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-black/20 rounded-full flex items-center justify-center">
+                            <div className="w-10 h-10 bg-black/20 rounded-full flex items-center justify-center relative">
                                 <MessageCircle className="w-6 h-6 text-white" />
+                                {isHandsFree && (
+                                    <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-amber-500 animate-pulse"></div>
+                                )}
                             </div>
                             <div>
                                 <h3 className="font-bold text-white text-sm">{t[lang].title}</h3>
-                                <p className="text-xs text-black/60">{isHandsFree ? t[lang].handsFreeOn : 'IA Experta 24/7'}</p>
+                                <p className="text-xs text-black/60">{isHandsFree ? 'Conversación Abierta' : 'IA Experta 24/7'}</p>
                             </div>
                         </div>
                         <button
@@ -296,6 +310,7 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
                                 setIsOpen(false);
                                 setIsHandsFree(false);
                                 if (isSpeaking) window.speechSynthesis.cancel();
+                                if (isListening) recognitionRef.current?.stop();
                             }}
                             className="w-8 h-8 hover:bg-black/10 rounded-full flex items-center justify-center transition-colors"
                         >
@@ -307,7 +322,7 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
                         {messages.map((msg, idx) => (
                             <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                                 <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${msg.role === 'user' ? 'bg-amber-500 text-black' : 'bg-zinc-800 text-white'}`}>
-                                    <p className="text-sm leading-relaxed">{msg.content}</p>
+                                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
                                     <p className="text-xs opacity-50 mt-1">
                                         {msg.timestamp.toLocaleTimeString(lang === 'es' ? 'es-MX' : 'en-US', { hour: '2-digit', minute: '2-digit' })}
                                     </p>
@@ -331,6 +346,7 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
                             <button
                                 onClick={() => setIsMuted(!isMuted)}
                                 className="w-10 h-10 hover:bg-zinc-800 rounded-full flex items-center justify-center transition-colors"
+                                title={isMuted ? 'Activar Sonido' : 'Silenciar'}
                             >
                                 {isMuted ? <VolumeX className="w-5 h-5 text-zinc-500" /> : <Volume2 className="w-5 h-5 text-amber-400" />}
                             </button>
@@ -340,7 +356,7 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
                                 value={inputText}
                                 onChange={(e) => setInputText(e.target.value)}
                                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                                placeholder={isListening ? t[lang].listening : t[lang].placeholder}
+                                placeholder={isListening ? 'Habla ahora...' : t[lang].placeholder}
                                 className="flex-1 bg-zinc-800 text-white px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
                                 disabled={isListening || isThinking}
                             />
@@ -348,6 +364,7 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
                             <button
                                 onClick={toggleListening}
                                 className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${isListening ? 'bg-red-500 animate-pulse' : 'bg-zinc-800 hover:bg-zinc-700'}`}
+                                title={isHandsFree ? 'Desactivar Manos Libres' : 'Activar Micrófono'}
                             >
                                 {isListening ? <MicOff className="w-5 h-5 text-white" /> : <Mic className="w-5 h-5 text-amber-400" />}
                             </button>
@@ -360,6 +377,9 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
                                 <Send className="w-5 h-5 text-black" />
                             </button>
                         </div>
+                        {isHandsFree && (
+                            <p className="text-[10px] text-green-400 text-center mt-2 font-mono">MODO CONVERSACIÓN ABIERTA ACTIVO</p>
+                        )}
                     </div>
                 </div>
             )}
