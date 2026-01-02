@@ -22,6 +22,7 @@ interface MapViewProps {
     properties: Property[];
     lang: 'es' | 'en';
     brandColor: string;
+    onPropertySelect?: (property: Property) => void;
 }
 
 // Declaración para TypeScript ya que Leaflet se carga vía CDN
@@ -30,13 +31,35 @@ declare const L: any;
 const MapView: React.FC<MapViewProps> = ({
     properties,
     lang,
-    brandColor
+    brandColor,
+    onPropertySelect
 }) => {
     const t = translations[lang];
     const [selectedProp, setSelectedProp] = useState<Property | null>(null);
+    const [geocodedCoords, setGeocodedCoords] = useState<Map<string, { lat: number, lng: number }>>(new Map());
     const mapRef = useRef<HTMLDivElement>(null);
     const mapInstance = useRef<any>(null);
     const markersRef = useRef<any[]>([]);
+
+    // Geocode address to get coordinates
+    const geocodeAddress = async (property: Property): Promise<{ lat: number, lng: number } | null> => {
+        try {
+            const address = `${property.address.colony}, ${property.address.city}, ${property.address.state}, Mexico`;
+            const response = await fetch(
+                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`
+            );
+            const data = await response.json();
+            if (data && data.length > 0) {
+                return {
+                    lat: parseFloat(data[0].lat),
+                    lng: parseFloat(data[0].lon)
+                };
+            }
+        } catch (error) {
+            console.error('Geocoding error:', error);
+        }
+        return null;
+    };
 
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat(lang === 'es' ? 'es-MX' : 'en-US', {
@@ -70,43 +93,73 @@ const MapView: React.FC<MapViewProps> = ({
         };
     }, []);
 
-    // Actualizar Marcadores
+    // Geocode properties and update markers
     useEffect(() => {
         if (!mapInstance.current) return;
 
-        // Limpiar marcadores previos
-        markersRef.current.forEach(m => m.remove());
-        markersRef.current = [];
+        const geocodeProperties = async () => {
+            // Limpiar marcadores previos
+            markersRef.current.forEach(m => m.remove());
+            markersRef.current = [];
 
-        properties.forEach((p, idx) => {
-            // Si no hay coordenadas, generamos unas cerca del centro para visualización
-            const lat = p.coordinates?.lat || 25.5439 + (Math.random() - 0.5) * 0.05;
-            const lng = p.coordinates?.lng || -103.4190 + (Math.random() - 0.5) * 0.05;
+            for (const p of properties) {
+                let lat, lng;
 
-            const customIcon = L.divIcon({
-                className: 'custom-map-marker',
-                html: `
-                    <div class="marker-container" style="background-color: ${brandColor}">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                    </div>
-                `,
-                iconSize: [32, 32],
-                iconAnchor: [16, 32]
-            });
+                // Try to use existing coordinates
+                if (p.coordinates?.lat && p.coordinates?.lng) {
+                    lat = p.coordinates.lat;
+                    lng = p.coordinates.lng;
+                } else {
+                    // Check if we already geocoded this property
+                    const cached = geocodedCoords.get(p.id);
+                    if (cached) {
+                        lat = cached.lat;
+                        lng = cached.lng;
+                    } else {
+                        // Geocode the address
+                        const coords = await geocodeAddress(p);
+                        if (coords) {
+                            lat = coords.lat;
+                            lng = coords.lng;
+                            // Cache the result
+                            setGeocodedCoords(prev => new Map(prev).set(p.id, coords));
+                            // Add small delay to respect API rate limit
+                            await new Promise(resolve => setTimeout(resolve, 1000));
+                        } else {
+                            // Fallback to default center
+                            lat = 25.5439;
+                            lng = -103.4190;
+                        }
+                    }
+                }
 
-            const marker = L.marker([lat, lng], { icon: customIcon })
-                .addTo(mapInstance.current)
-                .on('click', () => setSelectedProp(p));
+                const customIcon = L.divIcon({
+                    className: 'custom-map-marker',
+                    html: `
+                        <div class="marker-container" style="background-color: ${brandColor}">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                        </div>
+                    `,
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 32]
+                });
 
-            markersRef.current.push(marker);
-        });
+                const marker = L.marker([lat, lng], { icon: customIcon })
+                    .addTo(mapInstance.current)
+                    .on('click', () => setSelectedProp(p));
 
-        // Ajustar vista si hay propiedades
-        if (properties.length > 0) {
-            const group = L.featureGroup(markersRef.current);
-            mapInstance.current.fitBounds(group.getBounds().pad(0.1));
-        }
-    }, [properties, brandColor]);
+                markersRef.current.push(marker);
+            }
+
+            // Ajustar vista si hay propiedades
+            if (properties.length > 0 && markersRef.current.length > 0) {
+                const group = L.featureGroup(markersRef.current);
+                mapInstance.current.fitBounds(group.getBounds().pad(0.1));
+            }
+        };
+
+        geocodeProperties();
+    }, [properties, brandColor, geocodedCoords]);
 
     return (
         <div className="h-[calc(100vh-100px)] relative overflow-hidden bg-[#0a0a0a]">
@@ -203,6 +256,7 @@ const MapView: React.FC<MapViewProps> = ({
                                         {formatCurrency(selectedProp.operation === OperationType.VENTA ? selectedProp.salePrice || 0 : selectedProp.rentPrice || 0)}
                                     </p>
                                     <button
+                                        onClick={() => onPropertySelect?.(selectedProp)}
                                         style={{ backgroundColor: brandColor }}
                                         className="p-2.5 text-black rounded-xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-amber-500/20"
                                     >

@@ -719,6 +719,10 @@ function App() {
             properties={properties}
             lang={lang}
             brandColor={brandColor}
+            onPropertySelect={(property) => {
+              setSelectedPublicProperty(property);
+              setIsPublicView(true);
+            }}
           />
         );
 
