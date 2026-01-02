@@ -133,6 +133,11 @@ export const translations = {
       COLD: 'Archivo (Cold)',
       NEW: 'Nuevo (New)'
     },
+    duel_mode: "DUELO DE PROPIEDADES",
+    verdict: "DICTAMEN INTELIGENTE",
+    best_value: "Mejor Relación Valor",
+    difference: "Diferencia",
+    winner: "Ganador",
 
     // Tipos de seguimiento
     follow_up_types: {
@@ -413,6 +418,11 @@ export const translations = {
       COLD: 'Cold (Archived)',
       NEW: 'New Lead'
     },
+    duel_mode: "PROPERTY DUEL",
+    verdict: "SMART VERDICT",
+    best_value: "Best Value Ratio",
+    difference: "Difference",
+    winner: "Winner",
 
     follow_up_types: {
       LLAMADA: 'Call',
