@@ -484,421 +484,421 @@ function App() {
       console.error('Error creating sale:', error);
     }
   }
-};
 
-const handleUpdateAgency = async (data: { name: string; brandColor: string }) => {
-  if (!profile?.agencyId) return false;
 
-  try {
-    const success = await updateAgencyProfile(profile.agencyId, {
-      name: data.name,
-      brandColor: data.brandColor
-    });
+  const handleUpdateAgency = async (data: { name: string; brandColor: string }) => {
+    if (!profile?.agencyId) return false;
 
-    if (success) {
-      setBusinessName(data.name);
-      setBrandColor(data.brandColor);
-      setAgency(prev => prev ? { ...prev, name: data.name, brandColor: data.brandColor } : null);
+    try {
+      const success = await updateAgencyProfile(profile.agencyId, {
+        name: data.name,
+        brandColor: data.brandColor
+      });
 
-      // Update local storage
-      localStorage.setItem('inmueble_businessName', data.name);
-      localStorage.setItem('inmueble_brandColor', data.brandColor);
+      if (success) {
+        setBusinessName(data.name);
+        setBrandColor(data.brandColor);
+        setAgency(prev => prev ? { ...prev, name: data.name, brandColor: data.brandColor } : null);
+
+        // Update local storage
+        localStorage.setItem('inmueble_businessName', data.name);
+        localStorage.setItem('inmueble_brandColor', data.brandColor);
+      }
+      return success;
+    } catch (error) {
+      console.error('Error updating agency:', error);
+      return false;
     }
-    return success;
-  } catch (error) {
-    console.error('Error updating agency:', error);
-    return false;
-  }
-};
+  };
 
-// ============ NAVIGATION ============
+  // ============ NAVIGATION ============
 
-const handleNavigate = (view: string) => {
-  console.log(`🚀 Navegando a: ${view}`);
-  setActiveView(view);
-  setSidebarOpen(false);
-};
+  const handleNavigate = (view: string) => {
+    console.log(`🚀 Navegando a: ${view}`);
+    setActiveView(view);
+    setSidebarOpen(false);
+  };
 
-const handleEditRequest = (property: Property) => {
-  setPropertyToEdit(property);
-  setActiveView('properties');
-};
+  const handleEditRequest = (property: Property) => {
+    setPropertyToEdit(property);
+    setActiveView('properties');
+  };
 
-// ============ RENDER ============
+  // ============ RENDER ============
 
-// Loading screen
-if (isLoading) {
-  return (
-    <div
-      className="min-h-screen flex items-center justify-center p-4 text-center"
-      style={{ backgroundColor: '#0a0a0a' }}
-    >
-      <div className="max-w-xs w-full">
-        <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4" style={{ color: brandColor }} />
-        <p className="text-zinc-400 mb-6">Cargando Inmueble IA Pro...</p>
-
-        {showBypass && (
-          <button
-            onClick={() => setIsLoading(false)}
-            className="w-full px-4 py-3 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl text-sm font-medium transition-all animate-in fade-in slide-in-from-bottom-2"
-            style={{ border: `1px solid ${brandColor}40` }}
-          >
-            ¿Tarda demasiado? Entrar ahora
-          </button>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// Login screen
-if (!isAuthenticated) {
-  return (
-    <LoginView
-      brandColor={brandColor}
-      lang={lang}
-      onToggleLang={() => setLang(l => l === 'es' ? 'en' : 'es')}
-      onEnterGuest={() => setIsPublicView(true)}
-    />
-  );
-}
-
-// Render active view
-const renderView = () => {
-  switch (activeView) {
-    case 'dashboard':
-      return (
-        <DashboardView
-          properties={properties}
-          clients={clients}
-          sales={sales}
-          lang={lang}
-          brandColor={brandColor}
-          businessName={businessName}
-          onNavigate={(v) => {
-            console.log('Dashboard click:', v);
-            handleNavigate(v);
-          }}
-          onViewPublic={() => setIsPublicView(true)}
-        />
-      );
-
-    case 'analyze':
-      return (
-        <AnalysisView
-          onAddProperty={handleAddProperty}
-          lang={lang}
-          businessName={businessName}
-          location={location}
-          brandColor={brandColor}
-          agentId={userId || ''}
-          agencyId=""
-        />
-      );
-
-    case 'properties':
-      return (
-        <PropertiesView
-          properties={properties}
-          onAddProperty={handleAddProperty}
-          onEditProperty={handleEditProperty}
-          onDeleteProperty={handleDeleteProperty}
-          onViewProperty={() => { }}
-          lang={lang}
-          brandColor={brandColor}
-          businessName={businessName}
-          location={location}
-          editingPropertyProp={propertyToEdit}
-          onClearEditingProperty={() => setPropertyToEdit(null)}
-        />
-      );
-
-    case 'clients':
-      return (
-        <CRMView
-          clients={clients}
-          properties={properties}
-          onAddClient={handleAddClient}
-          onUpdateClient={handleUpdateClient}
-          onDeleteClient={handleDeleteClient}
-          lang={lang}
-          brandColor={brandColor}
-          agentName={businessName}
-        />
-      );
-
-    case 'contracts':
-      return (
-        <ContractsView
-          contracts={contracts}
-          properties={properties}
-          clients={clients}
-          onAddContract={handleAddContract}
-          onDeleteContract={handleDeleteContract}
-          lang={lang}
-          brandColor={brandColor}
-          businessName={businessName}
-        />
-      );
-
-    case 'sales':
-      return (
-        <SalesView
-          sales={sales}
-          properties={properties}
-          clients={clients}
-          lang={lang}
-          brandColor={brandColor}
-          businessName={businessName}
-          onAddSale={handleAddSaleRequest}
-          agentId={userId || ''}
-        />
-      );
-
-    case 'agents':
-      return (
-        <AgentsView
-          agents={agents}
-          properties={properties}
-          sales={sales}
-          clients={clients}
-          onAddAgent={handleAddAgent}
-          onEditAgent={handleUpdateAgent}
-          onDeleteAgent={handleDeleteAgent}
-          lang={lang}
-          brandColor={brandColor}
-          businessName={businessName}
-          onUpdateAgency={handleUpdateAgency}
-        />
-      );
-
-    case 'calculator':
-      return (
-        <MortgageCalculator
-          lang={lang}
-          brandColor={brandColor}
-        />
-      );
-
-    case 'gallery':
-      return (
-        <GalleryView
-          properties={properties}
-          lang={lang}
-          brandColor={brandColor}
-          onUpdateProperty={handleEditProperty}
-          onEditRequest={handleEditRequest}
-        />
-      );
-
-    case 'market':
-      return (
-        <MarketSearchView
-          properties={properties}
-          lang={lang}
-          brandColor={brandColor}
-        />
-      );
-
-    case 'valuation':
-      return (
-        <ValuationView
-          lang={lang}
-          brandColor={brandColor}
-          businessName={businessName}
-        />
-      );
-
-    case 'map':
-      return (
-        <MapView
-          properties={properties}
-          lang={lang}
-          brandColor={brandColor}
-        />
-      );
-
-    case 'tours':
-      return (
-        <TourView
-          properties={properties}
-          lang={lang}
-          brandColor={brandColor}
-          onUpdateProperty={handleEditProperty}
-        />
-      );
-
-    case 'analytics':
-      return (
-        <AnalyticsView
-          properties={properties}
-          clients={clients}
-          sales={sales}
-          agents={agents}
-          lang={lang}
-          brandColor={brandColor}
-        />
-      );
-
-    case 'settings':
-      return (
-        <SettingsView
-          businessName={businessName}
-          setBusinessName={setBusinessName}
-          location={location}
-          setLocation={setLocation}
-          brandColor={brandColor}
-          setBrandColor={setBrandColor}
-          lang={lang}
-          setLang={setLang}
-          scriptUrl={scriptUrl}
-          setScriptUrl={setScriptUrl}
-          onSync={syncWithCloud}
-          onSaveProfile={async () => {
-            if (!userId) return false;
-
-            const profileSuccess = await updateUserProfile(userId, {
-              name: businessName,
-              photoUrl: profile?.photoUrl
-            });
-
-            let agencySuccess = true;
-            if (profile?.agencyId && profile.role === 'agency_owner') {
-              agencySuccess = await updateAgencyProfile(profile.agencyId, {
-                name: businessName,
-                brandColor: brandColor,
-                googleSheetsUrl: scriptUrl
-              });
-
-              if (agencySuccess) {
-                // Update local agency state
-                setAgency(prev => prev ? {
-                  ...prev,
-                  name: businessName,
-                  brandColor: brandColor,
-                  googleSheetsUrl: scriptUrl
-                } : null);
-              }
-            }
-
-            if (profileSuccess && agencySuccess) {
-              localStorage.setItem('inmueble_businessName', businessName);
-              localStorage.setItem('inmueble_brandColor', brandColor);
-              return true;
-            }
-            return false;
-          }}
-        />
-      );
-
-    default:
-      console.log(`⚠️ Vista desconocida o directa: ${activeView}, cargando dashboard`);
-      return (
-        <DashboardView
-          properties={properties}
-          clients={clients}
-          sales={sales}
-          lang={lang}
-          brandColor={brandColor}
-          businessName={businessName}
-          onNavigate={handleNavigate}
-        />
-      );
-  }
-};
-
-// ============ PUBLIC VIEW LOGIC ============
-if (isPublicView) {
-  if (selectedPublicProperty) {
+  // Loading screen
+  if (isLoading) {
     return (
-      <PublicPropertyDetail
-        property={selectedPublicProperty}
-        lang={lang}
+      <div
+        className="min-h-screen flex items-center justify-center p-4 text-center"
+        style={{ backgroundColor: '#0a0a0a' }}
+      >
+        <div className="max-w-xs w-full">
+          <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4" style={{ color: brandColor }} />
+          <p className="text-zinc-400 mb-6">Cargando Inmueble IA Pro...</p>
+
+          {showBypass && (
+            <button
+              onClick={() => setIsLoading(false)}
+              className="w-full px-4 py-3 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl text-sm font-medium transition-all animate-in fade-in slide-in-from-bottom-2"
+              style={{ border: `1px solid ${brandColor}40` }}
+            >
+              ¿Tarda demasiado? Entrar ahora
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Login screen
+  if (!isAuthenticated) {
+    return (
+      <LoginView
         brandColor={brandColor}
-        agencyName={businessName}
-        onBack={() => setSelectedPublicProperty(null)}
+        lang={lang}
+        onToggleLang={() => setLang(l => l === 'es' ? 'en' : 'es')}
+        onEnterGuest={() => setIsPublicView(true)}
       />
     );
   }
+
+  // Render active view
+  const renderView = () => {
+    switch (activeView) {
+      case 'dashboard':
+        return (
+          <DashboardView
+            properties={properties}
+            clients={clients}
+            sales={sales}
+            lang={lang}
+            brandColor={brandColor}
+            businessName={businessName}
+            onNavigate={(v) => {
+              console.log('Dashboard click:', v);
+              handleNavigate(v);
+            }}
+            onViewPublic={() => setIsPublicView(true)}
+          />
+        );
+
+      case 'analyze':
+        return (
+          <AnalysisView
+            onAddProperty={handleAddProperty}
+            lang={lang}
+            businessName={businessName}
+            location={location}
+            brandColor={brandColor}
+            agentId={userId || ''}
+            agencyId=""
+          />
+        );
+
+      case 'properties':
+        return (
+          <PropertiesView
+            properties={properties}
+            onAddProperty={handleAddProperty}
+            onEditProperty={handleEditProperty}
+            onDeleteProperty={handleDeleteProperty}
+            onViewProperty={() => { }}
+            lang={lang}
+            brandColor={brandColor}
+            businessName={businessName}
+            location={location}
+            editingPropertyProp={propertyToEdit}
+            onClearEditingProperty={() => setPropertyToEdit(null)}
+          />
+        );
+
+      case 'clients':
+        return (
+          <CRMView
+            clients={clients}
+            properties={properties}
+            onAddClient={handleAddClient}
+            onUpdateClient={handleUpdateClient}
+            onDeleteClient={handleDeleteClient}
+            lang={lang}
+            brandColor={brandColor}
+            agentName={businessName}
+          />
+        );
+
+      case 'contracts':
+        return (
+          <ContractsView
+            contracts={contracts}
+            properties={properties}
+            clients={clients}
+            onAddContract={handleAddContract}
+            onDeleteContract={handleDeleteContract}
+            lang={lang}
+            brandColor={brandColor}
+            businessName={businessName}
+          />
+        );
+
+      case 'sales':
+        return (
+          <SalesView
+            sales={sales}
+            properties={properties}
+            clients={clients}
+            lang={lang}
+            brandColor={brandColor}
+            businessName={businessName}
+            onAddSale={handleAddSaleRequest}
+            agentId={userId || ''}
+          />
+        );
+
+      case 'agents':
+        return (
+          <AgentsView
+            agents={agents}
+            properties={properties}
+            sales={sales}
+            clients={clients}
+            onAddAgent={handleAddAgent}
+            onEditAgent={handleUpdateAgent}
+            onDeleteAgent={handleDeleteAgent}
+            lang={lang}
+            brandColor={brandColor}
+            businessName={businessName}
+            onUpdateAgency={handleUpdateAgency}
+          />
+        );
+
+      case 'calculator':
+        return (
+          <MortgageCalculator
+            lang={lang}
+            brandColor={brandColor}
+          />
+        );
+
+      case 'gallery':
+        return (
+          <GalleryView
+            properties={properties}
+            lang={lang}
+            brandColor={brandColor}
+            onUpdateProperty={handleEditProperty}
+            onEditRequest={handleEditRequest}
+          />
+        );
+
+      case 'market':
+        return (
+          <MarketSearchView
+            properties={properties}
+            lang={lang}
+            brandColor={brandColor}
+          />
+        );
+
+      case 'valuation':
+        return (
+          <ValuationView
+            lang={lang}
+            brandColor={brandColor}
+            businessName={businessName}
+          />
+        );
+
+      case 'map':
+        return (
+          <MapView
+            properties={properties}
+            lang={lang}
+            brandColor={brandColor}
+          />
+        );
+
+      case 'tours':
+        return (
+          <TourView
+            properties={properties}
+            lang={lang}
+            brandColor={brandColor}
+            onUpdateProperty={handleEditProperty}
+          />
+        );
+
+      case 'analytics':
+        return (
+          <AnalyticsView
+            properties={properties}
+            clients={clients}
+            sales={sales}
+            agents={agents}
+            lang={lang}
+            brandColor={brandColor}
+          />
+        );
+
+      case 'settings':
+        return (
+          <SettingsView
+            businessName={businessName}
+            setBusinessName={setBusinessName}
+            location={location}
+            setLocation={setLocation}
+            brandColor={brandColor}
+            setBrandColor={setBrandColor}
+            lang={lang}
+            setLang={setLang}
+            scriptUrl={scriptUrl}
+            setScriptUrl={setScriptUrl}
+            onSync={syncWithCloud}
+            onSaveProfile={async () => {
+              if (!userId) return false;
+
+              const profileSuccess = await updateUserProfile(userId, {
+                name: businessName,
+                photoUrl: profile?.photoUrl
+              });
+
+              let agencySuccess = true;
+              if (profile?.agencyId && profile.role === 'agency_owner') {
+                agencySuccess = await updateAgencyProfile(profile.agencyId, {
+                  name: businessName,
+                  brandColor: brandColor,
+                  googleSheetsUrl: scriptUrl
+                });
+
+                if (agencySuccess) {
+                  // Update local agency state
+                  setAgency(prev => prev ? {
+                    ...prev,
+                    name: businessName,
+                    brandColor: brandColor,
+                    googleSheetsUrl: scriptUrl
+                  } : null);
+                }
+              }
+
+              if (profileSuccess && agencySuccess) {
+                localStorage.setItem('inmueble_businessName', businessName);
+                localStorage.setItem('inmueble_brandColor', brandColor);
+                return true;
+              }
+              return false;
+            }}
+          />
+        );
+
+      default:
+        console.log(`⚠️ Vista desconocida o directa: ${activeView}, cargando dashboard`);
+        return (
+          <DashboardView
+            properties={properties}
+            clients={clients}
+            sales={sales}
+            lang={lang}
+            brandColor={brandColor}
+            businessName={businessName}
+            onNavigate={handleNavigate}
+          />
+        );
+    }
+  };
+
+  // ============ PUBLIC VIEW LOGIC ============
+  if (isPublicView) {
+    if (selectedPublicProperty) {
+      return (
+        <PublicPropertyDetail
+          property={selectedPublicProperty}
+          lang={lang}
+          brandColor={brandColor}
+          agencyName={businessName}
+          onBack={() => setSelectedPublicProperty(null)}
+        />
+      );
+    }
+    return (
+      <PublicPortalView
+        properties={properties}
+        lang={lang}
+        brandColor={brandColor}
+        agencyName={businessName}
+        onViewDetail={(p) => setSelectedPublicProperty(p)}
+        onExitPublic={() => setIsPublicView(false)}
+        isAuthenticated={isAuthenticated}
+      />
+    );
+  }
+
+  // ============ RENDER MAIN ============
   return (
-    <PublicPortalView
-      properties={properties}
-      lang={lang}
-      brandColor={brandColor}
-      agencyName={businessName}
-      onViewDetail={(p) => setSelectedPublicProperty(p)}
-      onExitPublic={() => setIsPublicView(false)}
-      isAuthenticated={isAuthenticated}
-    />
+    <div className="min-h-screen bg-black text-white flex">
+      {/* Sidebar */}
+      <Sidebar
+        activeView={activeView}
+        onNavigate={handleNavigate}
+        lang={lang}
+        businessName={businessName}
+        brandColor={brandColor}
+        userRole={userRole}
+        isOpen={sidebarOpen}
+        onToggle={() => setSidebarOpen(!sidebarOpen)}
+        onLogout={handleLogout}
+        onViewPublic={() => setIsPublicView(true)}
+      />
+
+      {/* Main Content */}
+      <main className="flex-1 min-h-screen overflow-y-auto bg-black lg:ml-0">
+        {/* Top Bar */}
+        <div className="sticky top-0 z-20 bg-black/80 backdrop-blur-lg border-b border-zinc-800 px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {isOnline ? (
+              <Wifi className="text-green-400" size={18} />
+            ) : (
+              <CloudOff className="text-red-400" size={18} />
+            )}
+            {lastSync && (
+              <span className="text-zinc-500 text-sm">
+                Sync: {lastSync.toLocaleTimeString()}
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={syncWithCloud}
+              disabled={isSyncing}
+              className="flex items-center gap-2 px-3 py-1.5 bg-zinc-800 rounded-lg text-zinc-300 text-sm hover:bg-zinc-700 disabled:opacity-50"
+            >
+              <RefreshCw size={16} className={isSyncing ? 'animate-spin' : ''} />
+              {isSyncing ? 'Sincronizando...' : 'Sincronizar'}
+            </button>
+
+            <button
+              onClick={() => setLang(l => l === 'es' ? 'en' : 'es')}
+              className="px-3 py-1.5 bg-zinc-800 rounded-lg text-zinc-300 text-sm hover:bg-zinc-700"
+            >
+              {lang.toUpperCase()}
+            </button>
+          </div>
+        </div>
+
+        {/* View Content */}
+        {renderView()}
+
+        {/* Footer */}
+        <footer className="p-4 border-t border-zinc-800 text-center">
+          <p className="text-zinc-500 text-sm">
+            Powered by <span className="text-zinc-400">Gemini AI</span> •
+            Diseñado por <span style={{ color: brandColor }}>IA.AGUS</span>
+          </p>
+        </footer>
+      </main>
+    </div>
   );
-}
-
-// ============ RENDER MAIN ============
-return (
-  <div className="min-h-screen bg-black text-white flex">
-    {/* Sidebar */}
-    <Sidebar
-      activeView={activeView}
-      onNavigate={handleNavigate}
-      lang={lang}
-      businessName={businessName}
-      brandColor={brandColor}
-      userRole={userRole}
-      isOpen={sidebarOpen}
-      onToggle={() => setSidebarOpen(!sidebarOpen)}
-      onLogout={handleLogout}
-      onViewPublic={() => setIsPublicView(true)}
-    />
-
-    {/* Main Content */}
-    <main className="flex-1 min-h-screen overflow-y-auto bg-black lg:ml-0">
-      {/* Top Bar */}
-      <div className="sticky top-0 z-20 bg-black/80 backdrop-blur-lg border-b border-zinc-800 px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          {isOnline ? (
-            <Wifi className="text-green-400" size={18} />
-          ) : (
-            <CloudOff className="text-red-400" size={18} />
-          )}
-          {lastSync && (
-            <span className="text-zinc-500 text-sm">
-              Sync: {lastSync.toLocaleTimeString()}
-            </span>
-          )}
-        </div>
-
-        <div className="flex items-center gap-3">
-          <button
-            onClick={syncWithCloud}
-            disabled={isSyncing}
-            className="flex items-center gap-2 px-3 py-1.5 bg-zinc-800 rounded-lg text-zinc-300 text-sm hover:bg-zinc-700 disabled:opacity-50"
-          >
-            <RefreshCw size={16} className={isSyncing ? 'animate-spin' : ''} />
-            {isSyncing ? 'Sincronizando...' : 'Sincronizar'}
-          </button>
-
-          <button
-            onClick={() => setLang(l => l === 'es' ? 'en' : 'es')}
-            className="px-3 py-1.5 bg-zinc-800 rounded-lg text-zinc-300 text-sm hover:bg-zinc-700"
-          >
-            {lang.toUpperCase()}
-          </button>
-        </div>
-      </div>
-
-      {/* View Content */}
-      {renderView()}
-
-      {/* Footer */}
-      <footer className="p-4 border-t border-zinc-800 text-center">
-        <p className="text-zinc-500 text-sm">
-          Powered by <span className="text-zinc-400">Gemini AI</span> •
-          Diseñado por <span style={{ color: brandColor }}>IA.AGUS</span>
-        </p>
-      </footer>
-    </main>
-  </div>
-);
 }
 
 export default App;
