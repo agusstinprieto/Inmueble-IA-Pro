@@ -38,6 +38,15 @@ const TourView: React.FC<TourViewProps> = ({
     brandColor,
     onUpdateProperty
 }) => {
+    // Helper to estimate if an image is equirectangular (approx 2:1 aspect ratio)
+    // Note: In a real app we'd check dimensions, here we can look for "equirectangular" in the URL
+    // or assume properties with 360 in the title/desc are candidates if they have images.
+    const isEquirectangular = (url: string) => {
+        return url.toLowerCase().includes('360') ||
+            url.toLowerCase().includes('equi') ||
+            url.toLowerCase().includes('panorama');
+    };
+
     const t = translations[lang];
     const [activeTour, setActiveTour] = useState<Property | null>(null);
     const [viewerStarted, setViewerStarted] = useState(false);
@@ -45,6 +54,7 @@ const TourView: React.FC<TourViewProps> = ({
     const [selectedPropertyId, setSelectedPropertyId] = useState('');
     const [isSaving, setIsSaving] = useState(false);
     const [tourImageUrl, setTourImageUrl] = useState('');
+    const [showAllProperties, setShowAllProperties] = useState(false);
 
     const viewerRef = React.useRef<HTMLDivElement>(null);
 
@@ -207,40 +217,66 @@ const TourView: React.FC<TourViewProps> = ({
 
                 {/* Sidebar Selector */}
                 <div className="lg:col-span-4 space-y-6">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
-                        <input
-                            type="text"
-                            placeholder={lang === 'es' ? 'Filtrar tours...' : 'Filter tours...'}
-                            className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-amber-500 transition-all italic font-bold"
-                        />
+                    <div className="flex items-center justify-between">
+                        <div className="relative flex-1">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
+                            <input
+                                type="text"
+                                placeholder={lang === 'es' ? 'Filtrar tours...' : 'Filter tours...'}
+                                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-amber-500 transition-all italic font-bold"
+                            />
+                        </div>
+                    </div>
+
+                    <div
+                        onClick={() => setShowAllProperties(!showAllProperties)}
+                        className="flex items-center justify-between p-3 bg-zinc-900/50 border border-zinc-800 rounded-xl cursor-pointer hover:bg-zinc-800 transition-all group"
+                    >
+                        <div className="flex items-center gap-2">
+                            <div className={`w-2 h-2 rounded-full ${showAllProperties ? 'bg-zinc-600' : 'bg-green-500 animate-pulse'}`}></div>
+                            <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest leading-none">
+                                {showAllProperties
+                                    ? (lang === 'es' ? 'Viendo Todas' : 'Showing All')
+                                    : (lang === 'es' ? 'Filtro: Listas para 360' : 'Filter: 360 Ready')}
+                            </span>
+                        </div>
+                        <span className="text-[8px] text-zinc-600 font-bold uppercase group-hover:text-amber-500 transition-all">
+                            {lang === 'es' ? 'Cambiar' : 'Toggle'}
+                        </span>
                     </div>
 
                     <div className="space-y-4 overflow-y-auto max-h-[500px] custom-scrollbar pr-2">
-                        {properties.map(p => (
-                            <div
-                                key={p.id}
-                                className={`group relative rounded-2xl border transition-all cursor-pointer overflow-hidden ${activeTour?.id === p.id ? 'border-amber-500 ring-1 ring-amber-500/20' : 'border-zinc-800 hover:border-zinc-700'}`}
-                                onClick={() => {
-                                    setActiveTour(p);
-                                    setViewerStarted(false);
-                                }}
-                            >
-                                <div className="aspect-video relative">
-                                    <img src={p.images[0]} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="" />
-                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <Play className="text-white fill-white" size={32} />
+                        {properties
+                            .filter(p => {
+                                if (showAllProperties) return true;
+                                if (p.virtualTourUrl) return true;
+                                // Filter properties that have at least one "360-looking" image
+                                return p.images && p.images.some(img => isEquirectangular(img));
+                            })
+                            .map(p => (
+                                <div
+                                    key={p.id}
+                                    className={`group relative rounded-2xl border transition-all cursor-pointer overflow-hidden ${activeTour?.id === p.id ? 'border-amber-500 ring-1 ring-amber-500/20' : 'border-zinc-800 hover:border-zinc-700'}`}
+                                    onClick={() => {
+                                        setActiveTour(p);
+                                        setViewerStarted(false);
+                                    }}
+                                >
+                                    <div className="aspect-video relative">
+                                        <img src={p.images[0]} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="" />
+                                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <Play className="text-white fill-white" size={32} />
+                                        </div>
+                                        <div className="absolute top-2 right-2 px-2 py-1 bg-black/60 backdrop-blur-sm rounded-lg text-[8px] font-black text-white uppercase italic">
+                                            360 VR
+                                        </div>
                                     </div>
-                                    <div className="absolute top-2 right-2 px-2 py-1 bg-black/60 backdrop-blur-sm rounded-lg text-[8px] font-black text-white uppercase italic">
-                                        360 VR
+                                    <div className="p-4 bg-zinc-900">
+                                        <h4 className="text-xs font-black text-white uppercase italic tracking-tighter truncate">{p.title}</h4>
+                                        <p className="text-[10px] text-zinc-500 font-bold italic mt-1">{p.address.city}, {p.address.colony}</p>
                                     </div>
                                 </div>
-                                <div className="p-4 bg-zinc-900">
-                                    <h4 className="text-xs font-black text-white uppercase italic tracking-tighter truncate">{p.title}</h4>
-                                    <p className="text-[10px] text-zinc-500 font-bold italic mt-1">{p.address.city}, {p.address.colony}</p>
-                                </div>
-                            </div>
-                        ))}
+                            ))}
                     </div>
                 </div>
             </div>
