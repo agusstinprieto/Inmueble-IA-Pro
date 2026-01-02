@@ -348,15 +348,20 @@ export const getAgents = async (agencyId?: string): Promise<Agent[]> => {
 
 export const addAgent = async (agent: Partial<Agent>, agencyId?: string): Promise<Agent | null> => {
     // In SaaS, adding an agent usually means creating an auth user or inviting them.
-    // For now, we'll just insert into profiles if we have the ID, 
-    // but typically this should be an invite flow.
-    // Hack: staying compatible with the UI for now.
+    // For now, we'll create a placeholder profile with a generated UUID
+    // This is a temporary solution - ideally you'd create auth users first
+
+    // Generate a UUID for the placeholder agent
+    const agentId = agent.id || crypto.randomUUID();
+
     const { data, error } = await supabase
         .from('profiles')
         .insert({
+            id: agentId, // Provide the UUID
             ...mapAgentToDb(agent),
             agency_id: agencyId || agent.agencyId,
-            role: 'agent'
+            role: 'agent',
+            email: agent.email || `agent-${agentId}@placeholder.local` // Ensure email is provided
         })
         .select()
         .single();
