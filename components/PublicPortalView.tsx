@@ -265,9 +265,10 @@ const PublicPortalView: React.FC<PublicPortalViewProps> = ({
                                     >
                                         <Heart size={18} fill={favorites.includes(prop.id) ? 'currentColor' : 'none'} />
                                     </button>
-                                        className={`p-2.5 rounded-xl backdrop-blur-md transition-all hover:scale-110 active:scale-95 ${
-                                            isCopiedMap[prop.id] ? 'bg-green-500 text-white' : 'bg-black/40 text-white hover:bg-black/60'
-                                        }`}
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); handleShare(prop); }}
+                                        className={`p-2.5 rounded-xl backdrop-blur-md transition-all hover:scale-110 active:scale-95 ${isCopiedMap[prop.id] ? 'bg-green-500 text-white' : 'bg-black/40 text-white hover:bg-black/60'
+                                            }`}
                                     >
                                         {isCopiedMap[prop.id] ? <Check size={18} /> : <Share2 size={18} />}
                                     </button>
@@ -316,18 +317,18 @@ const PublicPortalView: React.FC<PublicPortalViewProps> = ({
                         </div>
                     ))}
 
-                {filteredProperties.length === 0 && (
-                    <div className="col-span-full py-40 text-center">
-                        <Search size={64} className="mx-auto text-zinc-800 mb-6 opacity-20" />
-                        <h4 className="text-3xl font-black italic uppercase tracking-tighter text-zinc-800">Sin coincidencias</h4>
-                        <p className="text-zinc-600 font-bold italic mt-2">Prueba ajustando los filtros de búsqueda</p>
-                    </div>
-                )}
-        </div>
+                    {filteredProperties.length === 0 && (
+                        <div className="col-span-full py-40 text-center">
+                            <Search size={64} className="mx-auto text-zinc-800 mb-6 opacity-20" />
+                            <h4 className="text-3xl font-black italic uppercase tracking-tighter text-zinc-800">Sin coincidencias</h4>
+                            <p className="text-zinc-600 font-bold italic mt-2">Prueba ajustando los filtros de búsqueda</p>
+                        </div>
+                    )}
+                </div>
             </main >
 
-    {/* CTA Footer */ }
-    < footer className = "bg-zinc-900 py-20 px-6 border-t border-white/5" >
+            {/* CTA Footer */}
+            < footer className="bg-zinc-900 py-20 px-6 border-t border-white/5" >
                 <div className="max-w-4xl mx-auto text-center space-y-8">
                     <h3 className="text-4xl md:text-5xl font-black italic tracking-tighter uppercase text-white">¿Buscas algo específico?</h3>
                     <p className="text-zinc-500 font-medium italic">Nuestro equipo de expertos te ayudará a encontrar la propiedad ideal de forma personalizada.</p>
