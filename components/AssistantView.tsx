@@ -303,7 +303,7 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
             {!isOpen && (
                 <button
                     onClick={() => setIsOpen(true)}
-                    className="fixed bottom-6 right-6 z-[9999] w-16 h-16 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center justify-center group"
+                    className="fixed bottom-24 lg:bottom-6 right-6 z-[9999] w-16 h-16 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center justify-center group"
                 >
                     <Mic className="w-8 h-8 text-black" />
                     <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full animate-pulse"></div>
