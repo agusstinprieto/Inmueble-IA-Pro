@@ -209,16 +209,21 @@ const Sidebar: React.FC<SidebarProps> = ({
           {/* Separator */}
           <div className="my-4 mx-3 border-t border-zinc-800" />
 
-          {/* Public Portal Access */}
           <div className="px-3 mb-4">
             <button
               onClick={onViewPublic}
               className="
                 w-full flex items-center gap-3 px-3 py-3 rounded-xl
                 text-left text-sm font-black uppercase italic
-                bg-amber-500/10 border border-amber-500/20 text-amber-500
-                hover:bg-amber-500/20 transition-all duration-150
+                hover:opacity-80 transition-all duration-150
               "
+              style={{
+                backgroundColor: brandColor + '10',
+                borderWidth: '1px',
+                borderStyle: 'solid',
+                borderColor: brandColor + '20',
+                color: brandColor
+              }}
             >
               <Globe size={20} />
               <span>Ver Sitio Público</span>
