@@ -171,11 +171,11 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
             if (!isMuted && 'speechSynthesis' in window) {
                 speakText(response);
             }
-        } catch (error) {
-            console.error('Assistant error:', error);
+        } catch (error: any) {
+            console.error('Assistant error detail:', error);
             const errorMessage: Message = {
                 role: 'assistant',
-                content: lang === 'es' ? 'Error. Intenta de nuevo.' : 'Error. Try again.',
+                content: lang === 'es' ? `Error: ${error.message || 'Intenta de nuevo.'}` : `Error: ${error.message || 'Try again.'}`,
                 timestamp: new Date()
             };
             setMessages(prev => [...prev, errorMessage]);

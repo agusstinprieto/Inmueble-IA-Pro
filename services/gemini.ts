@@ -145,7 +145,7 @@ export async function analyzePropertyImages(
     throw new Error('VITE_GEMINI_API_KEY is not configured');
   }
   const ai = new GoogleGenAI({ apiKey });
-  const model = 'gemini-2.0-flash-exp';
+  const model = 'gemini-1.5-flash';
 
   const imageParts = base64Images.map(img => ({
     inlineData: {
@@ -236,8 +236,9 @@ export async function searchSimilarProperties(
   property: Partial<Property>,
   location: string
 ): Promise<MarketAnalysis> {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  const model = 'gemini-2.0-flash-exp';
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  const ai = new GoogleGenAI({ apiKey });
+  const model = 'gemini-1.5-flash';
   const reg = getRegionalInfo(location);
 
   const prompt = `Busca propiedades similares en el mercado de ${location}:
@@ -287,8 +288,9 @@ export async function generatePropertyListing(
   businessName: string,
   location: string
 ): Promise<string> {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  const model = 'gemini-2.0-flash-exp';
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  const ai = new GoogleGenAI({ apiKey });
+  const model = 'gemini-1.5-flash';
   const reg = getRegionalInfo(location);
 
   const operationText = property.operation === 'VENTA' ? 'venta' : 'renta';
@@ -323,7 +325,6 @@ export async function generatePropertyListing(
   
   Inmobiliaria: ${businessName}
   Idioma: ${lang === 'es' ? 'Español' : 'English'}`;
-
   const response = await ai.models.generateContent({
     model,
     contents: prompt,
@@ -343,8 +344,9 @@ export async function generateSocialAd(
   businessName: string,
   location: string
 ): Promise<string> {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  const model = 'gemini-2.0-flash-exp';
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  const ai = new GoogleGenAI({ apiKey });
+  const model = 'gemini-1.5-flash';
   const reg = getRegionalInfo(location);
 
   const operationText = property.operation === 'VENTA' ? 'venta' : 'renta';
@@ -410,8 +412,9 @@ export async function analyzePropertyText(
   businessName: string,
   location: string
 ): Promise<{ properties: PropertyAnalysis[] }> {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  const model = 'gemini-2.0-flash-exp';
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  const ai = new GoogleGenAI({ apiKey });
+  const model = 'gemini-1.5-flash';
 
   const response = await ai.models.generateContent({
     model,
@@ -436,8 +439,9 @@ export async function getImprovementSuggestions(
   property: Property,
   location: string
 ): Promise<string> {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  const model = 'gemini-2.0-flash-exp';
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  const ai = new GoogleGenAI({ apiKey });
+  const model = 'gemini-1.5-flash';
   const reg = getRegionalInfo(location);
 
   const prompt = `Como experto en valorización inmobiliaria, analiza esta propiedad y sugiere mejoras para aumentar su valor:
@@ -475,8 +479,9 @@ export async function generatePropertyDescription(
   property: Partial<Property>,
   lang: 'es' | 'en'
 ): Promise<string> {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  const model = 'gemini-2.0-flash-exp';
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  const ai = new GoogleGenAI({ apiKey });
+  const model = 'gemini-1.5-flash';
 
   const prompt = `Genera una descripción profesional para esta propiedad:
   Tipo: ${property.type}
@@ -516,7 +521,7 @@ export async function extractPropertyFromHtml(
   if (!apiKey) return null;
 
   const ai = new GoogleGenAI({ apiKey });
-  const model = 'gemini-2.0-flash-exp';
+  const model = 'gemini-1.5-flash';
 
   // Clean HTML to reduce noise
   const cleanHtml = html
@@ -619,32 +624,27 @@ GOLDEN RULE: Respond EXTREMELY BRIEF and direct (MAXIMUM 15-20 WORDS).
 ${agencyName ? `You work for ${agencyName}.` : ''}
 ${userName ? `The user's name is ${userName}.` : ''}`;
 
-  // Build conversation history
-  const conversationParts = history.map(msg => ({
-    role: msg.role === 'user' ? 'user' : 'model',
-    parts: [{ text: msg.content }]
-  }));
+  // Simplify to single prompt for maximum reliability with this SDK
+  const formattedHistory = history.map(msg =>
+    `${msg.role === 'user' ? 'Usuario' : 'Asistente'}: ${msg.content}`
+  ).join('\n');
 
-  // Add current message
-  conversationParts.push({
-    role: 'user',
-    parts: [{ text: message }]
-  });
+  const promptText = `${formattedHistory}\nUsuario: ${message}`;
 
   try {
     const response = await ai.models.generateContent({
       model,
-      contents: conversationParts,
+      contents: promptText,
       config: {
         systemInstruction: systemPrompt,
         temperature: 0.7,
-        maxOutputTokens: 500
+        maxOutputTokens: 250
       }
     });
 
     return response.text || (lang === 'es'
-      ? 'Lo siento, no pude generar una respuesta. Por favor intenta de nuevo.'
-      : 'Sorry, I couldn\'t generate a response. Please try again.');
+      ? 'Error al generar respuesta.'
+      : 'Error generating response.');
   } catch (error) {
     console.error('Assistant chat error:', error);
     throw error;
