@@ -390,21 +390,35 @@ Firma del Representante
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-zinc-400 text-sm mb-1">Monto *</label>
-                                    <input
-                                        type="number"
-                                        value={formData.amount}
-                                        onChange={e => setFormData(prev => ({ ...prev, amount: parseInt(e.target.value) || 0 }))}
-                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white"
-                                    />
+                                    <div className="relative">
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">$</span>
+                                        <input
+                                            type="text"
+                                            value={formData.amount ? formData.amount.toLocaleString('en-US') : ''}
+                                            onChange={(e) => {
+                                                const value = e.target.value.replace(/\D/g, '');
+                                                setFormData(prev => ({ ...prev, amount: value ? parseInt(value) : 0 }));
+                                            }}
+                                            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg pl-7 pr-3 py-3 text-white placeholder-zinc-500"
+                                            placeholder="0,000"
+                                        />
+                                    </div>
                                 </div>
                                 <div>
                                     <label className="block text-zinc-400 text-sm mb-1">{t.deposit}</label>
-                                    <input
-                                        type="number"
-                                        value={formData.deposit}
-                                        onChange={e => setFormData(prev => ({ ...prev, deposit: parseInt(e.target.value) || 0 }))}
-                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white"
-                                    />
+                                    <div className="relative">
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">$</span>
+                                        <input
+                                            type="text"
+                                            value={formData.deposit ? formData.deposit.toLocaleString('en-US') : ''}
+                                            onChange={(e) => {
+                                                const value = e.target.value.replace(/\D/g, '');
+                                                setFormData(prev => ({ ...prev, deposit: value ? parseInt(value) : 0 }));
+                                            }}
+                                            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg pl-7 pr-3 py-3 text-white placeholder-zinc-500"
+                                            placeholder="0,000"
+                                        />
+                                    </div>
                                 </div>
                             </div>
                             <div>

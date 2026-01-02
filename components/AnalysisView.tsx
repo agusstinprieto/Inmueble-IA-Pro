@@ -807,34 +807,26 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
                   />
                 </div>
                 <div>
-                  <label className="block text-zinc-400 text-sm mb-2">Estacionamiento</label>
-                  <input
-                    type="number"
-                    value={formData.specs?.parking || ''}
-                    onChange={e => setFormData(prev => ({
-                      ...prev,
-                      specs: { ...prev.specs!, parking: parseInt(e.target.value) || 0 }
-                    }))}
-                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white"
-                  />
-                </div>
-                <div>
                   <label className="block text-zinc-400 text-sm mb-2">
                     {formData.operation === OperationType.RENTA ? 'Renta Mensual' : 'Precio Venta'}
                   </label>
-                  <input
-                    type="number"
-                    value={(formData.operation === OperationType.RENTA ? formData.rentPrice : formData.salePrice) || ''}
-                    onChange={e => {
-                      const price = parseInt(e.target.value) || 0;
-                      if (formData.operation === OperationType.RENTA) {
-                        setFormData(prev => ({ ...prev, rentPrice: price }));
-                      } else {
-                        setFormData(prev => ({ ...prev, salePrice: price }));
-                      }
-                    }}
-                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white"
-                  />
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">$</span>
+                    <input
+                      type="text"
+                      value={(formData.operation === OperationType.RENTA ? formData.rentPrice : formData.salePrice)?.toLocaleString('en-US') || ''}
+                      onChange={e => {
+                        const price = parseInt(e.target.value.replace(/\D/g, '')) || 0;
+                        if (formData.operation === OperationType.RENTA) {
+                          setFormData(prev => ({ ...prev, rentPrice: price }));
+                        } else {
+                          setFormData(prev => ({ ...prev, salePrice: price }));
+                        }
+                      }}
+                      className="w-full bg-zinc-800 border border-zinc-700 rounded-lg pl-7 pr-3 py-3 text-white placeholder-zinc-500"
+                      placeholder="0,000"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

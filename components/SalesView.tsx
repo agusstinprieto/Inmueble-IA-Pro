@@ -123,8 +123,8 @@ const SalesView: React.FC<SalesViewProps> = ({
       clientId,
       agentId: property?.agentId || agentId, // Fallback
       type: property?.operation || OperationType.VENTA,
-      finalPrice: Number(formData.get('price')),
-      commission: Number(formData.get('commission')),
+      finalPrice: Number(String(formData.get('price')).replace(/,/g, '')),
+      commission: Number(String(formData.get('commission')).replace(/,/g, '')),
     };
 
     await onAddSale(newSale);
@@ -373,11 +373,45 @@ const SalesView: React.FC<SalesViewProps> = ({
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-xs text-zinc-400 block mb-1">Precio Final</label>
-                    <input name="price" type="number" required className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" placeholder="0.00" />
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">$</span>
+                      <input
+                        name="price"
+                        type="text"
+                        required
+                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg pl-7 pr-3 py-2 text-white placeholder-zinc-500"
+                        placeholder="0,000"
+                        onInput={(e) => {
+                          const input = e.currentTarget;
+                          let value = input.value.replace(/\D/g, '');
+                          if (value) {
+                            value = parseInt(value).toLocaleString('en-US');
+                            input.value = value;
+                          }
+                        }}
+                      />
+                    </div>
                   </div>
                   <div>
                     <label className="text-xs text-zinc-400 block mb-1">Comisión Generada</label>
-                    <input name="commission" type="number" required className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white" placeholder="0.00" />
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">$</span>
+                      <input
+                        name="commission"
+                        type="text"
+                        required
+                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg pl-7 pr-3 py-2 text-white placeholder-zinc-500"
+                        placeholder="0,000"
+                        onInput={(e) => {
+                          const input = e.currentTarget;
+                          let value = input.value.replace(/\D/g, '');
+                          if (value) {
+                            value = parseInt(value).toLocaleString('en-US');
+                            input.value = value;
+                          }
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
 

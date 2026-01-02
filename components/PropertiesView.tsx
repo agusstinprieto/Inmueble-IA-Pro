@@ -239,7 +239,7 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
 
     const handleManualAddImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files) return;
-        const files = Array.from(e.target.files);
+        const files = Array.from(e.target.files as FileList);
         const newImages = files.map(file => URL.createObjectURL(file));
         setTempAddImages(prev => [...prev, ...newImages]);
     };
@@ -922,8 +922,8 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                                         title: formData.get('title') as string,
                                         type: formData.get('type') as PropertyType,
                                         operation: formData.get('operation') as OperationType,
-                                        salePrice: formData.get('operation') === 'VENTA' ? Number(formData.get('price')) : undefined,
-                                        rentPrice: formData.get('operation') === 'RENTA' ? Number(formData.get('price')) : undefined,
+                                        salePrice: formData.get('operation') === 'VENTA' ? Number(String(formData.get('price')).replace(/,/g, '')) : undefined,
+                                        rentPrice: formData.get('operation') === 'RENTA' ? Number(String(formData.get('price')).replace(/,/g, '')) : undefined,
                                         address: {
                                             street: formData.get('street') as string,
                                             exteriorNumber: formData.get('exteriorNumber') as string,
@@ -991,14 +991,23 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                                         </select>
                                     </div>
 
-                                    <div>
+                                    <div className="relative">
                                         <label className="text-xs text-zinc-400 block mb-1">Precio</label>
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">$</span>
                                         <input
                                             name="price"
-                                            type="number"
+                                            type="text"
                                             required
-                                            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white"
-                                            placeholder="1500000"
+                                            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg pl-7 pr-3 py-2 text-white placeholder-zinc-500"
+                                            placeholder="0,000"
+                                            onInput={(e) => {
+                                                const input = e.currentTarget;
+                                                let value = input.value.replace(/\D/g, '');
+                                                if (value) {
+                                                    value = parseInt(value).toLocaleString('en-US');
+                                                    input.value = value;
+                                                }
+                                            }}
                                         />
                                     </div>
                                 </div>
@@ -1171,8 +1180,8 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                                             title: formData.get('title') as string,
                                             type: formData.get('type') as PropertyType,
                                             operation: formData.get('operation') as OperationType,
-                                            salePrice: formData.get('operation') === 'VENTA' ? Number(formData.get('price')) : editingProperty!.salePrice,
-                                            rentPrice: formData.get('operation') === 'RENTA' ? Number(formData.get('price')) : editingProperty!.rentPrice,
+                                            salePrice: formData.get('operation') === 'VENTA' ? Number(String(formData.get('price')).replace(/,/g, '')) : editingProperty!.salePrice,
+                                            rentPrice: formData.get('operation') === 'RENTA' ? Number(String(formData.get('price')).replace(/,/g, '')) : editingProperty!.rentPrice,
                                             address: {
                                                 ...editingProperty!.address,
                                                 street: formData.get('street') as string,
@@ -1304,13 +1313,24 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
 
                                         <div>
                                             <label className="text-xs text-zinc-400 block mb-1">Precio</label>
-                                            <input
-                                                name="price"
-                                                type="number"
-                                                required
-                                                defaultValue={editingProperty.operation === 'VENTA' ? editingProperty.salePrice : editingProperty.rentPrice}
-                                                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white"
-                                            />
+                                            <div className="relative">
+                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">$</span>
+                                                <input
+                                                    name="price"
+                                                    type="text"
+                                                    required
+                                                    defaultValue={(editingProperty.operation === 'VENTA' ? editingProperty.salePrice : editingProperty.rentPrice)?.toLocaleString('en-US')}
+                                                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg pl-7 pr-3 py-2 text-white placeholder-zinc-500"
+                                                    onInput={(e) => {
+                                                        const input = e.currentTarget;
+                                                        let value = input.value.replace(/\D/g, '');
+                                                        if (value) {
+                                                            value = parseInt(value).toLocaleString('en-US');
+                                                            input.value = value;
+                                                        }
+                                                    }}
+                                                />
+                                            </div>
                                         </div>
                                     </div>
 

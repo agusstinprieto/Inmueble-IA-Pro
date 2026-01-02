@@ -248,7 +248,13 @@ const AnalyticsView: React.FC<AnalyticsViewProps> = ({
                         <Briefcase className="text-zinc-500" size={20} />
                         <h3 className="text-white font-black italic uppercase tracking-tighter">{lang === 'es' ? 'Benchmarks por Agente' : 'Agent Benchmarks'}</h3>
                     </div>
-                    <button className="text-[10px] font-black text-zinc-500 hover:text-white uppercase italic transition-all">{lang === 'es' ? 'Ver Reporte Detallado' : 'View Detailed Report'}</button>
+                    <button
+                        onClick={handleExportReport}
+                        disabled={exporting}
+                        className="text-[10px] font-black text-zinc-500 hover:text-white uppercase italic transition-all disabled:opacity-50"
+                    >
+                        {exporting ? (lang === 'es' ? 'Generando...' : 'Generating...') : (lang === 'es' ? 'Ver Reporte Detallado' : 'View Detailed Report')}
+                    </button>
                 </div>
 
                 <div className="overflow-x-auto">

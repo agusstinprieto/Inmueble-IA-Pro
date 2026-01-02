@@ -1,7 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { Part, PartCategory, PartStatus } from '../types';
+// import { Part, PartCategory, PartStatus } from '../types';
 import { translations } from '../translations';
-import { generateFacebookAd, getMarketPriceInsight, getStagnantStrategy } from '../services/gemini';
+// import { generateFacebookAd, getMarketPriceInsight, getStagnantStrategy } from '../services/gemini';
+
+interface Part {
+  id: string;
+  name: string;
+  category: string;
+  status: string;
+  imageUrl?: string;
+  suggestedPrice: number;
+  vehicleInfo: {
+    year: number;
+    make: string;
+    model: string;
+    vin?: string;
+  };
+  dateAdded?: string;
+}
+
+interface PartCategory {
+  // defined as needed
+}
+
+interface PartStatus {
+  // defined as needed
+}
 import LabelPrintView from './LabelPrintView';
 import {
   Trash2, DollarSign, Search, Car, AlertTriangle, X,
@@ -71,7 +95,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
 
   const confirmSell = async () => {
     if (partToSell) {
-      const price = parseFloat(salePrice);
+      const price = parseFloat(salePrice.replace(/,/g, ''));
       if (!isNaN(price) && price >= 0) {
         setIsProcessing(true);
         await onSellPart(partToSell.id, price);
@@ -87,7 +111,8 @@ const InventoryView: React.FC<InventoryViewProps> = ({
     setIsGeneratingAd(true);
     setGeneratedAd('');
     try {
-      const ad = await generateFacebookAd(part, lang, businessName, location);
+      // const ad = await generateFacebookAd(part, lang, businessName, location);
+      const ad = "Feature temporarily unavailable.";
       setGeneratedAd(ad);
     } catch (error) {
       console.error("Error generating ad:", error);
@@ -109,7 +134,8 @@ const InventoryView: React.FC<InventoryViewProps> = ({
         alert("Configuración de IA incompleta (Falta API_KEY)");
         return;
       }
-      const result = await getMarketPriceInsight(part, location);
+      // const result = await getMarketPriceInsight(part, location);
+      const result = "Feature disabled.";
       console.log("API Result received:", result ? "YES" : "EMPTY");
       if (!result) {
         setInsights(prev => ({ ...prev, [part.id]: (lang === 'es' ? "Mercado no respondió..." : "Market did not respond...") }));
@@ -129,7 +155,8 @@ const InventoryView: React.FC<InventoryViewProps> = ({
     setIsGeneratingStrategy(true);
     setGeneratedStrategy('');
     try {
-      const result = await getStagnantStrategy(part, location);
+      // const result = await getStagnantStrategy(part, location);
+      const result = "Feature disabled.";
       setGeneratedStrategy(result || (lang === 'es' ? 'No se pudo generar estrategia.' : 'Could not generate strategy.'));
     } catch (error) {
       console.error("Strategy error:", error);
@@ -139,7 +166,8 @@ const InventoryView: React.FC<InventoryViewProps> = ({
     }
   };
 
-  const availableInventory = inventory.filter(p => p.status === PartStatus.AVAILABLE);
+  /* const availableInventory = inventory.filter(p => p.status === PartStatus.AVAILABLE); */
+  const availableInventory = inventory.filter(p => p.status === 'AVAILABLE');
 
   const filteredInventory = availableInventory.filter(part => {
     const matchesFilter = filter === 'ALL' || String(part.category).toUpperCase() === String(filter).toUpperCase();
@@ -186,7 +214,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
     if (batchActionType === 'DELETE') {
       await onBatchDeleteVehicle(vehicle.parts);
     } else if (batchActionType === 'SELL') {
-      const price = parseFloat(batchSalePrice);
+      const price = parseFloat(batchSalePrice.replace(/,/g, ''));
       if (!isNaN(price) && price >= 0) {
         await onBatchSellVehicle(vehicle.parts, price);
       }
@@ -475,7 +503,17 @@ const InventoryView: React.FC<InventoryViewProps> = ({
                 <p className="text-amber-500 text-[10px] font-black uppercase tracking-widest mb-1 truncate">{partToSell.name}</p>
                 <div className="relative mt-4">
                   <span className="absolute left-6 top-1/2 -translate-y-1/2 text-amber-500 font-mono text-2xl font-black">$</span>
-                  <input autoFocus type="number" value={salePrice} onChange={(e) => setSalePrice(e.target.value)} className="w-full bg-zinc-950 border border-white/10 rounded-2xl py-5 pl-12 pr-6 text-white text-3xl font-mono font-black focus:outline-none focus:border-amber-500 transition-all text-center" />
+                  <input
+                    autoFocus
+                    type="text"
+                    value={salePrice ? parseFloat(salePrice.replace(/,/g, '')).toLocaleString('en-US') : ''}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '');
+                      setSalePrice(value);
+                    }}
+                    className="w-full bg-zinc-950 border border-white/10 rounded-2xl py-5 pl-12 pr-6 text-white text-3xl font-mono font-black focus:outline-none focus:border-amber-500 transition-all text-center"
+                    placeholder="0,000"
+                  />
                 </div>
               </div>
               <div className="flex gap-4">
@@ -622,7 +660,17 @@ const InventoryView: React.FC<InventoryViewProps> = ({
                 <p className="text-white text-[8px] uppercase tracking-widest">{vehicles.find(v => v.key === selectedVehicleKey)?.partsCount} piezas en total</p>
                 <div className="relative mt-6">
                   <span className="absolute left-6 top-1/2 -translate-y-1/2 text-green-500 font-mono text-2xl font-black">$</span>
-                  <input autoFocus type="number" value={batchSalePrice} onChange={(e) => setBatchSalePrice(e.target.value)} className="w-full bg-zinc-950 border border-white/10 rounded-2xl py-5 pl-12 pr-6 text-white text-3xl font-mono font-black focus:outline-none focus:border-green-500 transition-all text-center" />
+                  <input
+                    autoFocus
+                    type="text"
+                    value={batchSalePrice ? parseFloat(batchSalePrice.replace(/,/g, '')).toLocaleString('en-US') : ''}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '');
+                      setBatchSalePrice(value);
+                    }}
+                    className="w-full bg-zinc-950 border border-white/10 rounded-2xl py-5 pl-12 pr-6 text-white text-3xl font-mono font-black focus:outline-none focus:border-green-500 transition-all text-center"
+                    placeholder="0,000"
+                  />
                 </div>
               </div>
               <div className="flex gap-4">

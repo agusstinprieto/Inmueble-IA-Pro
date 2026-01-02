@@ -615,21 +615,35 @@ const CRMView: React.FC<CRMViewProps> = ({
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-zinc-400 text-sm mb-1">Presupuesto Mín</label>
-                                    <input
-                                        type="number"
-                                        value={newClient.budgetMin}
-                                        onChange={e => setNewClient(prev => ({ ...prev, budgetMin: parseInt(e.target.value) || 0 }))}
-                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white"
-                                    />
+                                    <div className="relative">
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">$</span>
+                                        <input
+                                            type="text"
+                                            value={newClient.budgetMin ? newClient.budgetMin.toLocaleString('en-US') : ''}
+                                            onChange={(e) => {
+                                                const value = e.target.value.replace(/\D/g, '');
+                                                setNewClient(prev => ({ ...prev, budgetMin: value ? parseInt(value) : 0 }));
+                                            }}
+                                            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg pl-7 pr-3 py-3 text-white placeholder-zinc-500"
+                                            placeholder="0,000"
+                                        />
+                                    </div>
                                 </div>
                                 <div>
                                     <label className="block text-zinc-400 text-sm mb-1">Presupuesto Máx</label>
-                                    <input
-                                        type="number"
-                                        value={newClient.budgetMax}
-                                        onChange={e => setNewClient(prev => ({ ...prev, budgetMax: parseInt(e.target.value) || 0 }))}
-                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-white"
-                                    />
+                                    <div className="relative">
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">$</span>
+                                        <input
+                                            type="text"
+                                            value={newClient.budgetMax ? newClient.budgetMax.toLocaleString('en-US') : ''}
+                                            onChange={(e) => {
+                                                const value = e.target.value.replace(/\D/g, '');
+                                                setNewClient(prev => ({ ...prev, budgetMax: value ? parseInt(value) : 0 }));
+                                            }}
+                                            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg pl-7 pr-3 py-3 text-white placeholder-zinc-500"
+                                            placeholder="0,000"
+                                        />
+                                    </div>
                                 </div>
                             </div>
                             <div>
