@@ -225,7 +225,13 @@ const PublicPropertyDetail: React.FC<PublicPropertyDetailProps> = ({
                                     <MessageCircle size={20} />
                                     Me interesa esta propiedad
                                 </button>
-                                <button className="w-full py-4 bg-zinc-800 text-white rounded-3xl font-black uppercase italic flex items-center justify-center gap-3 hover:bg-zinc-700 transition-all">
+                                <button
+                                    onClick={() => {
+                                        const message = encodeURIComponent(`Hola, me gustaría agendar una visita para la propiedad "${property.title}" ubicada en ${property.address.colony}, ${property.address.city}. \\n\\n¿Cuándo podríamos coordinar una cita? \\n\\nLink: ${window.location.href}`);
+                                        window.open(`https://wa.me/?text=${message}`, '_blank');
+                                    }}
+                                    className="w-full py-4 bg-zinc-800 text-white rounded-3xl font-black uppercase italic flex items-center justify-center gap-3 hover:bg-zinc-700 transition-all"
+                                >
                                     <Calendar size={20} />
                                     Solicitar Visita
                                 </button>
