@@ -68,7 +68,7 @@ function App() {
   const [businessName, setBusinessName] = useState(() => localStorage.getItem('inmueble_businessName') || 'INMUEBLE IA PRO');
   const [brandColor, setBrandColor] = useState(() => localStorage.getItem('inmueble_brandColor') || '#f59e0b');
   const [userRole, setUserRole] = useState<UserRole>('agent');
-  const [location, setLocation] = useState('');
+  const [location, setLocation] = useState(() => localStorage.getItem('inmueble_location') || '');
   const [scriptUrl, setScriptUrl] = useState('');
 
   // App state
@@ -154,10 +154,14 @@ function App() {
               setBusinessName(agencyData.name);
               setBrandColor(agencyData.brandColor);
               setScriptUrl(agencyData.googleSheetsUrl || '');
+              setLocation(agencyData.location || ''); // Load agency location for regional pricing
 
               // Persist for instant load next time
               localStorage.setItem('inmueble_businessName', agencyData.name);
               localStorage.setItem('inmueble_brandColor', agencyData.brandColor);
+              if (agencyData.location) {
+                localStorage.setItem('inmueble_location', agencyData.location);
+              }
             }
           }
         }
@@ -767,6 +771,7 @@ function App() {
                 agencySuccess = await updateAgencyProfile(profile.agencyId, {
                   name: businessName,
                   brandColor: brandColor,
+                  location: location,
                   googleSheetsUrl: scriptUrl
                 });
 
@@ -776,6 +781,7 @@ function App() {
                     ...prev,
                     name: businessName,
                     brandColor: brandColor,
+                    location: location,
                     googleSheetsUrl: scriptUrl
                   } : null);
                 }
@@ -784,6 +790,9 @@ function App() {
               if (profileSuccess && agencySuccess) {
                 localStorage.setItem('inmueble_businessName', businessName);
                 localStorage.setItem('inmueble_brandColor', brandColor);
+                if (location) {
+                  localStorage.setItem('inmueble_location', location);
+                }
                 return true;
               }
               return false;

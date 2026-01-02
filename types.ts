@@ -165,6 +165,7 @@ export interface Agency {
   name: string;
   logoUrl?: string;
   brandColor: string;
+  location?: string; // e.g., "Torreón, Coahuila, México" or "Austin, Texas, USA"
   planType: 'FREE' | 'PRO' | 'ENTERPRISE';
   status: 'ACTIVE' | 'INACTIVE';
   googleSheetsUrl?: string;

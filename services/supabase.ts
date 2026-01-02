@@ -90,6 +90,7 @@ export const getAgencyProfile = async (agencyId: string): Promise<Agency | null>
         name: data.name,
         logoUrl: data.logo_url,
         brandColor: data.brand_color,
+        location: data.location,
         planType: data.plan_type as any,
         status: data.status as any,
         googleSheetsUrl: data.google_sheets_url,
@@ -129,6 +130,7 @@ export const updateAgencyProfile = async (agencyId: string, agency: Partial<Agen
                 name: agency.name,
                 logo_url: agency.logoUrl,
                 brand_color: agency.brandColor,
+                location: agency.location,
                 plan_type: agency.planType,
                 status: agency.status,
                 google_sheets_url: agency.googleSheetsUrl
