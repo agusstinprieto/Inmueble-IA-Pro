@@ -221,7 +221,7 @@ const GalleryView: React.FC<GalleryViewProps> = ({
                                     <label className={`flex items-center gap-2 px-6 py-3 bg-white text-black rounded-xl font-black text-xs uppercase italic cursor-pointer hover:bg-zinc-200 transition-all active:scale-95 shadow-lg shadow-white/5 ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}>
                                         <Upload size={16} />
                                         {isUploading ? (lang === 'es' ? 'Cargando...' : 'Uploading...') : (lang === 'es' ? 'Cargar Fotos' : 'Upload Photos')}
-                                        <input type="file" multiple className="hidden" onChange={handleAddPhotos} accept="image/*" disabled={isUploading} />
+                                        <input type="file" multiple className="hidden" onChange={handleAddPhotos} accept="image/*,video/*" disabled={isUploading} />
                                     </label>
                                 </div>
                             </div>
@@ -258,7 +258,7 @@ const GalleryView: React.FC<GalleryViewProps> = ({
                                     <label className="flex flex-col items-center justify-center gap-3 border-2 border-dashed border-zinc-800 rounded-2xl hover:border-zinc-600 hover:bg-white/5 transition-all cursor-pointer aspect-square">
                                         <Plus size={32} className="text-zinc-600" />
                                         <span className="text-zinc-500 text-[10px] font-black uppercase italic tracking-widest">{lang === 'es' ? 'Añadir Más' : 'Add More'}</span>
-                                        <input type="file" multiple className="hidden" onChange={handleAddPhotos} accept="image/*" />
+                                        <input type="file" multiple className="hidden" onChange={handleAddPhotos} accept="image/*,video/*" />
                                     </label>
                                 </div>
                             ) : (
@@ -274,7 +274,7 @@ const GalleryView: React.FC<GalleryViewProps> = ({
                                         <label className="inline-flex items-center gap-2 px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl font-black text-[10px] uppercase italic cursor-pointer transition-all border border-zinc-700">
                                             <Upload size={16} />
                                             {lang === 'es' ? 'Seleccionar Archivos' : 'Select Files'}
-                                            <input type="file" multiple className="hidden" onChange={handleAddPhotos} accept="image/*" />
+                                            <input type="file" multiple className="hidden" onChange={handleAddPhotos} accept="image/*,video/*" />
                                         </label>
                                     </div>
                                 </div>

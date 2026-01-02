@@ -145,7 +145,22 @@ export const updateAgencyProfile = async (agencyId: string, agency: Partial<Agen
     }
 };
 
-// ============ IMAGE STORAGE ============
+// ============ MEDIA STORAGE (Images & Videos) ============
+
+// Helper to detect if file is a video
+const isVideoFile = (blob: Blob): boolean => {
+    return blob.type.startsWith('video/');
+};
+
+// Helper to get file extension from blob type
+const getFileExtension = (blob: Blob): string => {
+    const type = blob.type;
+    if (type.includes('mp4')) return 'mp4';
+    if (type.includes('mov') || type.includes('quicktime')) return 'mov';
+    if (type.includes('webm')) return 'webm';
+    if (type.includes('avi')) return 'avi';
+    return 'jpg'; // default for images
+};
 
 export const uploadPropertyImage = async (
     file: Blob,
@@ -153,17 +168,19 @@ export const uploadPropertyImage = async (
     index: number
 ): Promise<string | null> => {
     try {
-        const fileName = `${propertyId}/${Date.now()}-${index}.jpg`;
+        const isVideo = isVideoFile(file);
+        const extension = getFileExtension(file);
+        const fileName = `${propertyId}/${Date.now()}-${index}.${extension}`;
 
         const { data, error } = await supabase.storage
             .from('property-images')
             .upload(fileName, file, {
-                contentType: 'image/jpeg',
+                contentType: file.type,
                 upsert: false
             });
 
         if (error) {
-            console.error('Error uploading image:', error);
+            console.error(`Error uploading ${isVideo ? 'video' : 'image'}:`, error);
             return null;
         }
 
@@ -174,7 +191,7 @@ export const uploadPropertyImage = async (
 
         return publicUrl;
     } catch (error) {
-        console.error('Upload image error:', error);
+        console.error('Upload media error:', error);
         return null;
     }
 };

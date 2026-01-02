@@ -38,6 +38,12 @@ const PublicPropertyDetail: React.FC<PublicPropertyDetailProps> = ({
     const t = translations[lang];
     const [activeImage, setActiveImage] = useState(0);
 
+    // Helper to detect if media is a video
+    const isVideo = (url: string) => {
+        const videoExtensions = ['.mp4', '.mov', '.avi', '.webm', '.mkv'];
+        return videoExtensions.some(ext => url.toLowerCase().endsWith(ext));
+    };
+
     // Scroll to top on mount
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -86,11 +92,22 @@ const PublicPropertyDetail: React.FC<PublicPropertyDetailProps> = ({
                     {/* Gallery */}
                     <div className="space-y-4">
                         <div className="aspect-[16/9] rounded-[2.5rem] overflow-hidden bg-zinc-900 relative shadow-2xl border border-white/5 group">
-                            <img
-                                src={property.images[activeImage]}
-                                className="w-full h-full object-cover animate-in fade-in duration-500"
-                                alt={property.title}
-                            />
+                            {isVideo(property.images[activeImage]) ? (
+                                <video
+                                    src={property.images[activeImage]}
+                                    className="w-full h-full object-cover"
+                                    controls
+                                    autoPlay
+                                    muted
+                                    loop
+                                />
+                            ) : (
+                                <img
+                                    src={property.images[activeImage]}
+                                    className="w-full h-full object-cover animate-in fade-in duration-500"
+                                    alt={property.title}
+                                />
+                            )}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
 
                             {/* Gallery Navigation Arrows */}

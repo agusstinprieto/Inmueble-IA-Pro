@@ -671,7 +671,7 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                                         <input
                                             type="file"
                                             multiple
-                                            accept="image/*"
+                                            accept="image/*,video/*"
                                             className="hidden"
                                             onChange={handleDetailImageUpload}
                                             disabled={isUploading}
@@ -686,7 +686,7 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                                     <input
                                         type="file"
                                         multiple
-                                        accept="image/*"
+                                        accept="image/*,video/*"
                                         className="hidden"
                                         onChange={handleDetailImageUpload}
                                         disabled={isUploading}
@@ -1105,7 +1105,7 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                                                 <input
                                                     type="file"
                                                     multiple
-                                                    accept="image/*"
+                                                    accept="image/*,video/*"
                                                     className="hidden"
                                                     onChange={handleManualAddImageUpload}
                                                 />
@@ -1254,7 +1254,7 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                                                 <input
                                                     type="file"
                                                     multiple
-                                                    accept="image/*"
+                                                    accept="image/*,video/*"
                                                     className="hidden"
                                                     onChange={handleImageUpload}
                                                     disabled={isUploading}
