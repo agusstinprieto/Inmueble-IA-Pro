@@ -15,9 +15,12 @@ import {
     Globe,
     Heart,
     Share2,
-    Check
+    Check,
+    Grid3x3,
+    Map
 } from 'lucide-react';
 import { Property, PropertyType, OperationType } from '../types';
+import PropertyMap from './PropertyMap';
 import { translations } from '../translations';
 
 interface PublicPortalViewProps {
@@ -45,6 +48,9 @@ const PublicPortalView: React.FC<PublicPortalViewProps> = ({
     const [opFilter, setOpFilter] = useState<OperationType | 'ALL'>('ALL');
     const [bedroomsFilter, setBedroomsFilter] = useState<number | 'ALL'>('ALL');
     const [bathroomsFilter, setBathroomsFilter] = useState<number | 'ALL'>('ALL');
+
+    // View Mode State
+    const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
 
     // Favorites state (persisted in localStorage)
     const [favorites, setFavorites] = useState<string[]>(() => {
@@ -218,7 +224,7 @@ const PublicPortalView: React.FC<PublicPortalViewProps> = ({
             </header>
 
             {/* Inventory Grid */}
-            <main id="inventario" className="max-w-7xl mx-auto px-6 py-20 space-y-12">
+            <main id="inventario" className="max-w-7xl mx-auto px-6 pb-20 space-y-12">
                 <div className="flex items-end justify-between border-b border-white/5 pb-8">
                     <div>
                         <h3 className="text-2xl font-black italic tracking-tighter uppercase text-white">Propiedades Disponibles</h3>
@@ -237,106 +243,137 @@ const PublicPortalView: React.FC<PublicPortalViewProps> = ({
                         >
                             Rentar
                         </button>
+
+                        <div className="w-px h-8 bg-white/10 mx-2"></div>
+
+                        <div className="flex bg-zinc-800 p-1 rounded-xl border border-white/5 items-center">
+                            <button
+                                onClick={() => setViewMode('grid')}
+                                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all text-[10px] font-black uppercase italic ${viewMode === 'grid' ? 'bg-amber-500 text-black shadow-lg scale-105' : 'text-zinc-400 hover:text-white'}`}
+                            >
+                                <Grid3x3 size={16} />
+                                <span className="hidden sm:inline">Lista</span>
+                            </button>
+                            <button
+                                onClick={() => setViewMode('map')}
+                                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all text-[10px] font-black uppercase italic ${viewMode === 'map' ? 'bg-amber-500 text-black shadow-lg scale-105' : 'text-zinc-400 hover:text-white'}`}
+                            >
+                                <Map size={16} />
+                                <span className="hidden sm:inline">Mapa</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {filteredProperties.map((prop) => (
-                        <div
-                            key={prop.id}
-                            className="bg-zinc-900/30 border border-zinc-800 rounded-[2.5rem] overflow-hidden group hover:border-amber-500/30 transition-all hover:-translate-y-2 relative"
-                        >
-                            <div className="aspect-[4/3] relative overflow-hidden bg-black">
-                                {prop.images[0].toLowerCase().includes('.mp4') || prop.images[0].toLowerCase().includes('.webm') || prop.images[0].toLowerCase().includes('.mov') ? (
-                                    <video
-                                        src={prop.images[0]}
-                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                        autoPlay
-                                        muted
-                                        loop
-                                        playsInline
-                                    />
-                                ) : (
-                                    <img
-                                        src={prop.images[0]}
-                                        alt={prop.title}
-                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                    />
-                                )}
-                                <div className="absolute top-5 left-5">
-                                    <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase italic backdrop-blur-md shadow-lg ${prop.operation === OperationType.VENTA ? 'bg-amber-500 text-black' : 'bg-blue-500 text-white'}`}>
-                                        {prop.operation}
-                                    </span>
-                                </div>
-                                {/* Heart and Share buttons */}
-                                <div className="absolute top-5 right-5 flex gap-2">
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); toggleFavorite(prop.id); }}
-                                        className={`p-2.5 rounded-xl backdrop-blur-md transition-all hover:scale-110 active:scale-95 ${favorites.includes(prop.id) ? 'bg-red-500 text-white' : 'bg-black/40 text-white hover:bg-black/60'}`}
-                                    >
-                                        <Heart size={18} fill={favorites.includes(prop.id) ? 'currentColor' : 'none'} />
-                                    </button>
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); handleShare(prop); }}
-                                        className={`p-2.5 rounded-xl backdrop-blur-md transition-all hover:scale-110 active:scale-95 ${isCopiedMap[prop.id] ? 'bg-green-500 text-white' : 'bg-black/40 text-white hover:bg-black/60'
-                                            }`}
-                                    >
-                                        {isCopiedMap[prop.id] ? <Check size={18} /> : <Share2 size={18} />}
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="p-8 space-y-6">
-                                <div>
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <MapPin size={14} className="text-amber-500" />
-                                        <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">{prop.address.city}, {prop.address.colony}</span>
+                {viewMode === 'grid' ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {filteredProperties.map((prop) => (
+                            <div
+                                key={prop.id}
+                                className="bg-zinc-900/30 border border-zinc-800 rounded-[2.5rem] overflow-hidden group hover:border-amber-500/30 transition-all hover:-translate-y-2 relative"
+                            >
+                                <div
+                                    onClick={() => onViewDetail(prop)}
+                                    className="aspect-[4/3] relative overflow-hidden bg-black cursor-pointer"
+                                >
+                                    {prop.images[0].toLowerCase().includes('.mp4') || prop.images[0].toLowerCase().includes('.webm') || prop.images[0].toLowerCase().includes('.mov') ? (
+                                        <video
+                                            src={prop.images[0]}
+                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                            autoPlay
+                                            muted
+                                            loop
+                                            playsInline
+                                        />
+                                    ) : (
+                                        <img
+                                            src={prop.images[0]}
+                                            alt={prop.title}
+                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                        />
+                                    )}
+                                    <div className="absolute top-5 left-5">
+                                        <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase italic backdrop-blur-md shadow-lg ${prop.operation === OperationType.VENTA ? 'bg-amber-500 text-black' : 'bg-blue-500 text-white'}`}>
+                                            {prop.operation}
+                                        </span>
                                     </div>
-                                    <h4 className="text-xl font-black text-white italic uppercase tracking-tighter truncate leading-tight">{prop.title}</h4>
-                                </div>
-
-                                <div className="grid grid-cols-3 gap-4 py-4 border-y border-white/5">
-                                    <div className="text-center">
-                                        <p className="text-[8px] font-black text-zinc-600 uppercase mb-1">Camas</p>
-                                        <p className="text-sm font-black text-white italic">{prop.specs.bedrooms}</p>
-                                    </div>
-                                    <div className="text-center border-x border-white/5">
-                                        <p className="text-[8px] font-black text-zinc-600 uppercase mb-1">Baños</p>
-                                        <p className="text-sm font-black text-white italic">{prop.specs.bathrooms}</p>
-                                    </div>
-                                    <div className="text-center">
-                                        <p className="text-[8px] font-black text-zinc-600 uppercase mb-1">Área</p>
-                                        <p className="text-sm font-black text-white italic">{prop.specs.m2Built}m²</p>
+                                    {/* Heart and Share buttons */}
+                                    <div className="absolute top-5 right-5 flex gap-2">
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); toggleFavorite(prop.id); }}
+                                            className={`p-2.5 rounded-xl backdrop-blur-md transition-all hover:scale-110 active:scale-95 ${favorites.includes(prop.id) ? 'bg-red-500 text-white' : 'bg-black/40 text-white hover:bg-black/60'}`}
+                                        >
+                                            <Heart size={18} fill={favorites.includes(prop.id) ? 'currentColor' : 'none'} />
+                                        </button>
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); handleShare(prop); }}
+                                            className={`p-2.5 rounded-xl backdrop-blur-md transition-all hover:scale-110 active:scale-95 ${isCopiedMap[prop.id] ? 'bg-green-500 text-white' : 'bg-black/40 text-white hover:bg-black/60'
+                                                }`}
+                                        >
+                                            {isCopiedMap[prop.id] ? <Check size={18} /> : <Share2 size={18} />}
+                                        </button>
                                     </div>
                                 </div>
 
-                                <div className="flex items-center justify-between">
+                                <div className="p-8 space-y-6">
                                     <div>
-                                        <p className="text-[10px] font-black text-zinc-600 uppercase italic">Precio</p>
-                                        <p className="text-2xl font-black text-white italic tracking-tighter">
-                                            {formatCurrency(prop.operation === OperationType.VENTA ? prop.salePrice || 0 : prop.rentPrice || 0, prop.currency)}
-                                        </p>
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <MapPin size={14} className="text-amber-500" />
+                                            <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">{prop.address.city}, {prop.address.colony}</span>
+                                        </div>
+                                        <h4 className="text-xl font-black text-white italic uppercase tracking-tighter truncate leading-tight">{prop.title}</h4>
                                     </div>
-                                    <button
-                                        onClick={() => onViewDetail(prop)}
-                                        className="p-3 bg-zinc-800 rounded-2xl text-white hover:bg-white hover:text-black transition-all"
-                                    >
-                                        <ChevronRight size={24} />
-                                    </button>
+
+                                    <div className="grid grid-cols-3 gap-4 py-4 border-y border-white/5">
+                                        <div className="text-center">
+                                            <p className="text-[8px] font-black text-zinc-600 uppercase mb-1">Camas</p>
+                                            <p className="text-sm font-black text-white italic">{prop.specs.bedrooms}</p>
+                                        </div>
+                                        <div className="text-center border-x border-white/5">
+                                            <p className="text-[8px] font-black text-zinc-600 uppercase mb-1">Baños</p>
+                                            <p className="text-sm font-black text-white italic">{prop.specs.bathrooms}</p>
+                                        </div>
+                                        <div className="text-center">
+                                            <p className="text-[8px] font-black text-zinc-600 uppercase mb-1">Área</p>
+                                            <p className="text-sm font-black text-white italic">{prop.specs.m2Built}m²</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-[10px] font-black text-zinc-600 uppercase italic">Precio</p>
+                                            <p className="text-2xl font-black text-white italic tracking-tighter">
+                                                {formatCurrency(prop.operation === OperationType.VENTA ? prop.salePrice || 0 : prop.rentPrice || 0, prop.currency)}
+                                            </p>
+                                        </div>
+                                        <button
+                                            onClick={() => onViewDetail(prop)}
+                                            className="p-3 bg-zinc-800 rounded-2xl text-white hover:bg-white hover:text-black transition-all"
+                                        >
+                                            <ChevronRight size={24} />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
 
-                    {filteredProperties.length === 0 && (
-                        <div className="col-span-full py-40 text-center">
-                            <Search size={64} className="mx-auto text-zinc-800 mb-6 opacity-20" />
-                            <h4 className="text-3xl font-black italic uppercase tracking-tighter text-zinc-800">Sin coincidencias</h4>
-                            <p className="text-zinc-600 font-bold italic mt-2">Prueba ajustando los filtros de búsqueda</p>
-                        </div>
-                    )}
-                </div>
-            </main >
+                        {filteredProperties.length === 0 && (
+                            <div className="col-span-full py-40 text-center">
+                                <Search size={64} className="mx-auto text-zinc-800 mb-6 opacity-20" />
+                                <h4 className="text-3xl font-black italic uppercase tracking-tighter text-zinc-800">Sin coincidencias</h4>
+                                <p className="text-zinc-600 font-bold italic mt-2">Prueba ajustando los filtros de búsqueda</p>
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <div className="h-[600px] rounded-[2.5rem] overflow-hidden border border-white/10 shadow-2xl">
+                        <PropertyMap
+                            properties={filteredProperties}
+                            onPropertyClick={onViewDetail}
+                        />
+                    </div>
+                )}
+            </main>
 
             {/* CTA Footer */}
             < footer className="bg-zinc-900 py-20 px-6 border-t border-white/5" >

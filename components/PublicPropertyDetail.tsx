@@ -15,9 +15,12 @@ import {
     ChevronLeft,
     ChevronRight,
     Info,
-    RotateCw
+    RotateCw,
+    Calculator,
+    Download
 } from 'lucide-react';
 import { Property, PropertyType, OperationType } from '../types';
+import MortgageCalculator from './MortgageCalculator';
 import { translations } from '../translations';
 
 interface PublicPropertyDetailProps {
@@ -37,6 +40,32 @@ const PublicPropertyDetail: React.FC<PublicPropertyDetailProps> = ({
 }) => {
     const t = translations[lang];
     const [activeImage, setActiveImage] = useState(0);
+
+    const handleShare = async () => {
+        const shareData = {
+            title: property.title,
+            text: `${property.title} - ${formatCurrency(property.operation === OperationType.VENTA ? property.salePrice || 0 : property.rentPrice || 0, property.currency)}`,
+            url: window.location.href
+        };
+
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+            } else {
+                await navigator.clipboard.writeText(window.location.href);
+                alert('¡Enlace copiado al portapapeles!');
+            }
+        } catch (err) {
+            console.log('Error sharing:', err);
+        }
+    };
+
+    const handleDownloadPDF = () => {
+        window.print();
+    };
+
+
+    // Helper to detect if media is a video
 
     // Helper to detect if media is a video
     const isVideo = (url: string) => {
@@ -64,8 +93,18 @@ const PublicPropertyDetail: React.FC<PublicPropertyDetailProps> = ({
 
     return (
         <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-amber-500/30 selection:text-amber-500 pb-20">
+            {/* Print Header */}
+            <div className="print-only mb-8 border-b-2 border-amber-500 pb-4">
+                <div className="flex justify-between items-center">
+                    <div>
+                        <h1 className="text-3xl font-black uppercase italic">{agencyName}</h1>
+                        <p className="text-sm text-gray-400">Plataforma Inmobiliaria Profesional</p>
+                    </div>
+                </div>
+            </div>
+
             {/* Header / Nav */}
-            <nav className="fixed top-0 left-0 right-0 z-50 bg-black/60 backdrop-blur-xl border-b border-white/5 px-6 py-4">
+            <nav className="fixed top-0 left-0 right-0 z-50 bg-black/60 backdrop-blur-xl border-b border-white/5 px-6 py-4 no-print">
                 <div className="max-w-7xl mx-auto flex items-center justify-between">
                     <button
                         onClick={onBack}
@@ -80,13 +119,26 @@ const PublicPropertyDetail: React.FC<PublicPropertyDetailProps> = ({
                         <Home className="text-amber-500" size={20} />
                         <h1 className="text-sm font-black italic tracking-tighter uppercase">{agencyName}</h1>
                     </div>
-                    <button className="p-2.5 bg-white/5 hover:bg-white/10 rounded-full text-white transition-all">
-                        <Share2 size={18} />
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={handleShare}
+                            className="p-2.5 bg-white/5 hover:bg-white/10 rounded-full text-white transition-all"
+                            title="Compartir"
+                        >
+                            <Share2 size={18} />
+                        </button>
+                        <button
+                            onClick={handleDownloadPDF}
+                            className="p-2.5 bg-white/5 hover:bg-white/10 rounded-full text-white transition-all"
+                            title="Descargar PDF"
+                        >
+                            <Download size={18} />
+                        </button>
+                    </div>
                 </div>
             </nav>
 
-            <main className="max-w-7xl mx-auto px-6 pt-24 lg:pt-32 grid grid-cols-1 lg:grid-cols-12 gap-12">
+            <main id="property-detail-content" className="max-w-7xl mx-auto px-6 pt-24 lg:pt-32 grid grid-cols-1 lg:grid-cols-12 gap-12">
                 {/* Left Column: Gallery & Details */}
                 <div className="lg:col-span-8 space-y-12">
                     {/* Gallery */}
@@ -274,6 +326,32 @@ const PublicPropertyDetail: React.FC<PublicPropertyDetailProps> = ({
                                 <p className="text-[10px] font-bold text-zinc-500 italic">Transacción protegida y verificada por {agencyName}</p>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                {/* Print Footer */}
+                <div className="print-only col-span-12 mt-12 pt-8 border-t border-gray-200">
+                    <div className="flex justify-between items-start">
+                        <div className="space-y-4">
+                            <div>
+                                <h3 className="text-xl font-bold text-black uppercase italic tracking-tighter">Más información</h3>
+                                <p className="text-gray-600 text-sm mt-1">Escanea el código QR para ver más detalles y fotos en línea.</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Share2 size={16} className="text-amber-500" />
+                                <span className="text-xs text-gray-500 font-mono">{window.location.href}</span>
+                            </div>
+                        </div>
+                        <div className="bg-white p-2 border border-gray-100 rounded-lg">
+                            <img
+                                src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`}
+                                alt="QR Code"
+                                className="w-24 h-24"
+                            />
+                        </div>
+                    </div>
+                    <div className="mt-8 text-center border-t border-gray-100 pt-4">
+                        <p className="text-[10px] text-gray-400 uppercase tracking-widest">Documento generado por {agencyName} - {new Date().toLocaleDateString()}</p>
                     </div>
                 </div>
             </main>

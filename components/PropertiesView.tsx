@@ -26,8 +26,10 @@ import {
     FileText,
     Download,
     Loader2,
-    Check
+    Check,
+    Map
 } from 'lucide-react';
+import PropertyMap from './PropertyMap';
 import { translations } from '../translations';
 import { Property, PropertyType, OperationType, PropertyStatus } from '../types';
 import { generatePropertyListing, generateSocialAd } from '../services/gemini';
@@ -63,7 +65,7 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
 }) => {
     const t = translations[lang];
 
-    const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+    const [viewMode, setViewMode] = useState<'grid' | 'list' | 'map'>('grid');
     const [searchQuery, setSearchQuery] = useState('');
     const [typeFilter, setTypeFilter] = useState<PropertyType | 'ALL'>('ALL');
     const [operationFilter, setOperationFilter] = useState<OperationType | 'ALL'>('ALL');
@@ -549,6 +551,12 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                         >
                             <List size={20} />
                         </button>
+                        <button
+                            onClick={() => setViewMode('map')}
+                            className={`p-2 rounded ${viewMode === 'map' ? 'bg-zinc-700 text-white' : 'text-zinc-400'}`}
+                        >
+                            <Map size={20} />
+                        </button>
                     </div>
                 </div>
             </div>
@@ -649,6 +657,13 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                     {filteredProperties.map(property => (
                         <PropertyCard key={property.id} property={property} />
                     ))}
+                </div>
+            ) : viewMode === 'map' ? (
+                <div className="h-[600px] bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-xl">
+                    <PropertyMap
+                        properties={filteredProperties}
+                        onPropertyClick={onViewProperty}
+                    />
                 </div>
             ) : (
                 <div className="space-y-3">
