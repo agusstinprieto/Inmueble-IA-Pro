@@ -197,95 +197,77 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
             if (voices.length === 0) return;
 
             const femalePatterns = [
-                'Google español', 'Dalia', 'Helena', 'Sabina', 'Elsa', 'Zira', 'Microsoft Salma',
+                'Sabina', 'Paulina', 'Dalia', 'Helena', 'Laura', 'Elena', 'Google español', 'Microsoft Salma',
                 'Microsoft Larisa', 'Monica', 'Libby', 'Lucia', 'google us english female', 'swara',
-                'Hilda', 'Pilar', 'Rosa', 'Lorena', 'Google UK English Female', 'Microsoft Elena',
-                'Microsoft Laura', 'Microsoft Dalia', 'Google US English'
+                'Hilda', 'Pilar', 'Rosa', 'Lorena', 'Google UK English Female', 'Microsoft Dalia', 'Google US English'
             ];
 
             const maleExclusions = [
                 'male', 'guy', 'david', 'pablo', 'raul', 'antonio', 'sergio', 'kevin', 'james',
                 'paul', 'stefan', 'jorge', 'juan', 'ricardo', 'diego', 'carlos', 'paco', 'luis',
-                'enrique', 'fernando', 'manuel', 'jose', 'javier', 'alberto', 'rafael', 'antonio'
+                'enrique', 'fernando', 'manuel', 'jose', 'javier', 'alberto', 'rafael'
             ];
 
-            const qualityPatterns = ['Natural', 'Online', 'Neural', 'Premium'];
+            const qualityPatterns = ['Natural', 'Online', 'Neural', 'Premium', 'Google'];
             const targetLang = lang === 'es' ? 'es' : 'en';
 
-            // Filter strictly: exclude males AND must be target language
-            let availableVoices = voices.filter(v =>
-                v.lang.toLowerCase().startsWith(targetLang) &&
-                !maleExclusions.some(m => v.name.toLowerCase().includes(m))
-            );
-
-            // If no voices left after strict filtering, allow any for that lang but still exclude males
-            if (availableVoices.length === 0) {
-                availableVoices = voices.filter(v =>
-                    v.lang.toLowerCase().startsWith(targetLang) &&
-                    !v.name.toLowerCase().includes('male') &&
-                    !v.name.toLowerCase().includes('guy')
-                );
-            }
+            // Filter by language
+            let availableVoices = voices.filter(v => v.lang.toLowerCase().startsWith(targetLang));
 
             let selectedVoice = null;
 
-            // Tier 1: Search for known high-quality female voices (Online/Natural)
-            for (const q of qualityPatterns) {
-                for (const name of femalePatterns) {
-                    selectedVoice = availableVoices.find(v =>
-                        (v.name.includes(name) || v.name.toLowerCase().includes(name.toLowerCase())) &&
-                        v.name.includes(q)
-                    );
-                    if (selectedVoice) break;
-                }
+            // Tier 1: Best Specific Female Voices (e.g. Sabina is great for MX)
+            for (const name of femalePatterns) {
+                selectedVoice = availableVoices.find(v =>
+                    v.name.toLowerCase().includes(name.toLowerCase()) &&
+                    !v.name.toLowerCase().includes('mobile') // Prefer desktop/online versions
+                );
                 if (selectedVoice) break;
             }
 
-            // Tier 2: Any Online voice for the language
+            // Tier 2: Any "Natural" or "Google" voice (usually better quality)
             if (!selectedVoice) {
-                selectedVoice = availableVoices.find(v => v.name.includes('Online'));
-            }
-
-            // Tier 3: Search for any quality female voice pattern
-            if (!selectedVoice) {
-                for (const name of femalePatterns) {
+                for (const q of qualityPatterns) {
                     selectedVoice = availableVoices.find(v =>
-                        v.name.toLowerCase().includes(name.toLowerCase())
+                        v.name.includes(q) &&
+                        !maleExclusions.some(m => v.name.toLowerCase().includes(m))
                     );
                     if (selectedVoice) break;
                 }
             }
 
-            // Tier 4: Search for quality tags in target language
+            // Tier 3: Any voice that isn't male
             if (!selectedVoice) {
-                for (const q of qualityPatterns) {
-                    selectedVoice = availableVoices.find(v => v.name.includes(q));
-                    if (selectedVoice) break;
-                }
+                selectedVoice = availableVoices.find(v =>
+                    !maleExclusions.some(m => v.name.toLowerCase().includes(m))
+                );
             }
 
-            // Tier 5: Just pick the first non-male voice for the language
+            // Final Fallback
             if (!selectedVoice) {
-                selectedVoice = availableVoices[0] || voices.find(v => v.lang.startsWith(targetLang));
+                selectedVoice = availableVoices[0] || voices[0];
             }
 
             if (selectedVoice) {
                 utterance.voice = selectedVoice;
-                const isVerifiedFemale = femalePatterns.some(p => selectedVoice!.name.toLowerCase().includes(p.toLowerCase()));
-                const isMicrosoft = selectedVoice.name.includes('Microsoft');
 
-                // Fine-tuning for naturalness
-                utterance.pitch = isVerifiedFemale ? 1.05 : 1.2;
-                utterance.rate = isMicrosoft ? 0.95 : 1.0;
-            } else {
-                utterance.pitch = 1.25;
+                // CRITICAL: Natural configurations to avoid robotic sound
+                // Pitch 1.0 is natural. Slight increase (1.05) can sound more feminine but >1.1 sounds robotic.
+                utterance.pitch = 1.0;
+
+                // Rate 0.9 - 1.0 allows for better enunciation which sounds more intelligent/less rushed
                 utterance.rate = 1.0;
+
+                // Adjustments for specific engines
+                if (selectedVoice.name.includes('Google')) {
+                    utterance.rate = 0.95; // Google tends to speak fast
+                    utterance.pitch = 1.05; // Google's base pitch is a bit low sometimes
+                }
             }
 
             utterance.onstart = () => setIsSpeaking(true);
             utterance.onend = () => {
                 setIsSpeaking(false);
-                // Mic restart is now handled by the centralized effect
             };
 
             window.speechSynthesis.speak(utterance);
