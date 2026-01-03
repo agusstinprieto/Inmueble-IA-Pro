@@ -27,7 +27,8 @@ import {
     Download,
     Loader2,
     Check,
-    Map
+    Map,
+    RotateCcw
 } from 'lucide-react';
 import PropertyMap from './PropertyMap';
 import { translations } from '../translations';
@@ -84,6 +85,17 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
     const [adText, setAdText] = useState('');
     const [adPlatform, setAdPlatform] = useState<'generic' | 'facebook' | 'whatsapp'>('generic');
     const [isCopied, setIsCopied] = useState(false);
+
+    const resetFilters = () => {
+        setSearchQuery('');
+        setTypeFilter('ALL');
+        setOperationFilter('ALL');
+        setStatusFilter('ALL');
+        setBedroomsFilter('ALL');
+        setBathroomsFilter('ALL');
+        setPriceRange({ min: 0, max: 999999999 });
+        setSortBy('date');
+    };
 
 
     const [downloadingPdf, setDownloadingPdf] = useState<string | null>(null);
@@ -643,6 +655,14 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                     <option value="price">Mayor precio</option>
                     <option value="views">Más vistas</option>
                 </select>
+                <button
+                    onClick={resetFilters}
+                    className="bg-zinc-800 hover:bg-zinc-700 border border-zinc-800 rounded-xl px-4 py-3 text-white transition-colors flex items-center gap-2"
+                    title="Resetear Filtros"
+                >
+                    <RotateCcw size={20} />
+                    <span className="hidden md:inline">Reset</span>
+                </button>
             </div>
 
             {/* Properties Grid/List */}
