@@ -76,6 +76,7 @@ function App() {
   const [brandColor, setBrandColor] = useState(() => localStorage.getItem('inmueble_brandColor') || '#f59e0b');
   const [userRole, setUserRole] = useState<UserRole>('agent');
   const [location, setLocation] = useState(() => localStorage.getItem('inmueble_location') || '');
+  const [logoUrl, setLogoUrl] = useState(() => localStorage.getItem('inmueble_logoUrl') || '');
   const [scriptUrl, setScriptUrl] = useState('');
 
   // App state
@@ -178,12 +179,16 @@ function App() {
               setBrandColor(agencyData.brandColor);
               setScriptUrl(agencyData.googleSheetsUrl || '');
               setLocation(agencyData.location || ''); // Load agency location for regional pricing
+              setLogoUrl(agencyData.logoUrl || '');
 
               // Persist for instant load next time
               localStorage.setItem('inmueble_businessName', agencyData.name);
               localStorage.setItem('inmueble_brandColor', agencyData.brandColor);
               if (agencyData.location) {
                 localStorage.setItem('inmueble_location', agencyData.location);
+              }
+              if (agencyData.logoUrl) {
+                localStorage.setItem('inmueble_logoUrl', agencyData.logoUrl);
               }
             }
           }
@@ -856,6 +861,8 @@ function App() {
             setLocation={setLocation}
             brandColor={brandColor}
             setBrandColor={setBrandColor}
+            logoUrl={logoUrl}
+            setLogoUrl={setLogoUrl}
             onNavigate={(view) => handleNavigate(view)}
             lang={lang}
             setLang={setLang}
@@ -876,6 +883,7 @@ function App() {
                   name: businessName,
                   brandColor: brandColor,
                   location: location,
+                  logoUrl: logoUrl,
                   googleSheetsUrl: scriptUrl
                 });
 
@@ -886,6 +894,7 @@ function App() {
                     name: businessName,
                     brandColor: brandColor,
                     location: location,
+                    logoUrl: logoUrl,
                     googleSheetsUrl: scriptUrl
                   } : null);
                 }
@@ -894,6 +903,7 @@ function App() {
               if (profileSuccess && agencySuccess) {
                 localStorage.setItem('inmueble_businessName', businessName);
                 localStorage.setItem('inmueble_brandColor', brandColor);
+                localStorage.setItem('inmueble_logoUrl', logoUrl);
                 if (location) {
                   localStorage.setItem('inmueble_location', location);
                 }

@@ -22,6 +22,8 @@ interface SettingsViewProps {
     setLocation: (loc: string) => void;
     brandColor: string;
     setBrandColor: (color: string) => void;
+    logoUrl: string;
+    setLogoUrl: (url: string) => void;
     lang: 'es' | 'en';
     setLang: (lang: 'es' | 'en') => void;
     scriptUrl: string;
@@ -38,6 +40,8 @@ const SettingsView: React.FC<SettingsViewProps> = ({
     setLocation,
     brandColor,
     setBrandColor,
+    logoUrl,
+    setLogoUrl,
     lang,
     setLang,
     scriptUrl,
@@ -114,6 +118,25 @@ const SettingsView: React.FC<SettingsViewProps> = ({
                                 className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2"
                                 style={{ '--tw-ring-color': brandColor } as any}
                             />
+                        </div>
+
+                        <div>
+                            <label className="block text-zinc-400 text-sm mb-2">Logo URL (Opcional)</label>
+                            <div className="flex gap-4">
+                                <input
+                                    type="text"
+                                    value={logoUrl}
+                                    onChange={(e) => setLogoUrl(e.target.value)}
+                                    placeholder="https://ejemplo.com/logo.png"
+                                    className="flex-1 bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2"
+                                    style={{ '--tw-ring-color': brandColor } as any}
+                                />
+                                {logoUrl && (
+                                    <div className="w-12 h-12 bg-white rounded-lg p-1 flex items-center justify-center shrink-0">
+                                        <img src={logoUrl} alt="Logo Preview" className="max-w-full max-h-full object-contain" />
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
