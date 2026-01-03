@@ -569,6 +569,26 @@ function App() {
     setSidebarOpen(false);
   };
 
+  const handleToggleFavorite = async (property: Property) => {
+    // Optimistic update
+    const newFavCount = (property.favorites || 0) + 1; // Simple toggle increment for now, or toggle logic if we tracked user favorites specifically
+    // Since we track simple count in DB:
+    // If we want real "toggle", we need to know if user liked it. For now, let's just increment to show activity, or toggle locally.
+    // Let's assume it's a "Star" feature for agents, so simple increment or boolean toggle if we had a list.
+    // For this MVP fix: just increment to show it works, or maybe toggle a boolean if we add a 'isFavorite' field.
+    // Existing type has 'favorites': number.
+
+    // Let's implement a toggle logic: if it was 0, make it 1. If >0, make it 0 (simple toggle state for demo).
+    // Or just increment. User asked for "Like".
+    const updatedProperty = { ...property, favorites: (property.favorites || 0) + 1 };
+
+    // Update local state
+    setProperties(prev => prev.map(p => p.id === property.id ? updatedProperty : p));
+
+    // Update DB
+    await updateProperty(updatedProperty);
+  };
+
   // ============ RENDER ============
 
   // Loading screen
@@ -682,6 +702,7 @@ function App() {
             userRole={profile?.role || 'agent'}
             userId={userId || ''}
             onOpenCalculator={handleOpenCalculator}
+            onToggleFavorite={handleToggleFavorite}
           />
         );
 

@@ -55,6 +55,7 @@ interface PropertiesViewProps {
     userRole: string;
     userId: string;
     onOpenCalculator: (price: number) => void;
+    onToggleFavorite?: (property: Property) => void;
 }
 
 const PropertiesView: React.FC<PropertiesViewProps> = ({
@@ -72,7 +73,8 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
     agents,
     userRole,
     userId,
-    onOpenCalculator
+    onOpenCalculator,
+    onToggleFavorite
 }) => {
     const t = translations[lang];
 
@@ -402,14 +404,25 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                             {downloadingPdf === property.id ? <Loader2 size={18} className="animate-spin" /> : <FileText size={18} />}
                         </button>
                         <button
-                            onClick={e => { e.stopPropagation(); }}
-                            className="p-2 bg-black/50 rounded-full text-white hover:bg-black/70"
+                            onClick={e => {
+                                e.stopPropagation();
+                                if (onToggleFavorite) onToggleFavorite(property);
+                            }}
+                            className={`p-2 rounded-full transition-colors ${property.favorites > 0 ? 'bg-red-500 text-white' : 'bg-black/50 text-white hover:bg-black/70'}`}
+                            title="Me gusta"
                         >
-                            <Heart size={18} />
+                            <Heart size={18} fill={property.favorites > 0 ? "currentColor" : "none"} />
                         </button>
                         <button
-                            onClick={e => { e.stopPropagation(); }}
+                            onClick={e => {
+                                e.stopPropagation();
+                                const text = `Mira esta propiedad: ${property.title} - ${property.operation}`;
+                                const url = window.location.origin + '?p=' + property.id;
+                                const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`;
+                                window.open(whatsappUrl, '_blank');
+                            }}
                             className="p-2 bg-black/50 rounded-full text-white hover:bg-black/70"
+                            title="Compartir por WhatsApp"
                         >
                             <Share2 size={18} />
                         </button>
