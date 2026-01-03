@@ -10,7 +10,8 @@ import {
     Play,
     Clock,
     ChevronRight,
-    SearchX
+    SearchX,
+    X
 } from 'lucide-react';
 import { translations } from '../translations';
 import { LibraryResource, ResourceCategory, ResourceType } from '../types';
@@ -36,6 +37,8 @@ const LibraryView: React.FC<LibraryViewProps> = ({ lang, brandColor, agencyId })
         category: ResourceCategory.CONTRACTS,
         description: ''
     });
+
+    const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null);
 
     useEffect(() => {
         fetchResources();
@@ -129,18 +132,35 @@ const LibraryView: React.FC<LibraryViewProps> = ({ lang, brandColor, agencyId })
         }
     };
 
+    const getEmbedUrl = (url: string) => {
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : url;
+    };
+
     return (
         <div className="p-4 lg:p-6 space-y-6">
-            {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold text-white uppercase tracking-tight">{t.real_estate_library}</h1>
-                    <p className="text-zinc-500 text-sm mt-1">{t.library_desc}</p>
+                <div className="flex items-center gap-4">
+                    <div
+                        className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+                        style={{ backgroundColor: brandColor + '20' }}
+                    >
+                        <BookOpen size={24} style={{ color: brandColor }} />
+                    </div>
+                    <div>
+                        <h1 className="text-2xl font-black text-white italic tracking-tighter uppercase leading-none">
+                            {lang === 'es' ? 'BIBLIOTECA' : 'INMUEBLE'} <span style={{ color: brandColor }}>{lang === 'es' ? 'INMOBILIARIA' : 'LIBRARY'}</span>
+                        </h1>
+                        <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mt-1 italic">
+                            {lang === 'es' ? 'RECURSOS Y CAPACITACIÓN PARA TU EQUIPO' : 'RESOURCES AND TRAINING FOR YOUR TEAM'}
+                        </p>
+                    </div>
                 </div>
                 {agencyId && (
                     <button
                         onClick={() => setShowAddForm(!showAddForm)}
-                        className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-black font-bold rounded-xl transition-all shadow-lg shadow-amber-500/20 text-sm"
+                        className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-black font-black text-xs uppercase italic rounded-xl transition-all shadow-lg shadow-amber-500/20"
                     >
                         {showAddForm ? t.cancel : t.add_resource}
                     </button>
@@ -331,19 +351,69 @@ const LibraryView: React.FC<LibraryViewProps> = ({ lang, brandColor, agencyId })
                                     <p className="text-[10px] text-zinc-600">
                                         Agregado el {new Date(resource.dateAdded).toLocaleDateString()}
                                     </p>
-                                    <a
-                                        href={resource.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-2 text-xs font-bold text-white hover:text-amber-500 transition-colors"
-                                    >
-                                        {resource.type === 'pdf' ? t.download_pdf : t.view}
-                                        <ChevronRight size={14} />
-                                    </a>
+                                    {resource.type === 'video' ? (
+                                        <button
+                                            onClick={() => setSelectedVideoUrl(resource.url)}
+                                            className="inline-flex items-center gap-2 text-xs font-bold text-white hover:text-amber-500 transition-colors"
+                                        >
+                                            {t.view}
+                                            <ChevronRight size={14} />
+                                        </button>
+                                    ) : (
+                                        <a
+                                            href={resource.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-2 text-xs font-bold text-white hover:text-amber-500 transition-colors"
+                                        >
+                                            {resource.type === 'pdf' ? t.download_pdf : t.view}
+                                            <ChevronRight size={14} />
+                                        </a>
+                                    )}
                                 </div>
                             </div>
                         </div>
                     ))}
+                </div>
+            )}
+
+            {/* Video Player Modal */}
+            {selectedVideoUrl && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-zinc-900 border border-zinc-800 rounded-3xl w-full max-w-4xl overflow-hidden shadow-2xl">
+                        <div className="p-4 border-b border-zinc-800 flex items-center justify-between bg-zinc-900/50 backdrop-blur-md">
+                            <h3 className="text-white font-black uppercase italic tracking-tighter">Productor de Video IA</h3>
+                            <button
+                                onClick={() => setSelectedVideoUrl(null)}
+                                className="p-2 hover:bg-zinc-800 rounded-full text-zinc-400 hover:text-white transition-all"
+                            >
+                                <X size={24} />
+                            </button>
+                        </div>
+                        <div className="relative aspect-video bg-black">
+                            {getEmbedUrl(selectedVideoUrl).includes('youtube.com/embed') ? (
+                                <iframe
+                                    src={`${getEmbedUrl(selectedVideoUrl)}?autoplay=1`}
+                                    className="w-full h-full"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                ></iframe>
+                            ) : (
+                                <div className="w-full h-full flex flex-col items-center justify-center p-8 text-center">
+                                    <Video size={48} className="text-zinc-700 mb-4" />
+                                    <p className="text-zinc-400 mb-4">Este video no puede reproducirse directamente.</p>
+                                    <a
+                                        href={selectedVideoUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="px-6 py-2 bg-amber-500 text-black font-bold rounded-xl hover:bg-amber-600 transition-all"
+                                    >
+                                        Abrir en pestaña nueva
+                                    </a>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

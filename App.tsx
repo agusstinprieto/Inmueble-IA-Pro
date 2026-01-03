@@ -812,7 +812,9 @@ function App() {
         return (
           <BillingView
             billing={mockBilling}
+            subscription={agency?.subscription}
             lang={lang}
+            brandColor={brandColor}
           />
         );
 

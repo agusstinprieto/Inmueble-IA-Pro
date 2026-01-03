@@ -73,12 +73,21 @@ const ValuationView: React.FC<ValuationViewProps> = ({
         <div className="p-4 lg:p-8 space-y-8 animate-in fade-in duration-500">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-black text-white italic tracking-tighter uppercase leading-none">
-                        {lang === 'es' ? 'VALUACIÓN' : 'AI PROPERTY'} <br />
-                        <span style={{ color: brandColor }}>{lang === 'es' ? 'ESTUDIO DE MERCADO IA' : 'MARKET STUDY'}</span>
-                    </h1>
-                    <p className="text-zinc-500 text-sm mt-2">{lang === 'es' ? 'Análisis preciso basado en ubicación, ciudad y colonia' : 'Precise analysis based on location, city, and neighborhood'}</p>
+                <div className="flex items-center gap-4">
+                    <div
+                        className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+                        style={{ backgroundColor: brandColor + '20' }}
+                    >
+                        <Calculator size={24} style={{ color: brandColor }} />
+                    </div>
+                    <div>
+                        <h1 className="text-2xl font-black text-white italic tracking-tighter uppercase leading-none">
+                            {lang === 'es' ? 'VALUACIÓN' : 'AI PROPERTY'} <span style={{ color: brandColor }}>{lang === 'es' ? 'ESTUDIO DE MERCADO IA' : 'MARKET STUDY'}</span>
+                        </h1>
+                        <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mt-1 italic">
+                            {lang === 'es' ? 'Valuación inteligente y análisis de entorno' : 'Smart valuation and environment analysis'}
+                        </p>
+                    </div>
                 </div>
                 <div className="flex items-center gap-3">
                     <div className="px-4 py-2 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center gap-2">

@@ -120,11 +120,21 @@ const GalleryView: React.FC<GalleryViewProps> = ({
         <div className="p-4 lg:p-8 space-y-8 animate-in fade-in duration-500">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-black text-white italic tracking-tighter uppercase">
-                        {lang === 'es' ? 'GALERÍA DE' : 'IMAGE'} <span style={{ color: brandColor }}>{lang === 'es' ? 'MULTIMEDIA' : 'GALLERY'}</span>
-                    </h1>
-                    <p className="text-zinc-500 text-sm mt-1">{lang === 'es' ? 'Gestión visual de inventario y activos' : 'Visual management of inventory and assets'}</p>
+                <div className="flex items-center gap-4">
+                    <div
+                        className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+                        style={{ backgroundColor: brandColor + '20' }}
+                    >
+                        <ImageIcon size={24} style={{ color: brandColor }} />
+                    </div>
+                    <div>
+                        <h1 className="text-2xl font-black text-white italic tracking-tighter uppercase leading-none">
+                            {lang === 'es' ? 'GALERÍA DE' : 'MEDIA'} <span style={{ color: brandColor }}>{lang === 'es' ? 'MULTIMEDIA' : 'GALLERY'}</span>
+                        </h1>
+                        <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mt-1 italic">
+                            {lang === 'es' ? 'Gestión visual de inventario' : 'Visual inventory management'}
+                        </p>
+                    </div>
                 </div>
                 <div className="flex items-center gap-2 bg-zinc-900 p-1 rounded-xl border border-zinc-800">
                     <button

@@ -288,16 +288,20 @@ const CRMView: React.FC<CRMViewProps> = ({
         <div className="p-4 lg:p-6 space-y-6">
             {/* Header */}
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-4">
                     <div
-                        className="w-12 h-12 rounded-xl flex items-center justify-center"
+                        className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
                         style={{ backgroundColor: brandColor + '20' }}
                     >
                         <Users size={24} style={{ color: brandColor }} />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-bold text-white uppercase">{t.client_management}</h1>
-                        <p className="text-zinc-400 text-sm uppercase">GESTIÓN DE PROSPECTOS Y SEGUIMIENTOS</p>
+                        <h1 className="text-2xl font-black text-white italic tracking-tighter uppercase leading-none">
+                            {lang === 'es' ? 'GESTIÓN DE' : 'CLIENT'} <span style={{ color: brandColor }}>{lang === 'es' ? 'CLIENTES' : 'MANAGEMENT'}</span>
+                        </h1>
+                        <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mt-1 italic">
+                            {lang === 'es' ? 'PROSPECTOS Y SEGUIMIENTOS' : 'PIPELINE AND FOLLOW-UPS'}
+                        </p>
                     </div>
                 </div>
 

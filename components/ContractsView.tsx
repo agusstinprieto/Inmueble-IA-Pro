@@ -189,16 +189,20 @@ Firma del Representante
         <div className="p-4 lg:p-6 space-y-6">
             {/* Header */}
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-4">
                     <div
-                        className="w-12 h-12 rounded-xl flex items-center justify-center"
+                        className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
                         style={{ backgroundColor: brandColor + '20' }}
                     >
                         <FileText size={24} style={{ color: brandColor }} />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-bold text-white uppercase">{t.contract_generator}</h1>
-                        <p className="text-zinc-400 text-sm">GESTIÓN DE DOCUMENTOS LEGALES</p>
+                        <h1 className="text-2xl font-black text-white italic tracking-tighter uppercase leading-none">
+                            {lang === 'es' ? 'GENERADOR DE' : 'CONTRACT'} <span style={{ color: brandColor }}>{lang === 'es' ? 'CONTRATOS' : 'GENERATOR'}</span>
+                        </h1>
+                        <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mt-1 italic">
+                            {lang === 'es' ? 'GESTIÓN DE DOCUMENTOS LEGALES' : 'LEGAL DOCUMENT MANAGEMENT'}
+                        </p>
                     </div>
                 </div>
 

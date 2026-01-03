@@ -486,13 +486,23 @@ const MarketSearchView: React.FC<MarketSearchViewProps> = ({
                             AI Intelligent Search
                         </div>
                     </div>
-                    <div className="space-y-4">
-                        <h1 className="text-4xl lg:text-5xl font-black text-white italic tracking-tighter uppercase leading-none">
-                            {t.property_comparator_title}
-                        </h1>
-                        <p className="text-zinc-600 font-bold italic text-sm tracking-wide max-w-2xl">
-                            {t.property_comparator_desc}
-                        </p>
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div className="flex items-center gap-4">
+                            <div
+                                className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+                                style={{ backgroundColor: brandColor + '20' }}
+                            >
+                                <Sparkles size={24} style={{ color: brandColor }} />
+                            </div>
+                            <div>
+                                <h1 className="text-2xl font-black text-white italic tracking-tighter uppercase leading-none">
+                                    {lang === 'es' ? 'BUSCADOR DE' : 'ELITE MARKET'} <span style={{ color: brandColor }}>{lang === 'es' ? 'MERCADO ELITE' : 'SEARCH'}</span>
+                                </h1>
+                                <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mt-1 italic">
+                                    {lang === 'es' ? 'Análisis comparativo de propiedades' : 'Property comparative analysis'}
+                                </p>
+                            </div>
+                        </div>
                     </div>
 
                     <div className="space-y-4 pt-4">

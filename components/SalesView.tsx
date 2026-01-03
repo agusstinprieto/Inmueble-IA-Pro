@@ -137,11 +137,21 @@ const SalesView: React.FC<SalesViewProps> = ({
     <div className="p-4 lg:p-8 space-y-8 animate-in fade-in duration-500">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-black text-white italic tracking-tighter uppercase">
-            {lang === 'es' ? 'MOVIMIENTOS' : 'TRANSACTIONS'} <span style={{ color: brandColor }}>{lang === 'es' ? 'CERRADOS' : 'CLOSED'}</span>
-          </h1>
-          <p className="text-zinc-500 text-sm mt-1">{lang === 'es' ? 'Historial de ventas y rentas finalizadas' : 'History of completed sales and rentals'}</p>
+        <div className="flex items-center gap-4">
+          <div
+            className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+            style={{ backgroundColor: brandColor + '20' }}
+          >
+            <TrendingUp size={24} style={{ color: brandColor }} />
+          </div>
+          <div>
+            <h1 className="text-2xl font-black text-white italic tracking-tighter uppercase leading-none">
+              {lang === 'es' ? 'MOVIMIENTOS' : 'CLOSED'} <span style={{ color: brandColor }}>{lang === 'es' ? 'CERRADOS' : 'TRANSACTIONS'}</span>
+            </h1>
+            <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mt-1 italic">
+              {lang === 'es' ? 'HISTORIAL DE VENTAS Y RENTAS' : 'SALES AND RENTALS HISTORY'}
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-3">
           <button

@@ -32,16 +32,26 @@ import {
 } from 'lucide-react';
 import PropertyMap from './PropertyMap';
 import { translations } from '../translations';
-import { Property, PropertyType, OperationType, PropertyStatus } from '../types';
+import { Property, PropertyType, OperationType, PropertyStatus, Agent } from '../types';
 import { generatePropertyListing, generateSocialAd } from '../services/gemini';
 import { uploadPropertyImage } from '../services/supabase';
 import { pdfService } from '../services/pdfService';
 
-editingPropertyProp ?: Property | null;
-onClearEditingProperty ?: () => void;
-agents: Agent[];
-userRole: string;
-userId: string;
+interface PropertiesViewProps {
+    properties: Property[];
+    onAddProperty?: (property: Partial<Property>) => void;
+    onEditProperty: (property: Property) => void;
+    onDeleteProperty: (id: string) => void;
+    onViewProperty: (property: Property) => void;
+    lang: 'es' | 'en';
+    brandColor: string;
+    businessName: string;
+    location: string;
+    editingPropertyProp?: Property | null;
+    onClearEditingProperty?: () => void;
+    agents: Agent[];
+    userRole: string;
+    userId: string;
 }
 
 const PropertiesView: React.FC<PropertiesViewProps> = ({
@@ -62,9 +72,12 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
 }) => {
     const t = translations[lang];
 
-    const getAgentName = (id: string) => {
+    const getAgentInfo = (id: string) => {
         const agent = agents.find(a => a.id === id);
-        return agent ? agent.name : (lang === 'es' ? 'Asesor no asignado' : 'Unassigned Agent');
+        return {
+            name: agent ? agent.name : (lang === 'es' ? 'Asesor no asignado' : 'Unassigned Agent'),
+            photo: agent?.photo
+        };
     };
 
     const isAdmin = userRole === 'super_admin' || userRole === 'agency_owner' || userRole === 'branch_manager';
@@ -448,11 +461,19 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                     </div>
 
                     <div className="mt-3 pt-3 border-t border-zinc-800 flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-zinc-800 flex items-center justify-center text-[10px] text-zinc-400 border border-zinc-700">
-                            {getAgentName(property.agentId).charAt(0)}
-                        </div>
+                        {getAgentInfo(property.agentId).photo ? (
+                            <img
+                                src={getAgentInfo(property.agentId).photo}
+                                alt={getAgentInfo(property.agentId).name}
+                                className="w-6 h-6 rounded-full object-cover border border-zinc-700"
+                            />
+                        ) : (
+                            <div className="w-6 h-6 rounded-full bg-zinc-800 flex items-center justify-center text-[10px] text-zinc-400 border border-zinc-700">
+                                {getAgentInfo(property.agentId).name.charAt(0)}
+                            </div>
+                        )}
                         <span className="text-xs text-zinc-500 truncate">
-                            {getAgentName(property.agentId)}
+                            {getAgentInfo(property.agentId).name}
                         </span>
                     </div>
                 </div>
@@ -497,11 +518,19 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                         {property.address?.colony}, {property.address?.city}
                     </p>
                     <div className="flex items-center gap-2 mt-1">
-                        <div className="w-5 h-5 rounded-full bg-zinc-800 flex items-center justify-center text-[8px] text-zinc-500 border border-zinc-700">
-                            {getAgentName(property.agentId).charAt(0)}
-                        </div>
+                        {getAgentInfo(property.agentId).photo ? (
+                            <img
+                                src={getAgentInfo(property.agentId).photo}
+                                alt={getAgentInfo(property.agentId).name}
+                                className="w-5 h-5 rounded-full object-cover border border-zinc-700"
+                            />
+                        ) : (
+                            <div className="w-5 h-5 rounded-full bg-zinc-800 flex items-center justify-center text-[8px] text-zinc-500 border border-zinc-700">
+                                {getAgentInfo(property.agentId).name.charAt(0)}
+                            </div>
+                        )}
                         <span className="text-[10px] text-zinc-500 italic">
-                            {getAgentName(property.agentId)}
+                            {getAgentInfo(property.agentId).name}
                         </span>
                     </div>
                     <div className="flex items-center gap-3 text-zinc-500 text-sm mt-2">
@@ -546,16 +575,20 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
         <div className="p-4 lg:p-6 space-y-6">
             {/* Header */}
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-4">
                     <div
-                        className="w-12 h-12 rounded-xl flex items-center justify-center"
+                        className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
                         style={{ backgroundColor: brandColor + '20' }}
                     >
                         <Building2 size={24} style={{ color: brandColor }} />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-bold text-white uppercase">{t.property_catalog}</h1>
-                        <p className="text-zinc-400 text-sm uppercase">{stats.available} DE {stats.total} DISPONIBLES</p>
+                        <h1 className="text-2xl font-black text-white italic tracking-tighter uppercase leading-none">
+                            {lang === 'es' ? 'CATÁLOGO DE' : 'PROPERTY'} <span style={{ color: brandColor }}>{lang === 'es' ? 'PROPIEDADES' : 'INVENTORY'}</span>
+                        </h1>
+                        <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mt-1 italic">
+                            {stats.available} {lang === 'es' ? 'DE' : 'OF'} {stats.total} {lang === 'es' ? 'DISPONIBLES' : 'AVAILABLE'}
+                        </p>
                     </div>
                 </div>
 
@@ -833,6 +866,34 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                                 </div>
                             </div>
 
+                            {/* Agent Info */}
+                            <div className="mb-6 p-4 bg-zinc-800/50 rounded-xl border border-zinc-800 flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    {getAgentInfo(selectedProperty.agentId).photo ? (
+                                        <img
+                                            src={getAgentInfo(selectedProperty.agentId).photo}
+                                            alt={getAgentInfo(selectedProperty.agentId).name}
+                                            className="w-12 h-12 rounded-full object-cover border-2 border-zinc-700"
+                                        />
+                                    ) : (
+                                        <div className="w-12 h-12 rounded-full bg-zinc-700 flex items-center justify-center text-white text-xl font-bold border-2 border-zinc-600">
+                                            {getAgentInfo(selectedProperty.agentId).name.charAt(0)}
+                                        </div>
+                                    )}
+                                    <div>
+                                        <p className="text-xs text-zinc-500 uppercase font-bold tracking-tighter">Asesor Asignado</p>
+                                        <p className="text-white font-semibold text-lg">{getAgentInfo(selectedProperty.agentId).name}</p>
+                                    </div>
+                                </div>
+                                <div className="hidden sm:block text-right">
+                                    <p className="text-[10px] text-zinc-500 italic uppercase">Agente Verificado</p>
+                                    <div className="flex gap-0.5 mt-0.5 justify-end">
+                                        {[1, 2, 3, 4, 5].map(s => <Sparkles key={s} size={8} className="text-amber-500" />)}
+                                    </div>
+                                </div>
+                            </div>
+
+
                             {/* Description */}
                             {selectedProperty.description && (
                                 <div className="mb-6">
@@ -1089,6 +1150,24 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                                         </div>
                                     </div>
 
+                                    {/* Agent Assignment (Visible/Enabled based on role) */}
+                                    <div className="border-t border-zinc-800 pt-4">
+                                        <label className="text-xs text-zinc-400 block mb-1 uppercase font-black italic">Asesor Responsable</label>
+                                        <select
+                                            name="agentId"
+                                            disabled={!isAdmin}
+                                            defaultValue={userId}
+                                            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white disabled:opacity-50"
+                                        >
+                                            {agents.map(agent => (
+                                                <option key={agent.id} value={agent.id}>
+                                                    {agent.name} {agent.id === userId ? '(Tú)' : ''}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        {!isAdmin && <p className="text-[10px] text-zinc-500 mt-1 italic">* Solo administradores pueden asignar a otros asesores.</p>}
+                                    </div>
+
                                     {/* Address */}
                                     <div className="border-t border-zinc-800 pt-4">
                                         <h3 className="text-white font-semibold mb-3">Dirección</h3>
@@ -1316,7 +1395,6 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                                                 m2Total: Number(formData.get('m2Total')),
                                                 floors: Number(formData.get('floors'))
                                             },
-                                            description: formData.get('description') as string,
                                             description: formData.get('description') as string,
                                             status: formData.get('status') as PropertyStatus,
                                             agentId: formData.get('agentId') as string || editingProperty.agentId

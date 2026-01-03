@@ -113,18 +113,29 @@ const NotaryDirectoryView: React.FC<NotaryDirectoryViewProps> = ({ lang, brandCo
 
     return (
         <div className="p-4 lg:p-6 space-y-6">
-            {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold text-white">{t.notary_directory}</h1>
-                    <p className="text-zinc-400 text-sm">{t.notary_directory_desc}</p>
+                <div className="flex items-center gap-4">
+                    <div
+                        className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+                        style={{ backgroundColor: brandColor + '20' }}
+                    >
+                        <Globe size={24} style={{ color: brandColor }} />
+                    </div>
+                    <div>
+                        <h1 className="text-2xl font-black text-white italic tracking-tighter uppercase leading-none">
+                            {lang === 'es' ? 'DIRECTORIO DE' : 'NOTARY'} <span style={{ color: brandColor }}>{lang === 'es' ? 'NOTARÍAS' : 'DIRECTORY'}</span>
+                        </h1>
+                        <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mt-1 italic">
+                            {lang === 'es' ? 'GESTIÓN DE ALIADOS ESTRATÉGICOS' : 'STRATEGIC PARTNER MANAGEMENT'}
+                        </p>
+                    </div>
                 </div>
                 <button
                     onClick={() => setShowAddForm(true)}
-                    className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all hover:scale-105 active:scale-95"
+                    className="flex items-center gap-2 px-6 py-3 rounded-xl font-black text-xs uppercase italic transition-all hover:scale-105 active:scale-95 shadow-xl"
                     style={{ backgroundColor: brandColor, color: '#000' }}
                 >
-                    <Plus size={20} />
+                    <Plus size={18} />
                     {t.add_notary}
                 </button>
             </div>
