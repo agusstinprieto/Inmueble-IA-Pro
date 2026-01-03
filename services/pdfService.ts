@@ -9,25 +9,25 @@ import { Property, Agency } from '../types';
  */
 export const pdfService = {
 
-    /**
-     * Generates a "Ficha Técnica" (Property Brochure)
-     * @param property The property data
-     * @param agencyInfo Agency branding and contact info
-     */
-    async generatePropertySheet(property: Property, agencyInfo: { name: string; color: string; email?: string; phone?: string }) {
-        // Create a temporary container for the PDF content
-        const container = document.createElement('div');
-        container.style.position = 'fixed';
-        container.style.left = '-9999px';
-        container.style.top = '0';
-        container.style.width = '800px';
-        container.style.background = '#050505';
-        container.style.color = 'white';
-        container.style.fontFamily = 'Inter, system-ui, sans-serif';
-        container.style.padding = '40px';
+  /**
+   * Generates a "Ficha Técnica" (Property Brochure)
+   * @param property The property data
+   * @param agencyInfo Agency branding and contact info
+   */
+  async generatePropertySheet(property: Property, agencyInfo: { name: string; color: string; email?: string; phone?: string }) {
+    // Create a temporary container for the PDF content
+    const container = document.createElement('div');
+    container.style.position = 'fixed';
+    container.style.left = '-9999px';
+    container.style.top = '0';
+    container.style.width = '800px';
+    container.style.background = '#050505';
+    container.style.color = 'white';
+    container.style.fontFamily = 'Inter, system-ui, sans-serif';
+    container.style.padding = '40px';
 
-        // Build the HTML structure (Premium style)
-        container.innerHTML = `
+    // Build the HTML structure (Premium style)
+    container.innerHTML = `
       <div style="border: 2px solid ${agencyInfo.color}; padding: 30px; border-radius: 40px; position: relative; overflow: hidden;">
         <!-- Header -->
         <div style="display: flex; justify-between: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px; margin-bottom: 30px;">
@@ -93,79 +93,85 @@ export const pdfService = {
       </div>
     `;
 
-        document.body.appendChild(container);
+    document.body.appendChild(container);
 
-        try {
-            const canvas = await html2canvas(container, {
-                scale: 2,
-                backgroundColor: '#050505',
-                useCORS: true,
-                logging: false
-            });
+    try {
+      const canvas = await html2canvas(container, {
+        scale: 2,
+        backgroundColor: '#050505',
+        useCORS: true,
+        logging: false
+      });
 
-            const imgData = canvas.toDataURL('image/jpeg', 0.95);
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const pageWidth = pdf.internal.pageSize.getWidth();
-            const pageHeight = pdf.internal.pageSize.getHeight();
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
 
-            const imgWidth = pageWidth - 20; // 10mm margins
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const imgWidth = pageWidth - 20; // 10mm margins
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-            pdf.addImage(imgData, 'JPEG', 10, 10, imgWidth, imgHeight);
-            pdf.save(`FICHA_${property.title.replace(/\s+/g, '_')}.pdf`);
-        } finally {
-            document.body.removeChild(container);
-        }
-    },
+      pdf.addImage(imgData, 'JPEG', 10, 10, imgWidth, imgHeight);
 
-    /**
-     * Generates a PDF report from any DOM element identified by ID
-     * @param elementId The ID of the element to capture
-     * @param filename The name of the resulting file
-     */
-    async generateReportFromElement(elementId: string, filename: string) {
-        const element = document.getElementById(elementId);
-        if (!element) {
-            console.error(`Element with id ${elementId} not found`);
-            return;
-        }
+      const filename = `${agencyInfo.name} - ${property.title}`;
+      pdf.setProperties({
+        title: filename
+      });
 
-        try {
-            const canvas = await html2canvas(element, {
-                scale: 2,
-                backgroundColor: '#050505',
-                useCORS: true,
-                logging: false,
-                onclone: (clonedDoc) => {
-                    const el = clonedDoc.getElementById(elementId);
-                    if (el) el.style.padding = '40px';
-                }
-            });
-
-            const imgData = canvas.toDataURL('image/jpeg', 0.95);
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const pageWidth = pdf.internal.pageSize.getWidth();
-            const pageHeight = pdf.internal.pageSize.getHeight();
-
-            const imgWidth = pageWidth - 20;
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-            let heightLeft = imgHeight;
-            let position = 10;
-
-            pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
-            heightLeft -= (pageHeight - 20);
-
-            while (heightLeft >= 0) {
-                position = heightLeft - imgHeight + 10;
-                pdf.addPage();
-                pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
-                heightLeft -= pageHeight;
-            }
-
-            pdf.save(`${filename}.pdf`);
-        } catch (err) {
-            console.error('Error in generateReportFromElement:', err);
-        }
+      pdf.save(`${filename}.pdf`);
+    } finally {
+      document.body.removeChild(container);
     }
+  },
+
+  /**
+   * Generates a PDF report from any DOM element identified by ID
+   * @param elementId The ID of the element to capture
+   * @param filename The name of the resulting file
+   */
+  async generateReportFromElement(elementId: string, filename: string) {
+    const element = document.getElementById(elementId);
+    if (!element) {
+      console.error(`Element with id ${elementId} not found`);
+      return;
+    }
+
+    try {
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        backgroundColor: '#050505',
+        useCORS: true,
+        logging: false,
+        onclone: (clonedDoc) => {
+          const el = clonedDoc.getElementById(elementId);
+          if (el) el.style.padding = '40px';
+        }
+      });
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      const imgWidth = pageWidth - 20;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      let heightLeft = imgHeight;
+      let position = 10;
+
+      pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
+      heightLeft -= (pageHeight - 20);
+
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight + 10;
+        pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      pdf.save(`${filename}.pdf`);
+    } catch (err) {
+      console.error('Error in generateReportFromElement:', err);
+    }
+  }
 };
