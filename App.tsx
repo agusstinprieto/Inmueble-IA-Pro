@@ -23,6 +23,7 @@ import PublicPropertyDetail from './components/PublicPropertyDetail';
 import LibraryView from './components/LibraryView';
 import NotaryDirectoryView from './components/NotaryDirectoryView';
 import AssistantView from './components/AssistantView';
+import PhotoStudioView from './components/PhotoStudioView';
 import { translations } from './translations';
 import {
   supabase, getUserProfile, getAgencyProfile, signOut, addProperty, getProperties, uploadPropertyImages, updateProperty, deleteProperty, updateUserProfile, updateAgencyProfile, getAgents, addAgent, updateAgent, deleteAgent, addSale, updateClient,
@@ -32,7 +33,8 @@ import {
   getContracts,
   addContract,
   deleteContract,
-  getSales
+  getSales,
+  getGlobalProperties
 } from './services/supabase';
 import {
   Property,
@@ -80,6 +82,7 @@ function App() {
   const [lang, setLang] = useState<'es' | 'en'>('es');
   const [activeView, setActiveView] = useState('dashboard');
   const [isPublicView, setIsPublicView] = useState(false);
+  const [isGlobalView, setIsGlobalView] = useState(false);
   const [selectedPublicProperty, setSelectedPublicProperty] = useState<Property | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [propertyToEdit, setPropertyToEdit] = useState<Property | null>(null);
@@ -184,10 +187,15 @@ function App() {
     }
   };
 
-  const loadPublicData = async () => {
+  const loadPublicData = async (globalMode = false) => {
     try {
-      const props = await getProperties();
-      setProperties(props);
+      if (globalMode) {
+        const props = await getGlobalProperties();
+        setProperties(props);
+      } else {
+        const props = await getProperties();
+        setProperties(props);
+      }
     } catch (err) {
       console.error('loadPublicData error:', err);
     }
@@ -580,7 +588,15 @@ function App() {
           brandColor={brandColor}
           lang={lang}
           onToggleLang={() => setLang(l => l === 'es' ? 'en' : 'es')}
-          onEnterGuest={() => setIsPublicView(true)}
+          onEnterGuest={(mode) => {
+            if (mode === 'global') {
+              setIsGlobalView(true);
+              loadPublicData(true);
+            } else {
+              loadPublicData(false);
+            }
+            setIsPublicView(true);
+          }}
         />
         {/* AI Voice Assistant - Always visible */}
         <AssistantView
@@ -764,6 +780,9 @@ function App() {
           />
         );
 
+      case 'photo-studio':
+        return <PhotoStudioView lang={lang} />;
+
       case 'library':
         return (
           <LibraryView
@@ -908,11 +927,15 @@ function App() {
       <PublicPortalView
         properties={properties}
         lang={lang}
-        brandColor={brandColor}
-        agencyName={businessName}
+        brandColor={isGlobalView ? '#000000' : brandColor}
+        agencyName={isGlobalView ? 'Portal Global' : businessName}
         onViewDetail={(p) => setSelectedPublicProperty(p)}
-        onExitPublic={() => setIsPublicView(false)}
+        onExitPublic={() => {
+          setIsPublicView(false);
+          setIsGlobalView(false);
+        }}
         isAuthenticated={isAuthenticated}
+        isGlobal={isGlobalView}
       />
     );
   }

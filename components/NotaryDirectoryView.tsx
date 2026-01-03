@@ -113,27 +113,19 @@ const NotaryDirectoryView: React.FC<NotaryDirectoryViewProps> = ({ lang, brandCo
 
     return (
         <div className="p-4 lg:p-6 space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                    <div
-                        className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-                        style={{ backgroundColor: brandColor + '20' }}
-                    >
-                        <Globe size={24} style={{ color: brandColor }} />
-                    </div>
-                    <div>
-                        <h1 className="text-2xl font-black text-white italic tracking-tighter uppercase leading-none">
-                            {lang === 'es' ? 'DIRECTORIO DE' : 'NOTARY'} <span style={{ color: brandColor }}>{lang === 'es' ? 'NOTARÍAS' : 'DIRECTORY'}</span>
-                        </h1>
-                        <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mt-1 italic">
-                            {lang === 'es' ? 'GESTIÓN DE ALIADOS ESTRATÉGICOS' : 'STRATEGIC PARTNER MANAGEMENT'}
-                        </p>
-                    </div>
+            {/* Header */}
+            <div className="flex justify-between items-start">
+                <div>
+                    <h1 className="text-3xl font-black text-white tracking-tight mb-2">
+                        {lang === 'es' ? 'Directorio' : 'Directory'} <span className="text-amber-500">{lang === 'es' ? 'Notarial' : 'Notarial'}</span>
+                    </h1>
+                    <p className="text-zinc-400">
+                        {lang === 'es' ? 'Gestión de aliados estratégicos.' : 'Strategic partner management.'}
+                    </p>
                 </div>
                 <button
                     onClick={() => setShowAddForm(true)}
-                    className="flex items-center gap-2 px-6 py-3 rounded-xl font-black text-xs uppercase italic transition-all hover:scale-105 active:scale-95 shadow-xl"
-                    style={{ backgroundColor: brandColor, color: '#000' }}
+                    className="flex items-center gap-2 px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-black font-bold text-sm rounded-xl transition-all shadow-lg shadow-amber-500/20"
                 >
                     <Plus size={18} />
                     {t.add_notary}

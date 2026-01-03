@@ -28,7 +28,8 @@ import {
     Loader2,
     Check,
     Map,
-    RotateCcw
+    RotateCcw,
+    Globe
 } from 'lucide-react';
 import PropertyMap from './PropertyMap';
 import { translations } from '../translations';
@@ -365,6 +366,12 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                         >
                             {t.status[property.status as keyof typeof t.status]}
                         </span>
+                        {property.isPublicGlobal && (
+                            <span className="px-2 py-1 rounded text-[10px] font-black bg-white text-black flex items-center gap-1 shadow-lg animate-pulse uppercase italic">
+                                <Globe size={10} />
+                                Global
+                            </span>
+                        )}
                     </div>
 
                     {/* Actions */}
@@ -512,6 +519,12 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                         >
                             {t.status[property.status as keyof typeof t.status]}
                         </span>
+                        {property.isPublicGlobal && (
+                            <span className="px-1.5 py-0.5 rounded text-[8px] font-black bg-white text-black flex items-center gap-1 uppercase italic">
+                                <Globe size={8} />
+                                Global
+                            </span>
+                        )}
                     </div>
                     <p className="text-zinc-400 text-sm flex items-center gap-1">
                         <MapPin size={14} />
@@ -1080,8 +1093,8 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                                                 floors: Number(formData.get('floors'))
                                             },
                                             description: formData.get('description') as string,
-                                            agentId: formData.get('agentId') as string || userId,
-                                            agencyId: properties[0]?.agencyId || ''
+                                            agencyId: properties[0]?.agencyId || '',
+                                            isPublicGlobal: formData.get('isPublicGlobal') === 'on'
                                         };
 
                                         onAddProperty(newProperty);
@@ -1166,6 +1179,28 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                                             ))}
                                         </select>
                                         {!isAdmin && <p className="text-[10px] text-zinc-500 mt-1 italic">* Solo administradores pueden asignar a otros asesores.</p>}
+                                    </div>
+
+                                    {/* Global Portal Toggle */}
+                                    <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex items-center justify-between group hover:bg-white/10 transition-all cursor-pointer" onClick={() => {
+                                        const checkbox = document.getElementById('isPublicGlobalAdd') as HTMLInputElement;
+                                        if (checkbox) checkbox.checked = !checkbox.checked;
+                                    }}>
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 bg-amber-500/20 rounded-lg">
+                                                <Globe size={18} className="text-amber-500" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-black text-white italic uppercase tracking-tight">Publicar en Portal Global</p>
+                                                <p className="text-[10px] text-zinc-500 font-bold italic">Mostrar esta propiedad en el marketplace nacional.</p>
+                                            </div>
+                                        </div>
+                                        <input
+                                            id="isPublicGlobalAdd"
+                                            name="isPublicGlobal"
+                                            type="checkbox"
+                                            className="w-5 h-5 rounded-md border-zinc-700 bg-zinc-800 text-amber-500 focus:ring-amber-500/20"
+                                        />
                                     </div>
 
                                     {/* Address */}
@@ -1395,6 +1430,7 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                                                 m2Total: Number(formData.get('m2Total')),
                                                 floors: Number(formData.get('floors'))
                                             },
+                                            isPublicGlobal: formData.get('isPublicGlobal') === 'on',
                                             description: formData.get('description') as string,
                                             status: formData.get('status') as PropertyStatus,
                                             agentId: formData.get('agentId') as string || editingProperty.agentId
@@ -1407,25 +1443,26 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                                     }}
                                     className="space-y-4"
                                 >
-                                    {/* Status Toggle */}
-                                    <div className="p-4 bg-zinc-800/50 rounded-xl border border-zinc-800">
-                                        <label className="text-xs text-zinc-400 block mb-2 uppercase font-black italic">Estado de Disponibilidad</label>
-                                        <div className="flex gap-2">
-                                            {Object.values(PropertyStatus).map(status => (
-                                                <label key={status} className="flex-1 cursor-pointer">
-                                                    <input
-                                                        type="radio"
-                                                        name="status"
-                                                        value={status}
-                                                        defaultChecked={editingProperty.status === status}
-                                                        className="hidden peer"
-                                                    />
-                                                    <div className="py-2 text-center rounded-lg border border-zinc-700 text-[10px] font-bold uppercase peer-checked:bg-white peer-checked:text-black transition-all">
-                                                        {status}
-                                                    </div>
-                                                </label>
-                                            ))}
+                                    <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex items-center justify-between group hover:bg-white/10 transition-all cursor-pointer" onClick={() => {
+                                        const checkbox = document.getElementById('isPublicGlobalEdit') as HTMLInputElement;
+                                        if (checkbox) checkbox.checked = !checkbox.checked;
+                                    }}>
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 bg-amber-500/20 rounded-lg">
+                                                <Globe size={18} className="text-amber-500" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-black text-white italic uppercase tracking-tight">Publicar en Portal Global</p>
+                                                <p className="text-[10px] text-zinc-500 font-bold italic">Mantener visible en el marketplace nacional.</p>
+                                            </div>
                                         </div>
+                                        <input
+                                            id="isPublicGlobalEdit"
+                                            name="isPublicGlobal"
+                                            type="checkbox"
+                                            defaultChecked={editingProperty.isPublicGlobal}
+                                            className="w-5 h-5 rounded-md border-zinc-700 bg-zinc-800 text-amber-500 focus:ring-amber-500/20"
+                                        />
                                     </div>
 
                                     {/* Images Section */}
@@ -1679,7 +1716,7 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                                     </div>
                                 </form>
                             </div>
-                        </div>
+                        </div >
                     </div >
                 )
             }

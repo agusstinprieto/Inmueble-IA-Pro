@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Lock, User, ShieldCheck, Loader2, AlertCircle } from 'lucide-react';
+import { Lock, User, ShieldCheck, Loader2, AlertCircle, Globe } from 'lucide-react';
 import { signInWithBusinessId } from '../services/supabase';
 
 // Legacy interface for compatibility with existing code
@@ -17,7 +17,7 @@ interface LoginViewProps {
   brandColor: string;
   lang: 'es' | 'en';
   onToggleLang: () => void;
-  onEnterGuest: () => void;
+  onEnterGuest: (mode?: 'agency' | 'global') => void;
 }
 
 const LoginView: React.FC<LoginViewProps> = ({ brandColor, lang, onToggleLang, onEnterGuest }) => {
@@ -140,6 +140,14 @@ const LoginView: React.FC<LoginViewProps> = ({ brandColor, lang, onToggleLang, o
             className="w-full bg-white/5 hover:bg-white/10 text-white font-black py-4 rounded-2xl transition-all border border-white/10 uppercase tracking-[0.2em] text-[10px] flex items-center justify-center gap-3 active:scale-[0.98]"
           >
             EXPLORAR COMO INVITADO
+          </button>
+          <button
+            type="button"
+            onClick={() => onEnterGuest('global')}
+            className="w-full bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 font-black py-4 rounded-2xl transition-all border border-indigo-500/20 uppercase tracking-[0.2em] text-[10px] flex items-center justify-center gap-3 active:scale-[0.98] mt-2"
+          >
+            <Globe className="w-4 h-4" />
+            VER PORTAL GLOBAL
           </button>
         </form>
       </div>

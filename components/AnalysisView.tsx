@@ -394,22 +394,15 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
 
   return (
     <div className="p-4 lg:p-6 space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div
-            className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-            style={{ backgroundColor: brandColor + '20' }}
-          >
-            <Sparkles size={24} style={{ color: brandColor }} />
-          </div>
-          <div>
-            <h1 className="text-2xl font-black text-white italic tracking-tighter uppercase leading-none">
-              {lang === 'es' ? 'ANÁLISIS' : 'MULTIMODAL'} <span style={{ color: brandColor }}>{lang === 'es' ? 'MULTIMODAL IA' : 'AI ANALYSIS'}</span>
-            </h1>
-            <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mt-1 italic">
-              {lang === 'es' ? 'CARGA FOTOS Y DEJA QUE LA IA HAGA EL TRABAJO' : 'UPLOAD PHOTOS AND LET AI DO THE WORK'}
-            </p>
-          </div>
+      {/* Header */}
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-black text-white tracking-tight mb-2">
+            {lang === 'es' ? 'Análisis' : 'Multimodal'} <span className="text-amber-500">{lang === 'es' ? 'Multimodal IA' : 'AI Analysis'}</span>
+          </h1>
+          <p className="text-zinc-400">
+            {lang === 'es' ? 'Carga fotos y deja que la IA haga el trabajo.' : 'Upload photos and let AI do the work.'}
+          </p>
         </div>
       </div>
 

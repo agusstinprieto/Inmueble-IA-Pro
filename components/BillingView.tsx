@@ -82,22 +82,15 @@ const BillingView: React.FC<BillingViewProps> = ({ billing, subscription, lang, 
     return (
         <div className="p-4 lg:p-8 max-w-6xl mx-auto space-y-8">
 
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                    <div
-                        className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-                        style={{ backgroundColor: brandColor + '20' }}
-                    >
-                        <CreditCard size={24} style={{ color: brandColor }} />
-                    </div>
-                    <div>
-                        <h1 className="text-2xl font-black text-white italic tracking-tighter uppercase leading-none">
-                            {lang === 'es' ? 'FACTURACIÓN Y' : 'BILLING &'} <span style={{ color: brandColor }}>{lang === 'es' ? 'SUSCRIPCIÓN' : 'SUBSCRIPTION'}</span>
-                        </h1>
-                        <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mt-1 italic">
-                            {lang === 'es' ? 'GESTIONA TU PLAN Y MÉTODOS DE PAGO' : 'MANAGE YOUR PLAN AND PAYMENT METHODS'}
-                        </p>
-                    </div>
+            {/* Header */}
+            <div className="flex justify-between items-start">
+                <div>
+                    <h1 className="text-3xl font-black text-white tracking-tight mb-2">
+                        {lang === 'es' ? 'Facturación' : 'Billing'} <span className="text-amber-500">{lang === 'es' ? 'Suscripción' : 'Subscription'}</span>
+                    </h1>
+                    <p className="text-zinc-400">
+                        {lang === 'es' ? 'Gestiona tu plan y métodos de pago.' : 'Manage your plan and payment methods.'}
+                    </p>
                 </div>
             </div>
 

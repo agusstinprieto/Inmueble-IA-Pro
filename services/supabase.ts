@@ -312,6 +312,55 @@ export const updateProperty = async (property: Property, agencySheetsUrl?: strin
     return updatedProperty;
 };
 
+export const getGlobalProperties = async (): Promise<Property[]> => {
+    // 1. Get properties
+    const { data: props, error } = await supabase
+        .from('properties')
+        .select('*')
+        .eq('is_public_global', true)
+        .eq('status', 'DISPONIBLE')
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching global properties:', error);
+        return [];
+    }
+
+    if (!props || props.length === 0) return [];
+
+    // 2. Get unique agency IDs
+    const agencyIds = [...new Set(props.map(p => p.agency_id).filter(Boolean))];
+
+    // 3. Get agencies
+    let agenciesMap: Record<string, any> = {};
+    if (agencyIds.length > 0) {
+        const { data: agencies, error: agencyError } = await supabase
+            .from('agencies')
+            .select('id, name, brand_color, logo_url')
+            .in('id', agencyIds);
+
+        if (agencyError) {
+            console.error('Error fetching agencies for global view:', agencyError);
+        }
+
+        if (agencies) {
+            agenciesMap = agencies.reduce((acc, a) => ({ ...acc, [a.id]: a }), {});
+        }
+    }
+
+    // 4. Map
+    return props.map(p => {
+        const mapped = mapDbToProperty(p);
+        const agency = agenciesMap[p.agency_id];
+        if (agency) {
+            mapped.agencyName = agency.name;
+            mapped.agencyLogo = agency.logo_url;
+            mapped.agencyBrandColor = agency.brand_color;
+        }
+        return mapped;
+    });
+};
+
 
 export const deleteProperty = async (id: string): Promise<boolean> => {
     const { error } = await supabase
@@ -663,8 +712,14 @@ function mapDbToProperty(db: any): Property {
         favorites: db.favorites || 0,
         agentId: db.agent_id,
         agencyId: db.agency_id,
-        virtualTourUrl: db.virtual_tour_url,
-        dateAdded: db.created_at
+        isPublicGlobal: db.is_public_global || false,
+
+        dateAdded: db.created_at,
+        // Map joined agency data if available
+        // Map joined agency data if available
+        agencyName: Array.isArray(db.agencies) ? db.agencies[0]?.name : db.agencies?.name,
+        agencyLogo: Array.isArray(db.agencies) ? db.agencies[0]?.logo_url : db.agencies?.logo_url,
+        agencyBrandColor: Array.isArray(db.agencies) ? db.agencies[0]?.brand_color : db.agencies?.brand_color
     };
 }
 
@@ -697,7 +752,7 @@ function mapPropertyToDb(property: Partial<Property>, userId?: string): any {
         favorites: property.favorites,
         agent_id: property.agentId,
         agency_id: property.agencyId,
-        virtual_tour_url: property.virtualTourUrl
+        is_public_global: property.isPublicGlobal
     };
 }
 

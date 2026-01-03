@@ -98,12 +98,17 @@ export interface Property {
   images: string[];
   videoUrl?: string;
   virtualTourUrl?: string;
+  isPublicGlobal?: boolean;
   dateAdded: string;
   dateUpdated?: string;
   views: number;
   favorites: number;
   pros?: string[];
   cons?: string[];
+  // Global Portal Metadata
+  agencyName?: string;
+  agencyLogo?: string;
+  agencyBrandColor?: string;
 }
 
 export interface Client {

@@ -31,6 +31,7 @@ interface PublicPortalViewProps {
     onExitPublic: () => void;
     agencyName: string;
     isAuthenticated?: boolean;
+    isGlobal?: boolean;
 }
 
 const PublicPortalView: React.FC<PublicPortalViewProps> = ({
@@ -40,7 +41,8 @@ const PublicPortalView: React.FC<PublicPortalViewProps> = ({
     onViewDetail,
     onExitPublic,
     agencyName,
-    isAuthenticated
+    isAuthenticated,
+    isGlobal = false
 }) => {
     const t = translations[lang];
     const [searchTerm, setSearchTerm] = useState('');
@@ -125,10 +127,10 @@ const PublicPortalView: React.FC<PublicPortalViewProps> = ({
             <nav className="fixed top-0 left-0 right-0 z-50 bg-black/50 backdrop-blur-xl border-b border-white/5 px-6 py-4">
                 <div className="max-w-7xl mx-auto flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center">
-                            <Home className="text-black" size={24} />
+                        <div className={`w-10 h-10 ${isGlobal ? 'bg-white' : 'bg-amber-500'} rounded-xl flex items-center justify-center`}>
+                            {isGlobal ? <Globe className="text-black" size={24} /> : <Home className="text-black" size={24} />}
                         </div>
-                        <h1 className="text-xl font-black italic tracking-tighter uppercase">{agencyName}</h1>
+                        <h1 className="text-xl font-black italic tracking-tighter uppercase">{isGlobal ? 'Portal Global' : agencyName}</h1>
                     </div>
                     <div className="hidden md:flex items-center gap-8">
                         <button onClick={onExitPublic} className="text-[10px] font-black uppercase italic tracking-widest text-zinc-500 hover:text-white transition-colors">
@@ -353,6 +355,21 @@ const PublicPortalView: React.FC<PublicPortalViewProps> = ({
                                             <ChevronRight size={24} />
                                         </button>
                                     </div>
+
+                                    {/* Global Mode: Agency Attribution */}
+                                    {isGlobal && prop.agencyName && (
+                                        <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between opacity-75">
+                                            <div className="flex items-center gap-2">
+                                                <div
+                                                    className="w-4 h-4 rounded-full"
+                                                    style={{ backgroundColor: prop.agencyBrandColor || '#f59e0b' }}
+                                                />
+                                                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+                                                    Gestionado por <span className="text-white italic">{prop.agencyName}</span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         ))}

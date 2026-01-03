@@ -85,6 +85,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
     // Herramientas
     { id: 'gallery', label: t.gallery, icon: <Image size={20} /> },
+    { id: 'photo-studio', label: lang === 'es' ? 'Photo Studio' : 'Photo Studio', icon: <Sparkles size={20} />, badge: 'AI' },
     { id: 'market', label: t.market_search, icon: <Search size={20} />, badge: 'IA' },
     { id: 'valuation', label: t.valuation, icon: <TrendingUp size={20} />, badge: 'IA' },
 

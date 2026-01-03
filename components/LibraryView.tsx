@@ -140,27 +140,20 @@ const LibraryView: React.FC<LibraryViewProps> = ({ lang, brandColor, agencyId })
 
     return (
         <div className="p-4 lg:p-6 space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                    <div
-                        className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-                        style={{ backgroundColor: brandColor + '20' }}
-                    >
-                        <BookOpen size={24} style={{ color: brandColor }} />
-                    </div>
-                    <div>
-                        <h1 className="text-2xl font-black text-white italic tracking-tighter uppercase leading-none">
-                            {lang === 'es' ? 'BIBLIOTECA' : 'INMUEBLE'} <span style={{ color: brandColor }}>{lang === 'es' ? 'INMOBILIARIA' : 'LIBRARY'}</span>
-                        </h1>
-                        <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mt-1 italic">
-                            {lang === 'es' ? 'RECURSOS Y CAPACITACIÓN PARA TU EQUIPO' : 'RESOURCES AND TRAINING FOR YOUR TEAM'}
-                        </p>
-                    </div>
+            {/* Header */}
+            <div className="flex justify-between items-start">
+                <div>
+                    <h1 className="text-3xl font-black text-white tracking-tight mb-2">
+                        {lang === 'es' ? 'Biblioteca' : 'Library'} <span className="text-amber-500">{lang === 'es' ? 'Inmobiliaria' : 'Resources'}</span>
+                    </h1>
+                    <p className="text-zinc-400">
+                        {lang === 'es' ? 'Recursos y capacitación para tu equipo.' : 'Resources and training for your team.'}
+                    </p>
                 </div>
                 {agencyId && (
                     <button
                         onClick={() => setShowAddForm(!showAddForm)}
-                        className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-black font-black text-xs uppercase italic rounded-xl transition-all shadow-lg shadow-amber-500/20"
+                        className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-black font-bold text-sm rounded-xl transition-all shadow-lg shadow-amber-500/20"
                     >
                         {showAddForm ? t.cancel : t.add_resource}
                     </button>
@@ -201,7 +194,7 @@ const LibraryView: React.FC<LibraryViewProps> = ({ lang, brandColor, agencyId })
                                 className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                             >
                                 <option value="pdf">PDF Document</option>
-                                <option value="video">YouTube Video</option>
+                                <option value="video">Video (YouTube/MP4)</option>
                                 <option value="link">External Link</option>
                             </select>
                         </div>
@@ -399,17 +392,16 @@ const LibraryView: React.FC<LibraryViewProps> = ({ lang, brandColor, agencyId })
                                     allowFullScreen
                                 ></iframe>
                             ) : (
-                                <div className="w-full h-full flex flex-col items-center justify-center p-8 text-center">
-                                    <Video size={48} className="text-zinc-700 mb-4" />
-                                    <p className="text-zinc-400 mb-4">Este video no puede reproducirse directamente.</p>
-                                    <a
-                                        href={selectedVideoUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="px-6 py-2 bg-amber-500 text-black font-bold rounded-xl hover:bg-amber-600 transition-all"
+                                // Native video player support fallback
+                                <div className="w-full h-full flex flex-col items-center justify-center">
+                                    <video
+                                        src={selectedVideoUrl}
+                                        controls
+                                        autoPlay
+                                        className="w-full h-full object-contain"
                                     >
-                                        Abrir en pestaña nueva
-                                    </a>
+                                        Tu navegador no soporta la reproducción de este video.
+                                    </video>
                                 </div>
                             )}
                         </div>

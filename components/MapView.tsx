@@ -164,24 +164,15 @@ const MapView: React.FC<MapViewProps> = ({
     return (
         <div className="h-[calc(100vh-100px)] flex flex-col bg-[#0a0a0a]">
             {/* Header */}
-            <div className="p-4 lg:p-6 border-b border-white/5">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                        <div
-                            className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-                            style={{ backgroundColor: brandColor + '20' }}
-                        >
-                            <MapIcon size={24} style={{ color: brandColor }} />
-                        </div>
-                        <div>
-                            <h1 className="text-2xl font-black text-white italic tracking-tighter uppercase leading-none">
-                                {lang === 'es' ? 'MAPA DE' : 'PROPERTY'} <span style={{ color: brandColor }}>{lang === 'es' ? 'PROPIEDADES' : 'MAP'}</span>
-                            </h1>
-                            <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mt-1 italic">
-                                {lang === 'es' ? 'EXPLORACIÓN GEOGRÁFICA DE INVENTARIO' : 'GEOGRAPHIC INVENTORY EXPLORATION'}
-                            </p>
-                        </div>
-                    </div>
+            {/* Header */}
+            <div className="flex justify-between items-start p-6 pb-0">
+                <div>
+                    <h1 className="text-3xl font-black text-white tracking-tight mb-2">
+                        {lang === 'es' ? 'Mapa' : 'Map'} <span className="text-amber-500">Interactivo</span>
+                    </h1>
+                    <p className="text-zinc-400">
+                        {lang === 'es' ? 'Exploración geográfica de inventario.' : 'Geographic inventory exploration.'}
+                    </p>
                 </div>
             </div>
 
