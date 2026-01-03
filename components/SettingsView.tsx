@@ -9,7 +9,9 @@ import {
     Database,
     Languages,
     CheckCircle,
-    RefreshCw
+    RefreshCw,
+    ExternalLink,
+    CreditCard
 } from 'lucide-react';
 import { translations } from '../translations';
 
@@ -26,6 +28,7 @@ interface SettingsViewProps {
     setScriptUrl: (url: string) => void;
     onSync: () => Promise<void>;
     onSaveProfile: () => Promise<boolean>;
+    onNavigate: (view: string) => void;
 }
 
 const SettingsView: React.FC<SettingsViewProps> = ({
@@ -40,7 +43,8 @@ const SettingsView: React.FC<SettingsViewProps> = ({
     scriptUrl,
     setScriptUrl,
     onSync,
-    onSaveProfile
+    onSaveProfile,
+    onNavigate
 }) => {
     const t = translations[lang];
     const [isSaving, setIsSaving] = useState(false);
@@ -186,6 +190,56 @@ const SettingsView: React.FC<SettingsViewProps> = ({
                             </button>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            {/* Resources & Billing */}
+            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 space-y-6">
+                <div className="flex items-center gap-2 text-white font-semibold border-b border-zinc-800 pb-4">
+                    <CreditCard size={20} style={{ color: brandColor }} />
+                    {lang === 'es' ? 'RECURSOS & SUSCRIPCIÓN' : 'RESOURCES & BILLING'}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button
+                        onClick={() => window.open('docs/index.html', '_blank')}
+                        className="flex items-center justify-between p-4 bg-zinc-800 hover:bg-zinc-700 rounded-xl transition-all group"
+                    >
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400">
+                                <ExternalLink size={20} />
+                            </div>
+                            <div className="text-left">
+                                <span className="block text-white font-bold text-sm">
+                                    {lang === 'es' ? 'Ver Documentación' : 'View Documentation'}
+                                </span>
+                                <span className="block text-zinc-500 text-xs">
+                                    {lang === 'es' ? 'Manuales y Guías' : 'Manuals & Guides'}
+                                </span>
+                            </div>
+                        </div>
+                        <ExternalLink size={16} className="text-zinc-500 group-hover:text-white transition-colors" />
+                    </button>
+
+                    <button
+                        onClick={() => onNavigate('billing')}
+                        className="flex items-center justify-between p-4 bg-zinc-800 hover:bg-zinc-700 rounded-xl transition-all group"
+                    >
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-400">
+                                <CreditCard size={20} />
+                            </div>
+                            <div className="text-left">
+                                <span className="block text-white font-bold text-sm">
+                                    {lang === 'es' ? 'Gestionar Plan' : 'Manage Subscription'}
+                                </span>
+                                <span className="block text-zinc-500 text-xs">
+                                    {lang === 'es' ? 'Facturación y Upgrades' : 'Billing & Upgrades'}
+                                </span>
+                            </div>
+                        </div>
+                        <ExternalLink size={16} className="text-zinc-500 group-hover:text-white transition-colors" />
+                    </button>
                 </div>
             </div>
 

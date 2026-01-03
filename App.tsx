@@ -17,6 +17,7 @@ import TourView from './components/TourView';
 import AnalyticsView from './components/AnalyticsView';
 import LoginView from './components/LoginView';
 import SettingsView from './components/SettingsView';
+import BillingView from './components/BillingView';
 import PublicPortalView from './components/PublicPortalView';
 import PublicPropertyDetail from './components/PublicPropertyDetail';
 import LibraryView from './components/LibraryView';
@@ -43,7 +44,8 @@ import {
   Agent,
   Profile,
   Agency,
-  UserRole
+  UserRole,
+  AgencyBilling
 } from './types';
 import { Loader2, RefreshCw, Wifi, CloudOff } from 'lucide-react';
 
@@ -789,6 +791,28 @@ function App() {
           />
         );
 
+
+      case 'billing':
+        // Mocking Billing Data based on Agency Profile
+        const mockBilling: AgencyBilling = {
+          agencyId: agency?.id || '',
+          plan: agency?.planType || 'FREE',
+          status: agency?.status || 'ACTIVE',
+          currentMonthTokens: 15430, // Mock usage
+          monthlyTokenLimit: agency?.planType === 'ENTERPRISE' ? 1000000000 : (agency?.planType === 'PRO' ? 1000000 : 10000),
+          creditsBalance: 0,
+          billingPeriodStart: new Date().toISOString(),
+          billingPeriodEnd: new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString(),
+          customApiKey: agency?.planType === 'ENTERPRISE' ? 'sk_live_...' : undefined
+        };
+
+        return (
+          <BillingView
+            billing={mockBilling}
+            lang={lang}
+          />
+        );
+
       case 'settings':
         return (
           <SettingsView
@@ -798,6 +822,7 @@ function App() {
             setLocation={setLocation}
             brandColor={brandColor}
             setBrandColor={setBrandColor}
+            onNavigate={(view) => handleNavigate(view)}
             lang={lang}
             setLang={setLang}
             scriptUrl={scriptUrl}
