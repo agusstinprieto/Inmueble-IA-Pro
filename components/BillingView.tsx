@@ -15,11 +15,12 @@ const BillingView: React.FC<BillingViewProps> = ({ billing, subscription, lang }
     const usagePercent = Math.min(100, Math.round((billing.currentMonthTokens / billing.monthlyTokenLimit) * 100));
 
     // Pricing Config
+    // Pricing Config
     const plans = [
         {
             id: 'PRO',
             name: 'Plan Pro',
-            price: '$29 USD',
+            price: lang === 'es' ? '$599 MXN' : '$29 USD',
             period: '/mo',
             tokens: '1,000,000 Tokens',
             features: ['Asistente IA 24/7', 'Computer Vision (Fotos)', 'Generador de Anuncios', 'Soporte Prioritario'],
@@ -30,7 +31,7 @@ const BillingView: React.FC<BillingViewProps> = ({ billing, subscription, lang }
         {
             id: 'ENTERPRISE',
             name: 'Enterprise',
-            price: '$99 USD',
+            price: lang === 'es' ? '$1,999 MXN' : '$99 USD',
             period: '/mo',
             tokens: 'Tokens Ilimitados*',
             features: ['Llave API Propia (BYOK)', 'Marca Blanca Total', 'Gerente de Cuenta', 'SLA 99.9%'],

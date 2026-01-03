@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MessageCircle, Mic, MicOff, X, Send, Volume2, VolumeX } from 'lucide-react';
+import { MessageCircle, Mic, MicOff, X, Send, Volume2, VolumeX, Copy, Download } from 'lucide-react';
 
 interface Message {
     role: 'user' | 'assistant';
@@ -22,6 +22,7 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
     const [isHandsFree, setIsHandsFree] = useState(false);
+    const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
     const recognitionRef = useRef<any>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -211,6 +212,34 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
         }
     };
 
+    const handleCopy = async (text: string, index: number) => {
+        try {
+            await navigator.clipboard.writeText(text);
+            setCopiedIndex(index);
+            setTimeout(() => setCopiedIndex(null), 2000);
+        } catch (err) {
+            console.error('Failed to copy', err);
+        }
+    };
+
+    const handleExport = () => {
+        if (messages.length === 0) return;
+
+        const textContent = messages.map(m =>
+            `[${m.timestamp.toLocaleString()}] ${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`
+        ).join('\n\n');
+
+        const blob = new Blob([textContent], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `chat-history-${new Date().toISOString().split('T')[0]}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
     const handleSendMessage = async (text?: string, isVoiceInput: boolean = false) => {
         const messageText = text || inputText.trim();
         if (!messageText || isThinking) return;
@@ -293,6 +322,13 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
                         </div>
                         <div className="flex gap-2">
                             <button
+                                onClick={handleExport}
+                                className="w-8 h-8 hover:bg-black/10 rounded-full flex items-center justify-center transition-colors"
+                                title={lang === 'es' ? "Exportar Chat" : "Export Chat"}
+                            >
+                                <Download className="w-5 h-5 text-white" />
+                            </button>
+                            <button
                                 onClick={() => setShowSettings(!showSettings)}
                                 className="w-8 h-8 hover:bg-black/10 rounded-full flex items-center justify-center transition-colors"
                                 title="Configurar Voz"
@@ -350,12 +386,20 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
                     {/* Chat Area */}
                     <div className="flex-1 overflow-y-auto p-4 space-y-4">
                         {messages.map((msg, idx) => (
-                            <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${msg.role === 'user' ? 'bg-amber-500 text-black shadow-lg rounded-tr-none' : 'bg-zinc-800 text-white border border-zinc-700 rounded-tl-none'}`}>
-                                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                            <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} group relative`}>
+                                <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${msg.role === 'user' ? 'bg-amber-500 text-black shadow-lg rounded-tr-none' : 'bg-zinc-800 text-white border border-zinc-700 rounded-tl-none'} relative`}>
+                                    <p className="text-sm leading-relaxed whitespace-pre-wrap pr-6">{msg.content}</p>
                                     <p className="text-[10px] opacity-50 mt-1 text-right">
                                         {msg.timestamp.toLocaleTimeString(lang === 'es' ? 'es-MX' : 'en-US', { hour: '2-digit', minute: '2-digit' })}
                                     </p>
+
+                                    <button
+                                        onClick={() => handleCopy(msg.content, idx)}
+                                        className={`absolute top-2 right-2 p-1 rounded-full bg-black/10 hover:bg-black/20 transition-all opacity-0 group-hover:opacity-100 ${copiedIndex === idx ? 'opacity-100 text-green-600' : ''}`}
+                                        title="Copiar"
+                                    >
+                                        {copiedIndex === idx ? <div className="w-3 h-3 bg-green-500 rounded-full" /> : <Copy className="w-3 h-3" />}
+                                    </button>
                                 </div>
                             </div>
                         ))}
