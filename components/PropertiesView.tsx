@@ -37,18 +37,11 @@ import { generatePropertyListing, generateSocialAd } from '../services/gemini';
 import { uploadPropertyImage } from '../services/supabase';
 import { pdfService } from '../services/pdfService';
 
-interface PropertiesViewProps {
-    properties: Property[];
-    onAddProperty?: (property: Partial<Property>) => void;
-    onEditProperty: (property: Property) => void;
-    onDeleteProperty: (id: string) => void;
-    onViewProperty: (property: Property) => void;
-    lang: 'es' | 'en';
-    brandColor: string;
-    businessName: string;
-    location: string;
-    editingPropertyProp?: Property | null;
-    onClearEditingProperty?: () => void;
+editingPropertyProp ?: Property | null;
+onClearEditingProperty ?: () => void;
+agents: Agent[];
+userRole: string;
+userId: string;
 }
 
 const PropertiesView: React.FC<PropertiesViewProps> = ({
@@ -62,9 +55,19 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
     businessName,
     location,
     editingPropertyProp,
-    onClearEditingProperty
+    onClearEditingProperty,
+    agents,
+    userRole,
+    userId
 }) => {
     const t = translations[lang];
+
+    const getAgentName = (id: string) => {
+        const agent = agents.find(a => a.id === id);
+        return agent ? agent.name : (lang === 'es' ? 'Asesor no asignado' : 'Unassigned Agent');
+    };
+
+    const isAdmin = userRole === 'super_admin' || userRole === 'agency_owner' || userRole === 'branch_manager';
 
     const [viewMode, setViewMode] = useState<'grid' | 'list' | 'map'>('grid');
     const [searchQuery, setSearchQuery] = useState('');
@@ -443,6 +446,15 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                             <Eye size={14} /> {property.views || 0}
                         </div>
                     </div>
+
+                    <div className="mt-3 pt-3 border-t border-zinc-800 flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-zinc-800 flex items-center justify-center text-[10px] text-zinc-400 border border-zinc-700">
+                            {getAgentName(property.agentId).charAt(0)}
+                        </div>
+                        <span className="text-xs text-zinc-500 truncate">
+                            {getAgentName(property.agentId)}
+                        </span>
+                    </div>
                 </div>
             </div>
         );
@@ -484,6 +496,14 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                         <MapPin size={14} />
                         {property.address?.colony}, {property.address?.city}
                     </p>
+                    <div className="flex items-center gap-2 mt-1">
+                        <div className="w-5 h-5 rounded-full bg-zinc-800 flex items-center justify-center text-[8px] text-zinc-500 border border-zinc-700">
+                            {getAgentName(property.agentId).charAt(0)}
+                        </div>
+                        <span className="text-[10px] text-zinc-500 italic">
+                            {getAgentName(property.agentId)}
+                        </span>
+                    </div>
                     <div className="flex items-center gap-3 text-zinc-500 text-sm mt-2">
                         <span className="flex items-center gap-1"><Bed size={14} /> {property.specs?.bedrooms}</span>
                         <span className="flex items-center gap-1"><Bath size={14} /> {property.specs?.bathrooms}</span>
@@ -998,7 +1018,9 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                                                 m2Total: Number(formData.get('m2Total')),
                                                 floors: Number(formData.get('floors'))
                                             },
-                                            description: formData.get('description') as string
+                                            description: formData.get('description') as string,
+                                            agentId: formData.get('agentId') as string || userId,
+                                            agencyId: properties[0]?.agencyId || ''
                                         };
 
                                         onAddProperty(newProperty);
@@ -1295,7 +1317,9 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                                                 floors: Number(formData.get('floors'))
                                             },
                                             description: formData.get('description') as string,
-                                            status: formData.get('status') as PropertyStatus
+                                            description: formData.get('description') as string,
+                                            status: formData.get('status') as PropertyStatus,
+                                            agentId: formData.get('agentId') as string || editingProperty.agentId
                                         };
 
                                         onEditProperty(updatedProperty);
@@ -1524,8 +1548,27 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                                         </div>
                                     </div>
 
+                                    {/* Agent Reassignment (Only for Admins) */}
+                                    <div className="border-t border-zinc-800 pt-4">
+                                        <label className="text-xs text-zinc-400 block mb-1 uppercase font-black italic">Asesor Responsable</label>
+                                        <select
+                                            name="agentId"
+                                            disabled={!isAdmin}
+                                            defaultValue={editingProperty.agentId}
+                                            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white disabled:opacity-50"
+                                        >
+                                            {agents.map(agent => (
+                                                <option key={agent.id} value={agent.id}>
+                                                    {agent.name} {agent.id === userId ? '(Yo)' : ''}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        {!isAdmin && <p className="text-[10px] text-zinc-500 mt-1 italic">* Solo el administrador puede reasignar esta propiedad.</p>}
+                                    </div>
+
                                     {/* Description */}
                                     <div>
+
                                         <label className="text-xs text-zinc-400 block mb-1">Descripción</label>
                                         <textarea
                                             name="description"

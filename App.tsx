@@ -639,6 +639,9 @@ function App() {
             location={location}
             editingPropertyProp={propertyToEdit}
             onClearEditingProperty={() => setPropertyToEdit(null)}
+            agents={agents}
+            userRole={userRole}
+            userId={userId || ''}
           />
         );
 
