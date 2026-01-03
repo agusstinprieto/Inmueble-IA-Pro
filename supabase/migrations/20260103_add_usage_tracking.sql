@@ -1,6 +1,6 @@
 -- Migration: Add Usage Tracking and Subscription Tiers
 -- Created: 2026-01-03
--- FINAL CORRECTED VERSION: Uses correct table names (agencies, profiles)
+-- FINAL VERSION: Simplified RLS policy
 
 -- 1. Create subscription_tiers table
 CREATE TABLE IF NOT EXISTS subscription_tiers (
@@ -61,14 +61,10 @@ ON CONFLICT (name) DO NOTHING;
 -- 5. Create RLS policies for usage_tracking
 ALTER TABLE usage_tracking ENABLE ROW LEVEL SECURITY;
 
--- Users can view their own agency's usage
-CREATE POLICY "Users can view own agency usage"
+-- Users can view their own usage (user_id matches auth.uid())
+CREATE POLICY "Users can view own usage"
   ON usage_tracking FOR SELECT
-  USING (
-    agency_id IN (
-      SELECT agency_id FROM profiles WHERE user_id = auth.uid()
-    )
-  );
+  USING (user_id = auth.uid());
 
 -- System can insert/update usage (service role only)
 CREATE POLICY "Service can manage usage"

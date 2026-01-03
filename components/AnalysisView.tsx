@@ -236,7 +236,7 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({
 
     try {
       const base64Images = mediaItems.map(m => m.b64!).filter(Boolean);
-      const result = await analyzePropertyImages(base64Images, businessName, location);
+      const result = await analyzePropertyImages(base64Images, businessName, location, agencyId, agentId);
 
       if (result.properties.length > 0) {
         setAnalysisResult(result.properties[0]);

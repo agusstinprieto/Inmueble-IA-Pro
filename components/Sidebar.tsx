@@ -98,6 +98,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
     // Analytics (solo admin)
     { id: 'analytics', label: t.analytics, icon: <BarChart3 size={20} />, adminOnly: true },
+    { id: 'usage', label: lang === 'es' ? 'Uso de Recursos' : 'Usage', icon: <TrendingUp size={20} />, adminOnly: true },
   ];
 
   const isAdmin = ['agency_owner', 'branch_manager', 'super_admin'].includes(userRole);
