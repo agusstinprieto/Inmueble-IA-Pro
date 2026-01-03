@@ -20,13 +20,20 @@ const getRegionalInfo = (location: string) => {
 // ============ MODEL FALLBACK STRATEGY ============
 
 // List of models to try in order of preference/reliability
-// 2.0-flash-exp is top preference for quality/speed, but falls back to 1.5 series if quota hits.
+// We include specific versions (-001, -002) and variations to maximize success chance.
 const FALLBACK_MODELS = [
-  'gemini-2.0-flash-exp',
-  'gemini-1.5-flash',
-  'gemini-1.5-flash-8b',
-  'gemini-1.5-pro',
-  'gemini-1.0-pro'
+  'gemini-2.0-flash-exp',   // Best quality/speed (Experimental)
+  'gemini-1.5-flash',       // Standard Flash
+  'gemini-1.5-flash-latest', // Latest alias
+  'gemini-1.5-flash-001',   // Specific version 001
+  'gemini-1.5-flash-002',   // Specific version 002
+  'gemini-1.5-flash-8b',    // High efficiency
+  'gemini-1.5-pro',         // Pro Standard
+  'gemini-1.5-pro-latest',
+  'gemini-1.5-pro-001',
+  'gemini-1.5-pro-002',
+  'gemini-pro',             // Legacy 1.0 Pro
+  'gemini-1.0-pro'          // Explicit 1.0 Pro
 ];
 
 async function generateWithFallback(
