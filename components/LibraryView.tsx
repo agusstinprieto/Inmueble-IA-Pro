@@ -392,6 +392,7 @@ const LibraryView: React.FC<LibraryViewProps> = ({ lang, brandColor, agencyId })
                             {getEmbedUrl(selectedVideoUrl).includes('youtube.com/embed') ? (
                                 <iframe
                                     src={`${getEmbedUrl(selectedVideoUrl)}?autoplay=1`}
+                                    title="Video Player"
                                     className="w-full h-full"
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                     allowFullScreen
