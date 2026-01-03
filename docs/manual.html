@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual de Usuario | INMUEBLE IA PRO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        .gradient-text {
+            background: linear-gradient(to right, #fbbf24, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .sidebar-link.active {
+            color: #fbbf24;
+            border-left-color: #fbbf24;
+            background: rgba(251, 191, 36, 0.05);
+        }
+    </style>
+</head>
+
+<body class="bg-zinc-950 text-zinc-300">
+
+    <div class="flex min-h-screen">
+
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 fixed h-full bg-zinc-900 border-r border-zinc-800 hidden lg:block overflow-y-auto">
+            <div class="p-6">
+                <h2 class="text-xl font-black text-white tracking-tighter mb-8">INMUEBLE <span
+                        class="text-amber-400">IA</span></h2>
+                <nav class="space-y-1">
+                    <a href="#quickstart"
+                        class="sidebar-link block px-4 py-2 border-l-2 border-transparent hover:text-white hover:bg-zinc-800 transition-all text-sm font-medium">🚀
+                        Inicio Rápido</a>
+                    <a href="#agency-setup"
+                        class="sidebar-link block px-4 py-2 border-l-2 border-transparent hover:text-white hover:bg-zinc-800 transition-all text-sm font-medium">🏢
+                        Configuración Agencia</a>
+                    <a href="#ai-mastery"
+                        class="sidebar-link block px-4 py-2 border-l-2 border-transparent hover:text-white hover:bg-zinc-800 transition-all text-sm font-medium">🤖
+                        Dominando la IA</a>
+                    <a href="#properties"
+                        class="sidebar-link block px-4 py-2 border-l-2 border-transparent hover:text-white hover:bg-zinc-800 transition-all text-sm font-medium">🏠
+                        Gestión Propiedades</a>
+                    <a href="#reports"
+                        class="sidebar-link block px-4 py-2 border-l-2 border-transparent hover:text-white hover:bg-zinc-800 transition-all text-sm font-medium">📊
+                        Reportes y Ventas</a>
+                    <a href="#library"
+                        class="sidebar-link block px-4 py-2 border-l-2 border-transparent hover:text-white hover:bg-zinc-800 transition-all text-sm font-medium">📚
+                        Biblioteca y Docs</a>
+                    <a href="#billing"
+                        class="sidebar-link block px-4 py-2 border-l-2 border-transparent hover:text-white hover:bg-zinc-800 transition-all text-sm font-medium">💰
+                        Facturación y Tokens</a>
+                    <a href="#mobile"
+                        class="sidebar-link block px-4 py-2 border-l-2 border-transparent hover:text-white hover:bg-zinc-800 transition-all text-sm font-medium">📱
+                        App Móvil</a>
+                    <a href="#troubleshooting"
+                        class="sidebar-link block px-4 py-2 border-l-2 border-transparent hover:text-white hover:bg-zinc-800 transition-all text-sm font-medium">🔧
+                        Ayuda / Soporte</a>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="lg:ml-64 flex-1 p-6 lg:p-12">
+
+            <header class="mb-16 border-b border-zinc-800 pb-8">
+                <h1 class="text-4xl lg:text-5xl font-black text-white mb-4">Manual de Usuario</h1>
+                <p class="text-xl text-zinc-400">Guía completa para dominar tu sistema operativo inmobiliario.</p>
+            </header>
+
+            <!-- 1. Quickstart -->
+            <section id="quickstart" class="mb-20 scroll-mt-20">
+                <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                    <span class="bg-amber-500/10 text-amber-500 p-2 rounded-lg">🚀</span> Inicio Rápido
+                </h2>
+                <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+                    <p class="mb-4">Bienvenido a Inmueble IA Pro. Sigue estos 3 pasos para tener tu agencia operativa en
+                        menos de 5 minutos:</p>
+                    <ol class="list-decimal list-inside space-y-3 text-zinc-300">
+                        <li><strong>Inicia Sesión:</strong> Usa las credenciales de administrador enviadas a tu correo.
+                        </li>
+                        <li><strong>Completa tu Perfil:</strong> Ve a <em>Configuración</em> > <em>Agencia</em> y sube
+                            tu logo.</li>
+                        <li><strong>Sube tu Primera Propiedad:</strong> Ve a <em>Propiedades</em> > <em>Agregar</em> y
+                            carga fotos. ¡La IA hará el resto!</li>
+                    </ol>
+                </div>
+            </section>
+
+            <!-- 2. Agency Setup -->
+            <section id="agency-setup" class="mb-20 scroll-mt-20">
+                <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                    <span class="bg-amber-500/10 text-amber-500 p-2 rounded-lg">🏢</span> Configuración de Agencia
+                </h2>
+                <div class="space-y-6">
+                    <div class="bg-zinc-900/50 p-6 rounded-xl border border-zinc-800">
+                        <h3 class="text-lg font-bold text-white mb-2">Marca Blanca (Branding)</h3>
+                        <p class="text-sm mb-4">Personaliza la plataforma para que tus clientes y agentes se sientan en
+                            casa.</p>
+                        <ul class="list-disc list-inside text-sm text-zinc-400 space-y-1">
+                            <li><strong>Logo:</strong> Formato PNG transparente recomendado.</li>
+                            <li><strong>Color de Marca:</strong> Selecciona tu color corporativo hexadecimal. Esto
+                                cambiará botones, gráficos y el tema del Asistente IA.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-zinc-900/50 p-6 rounded-xl border border-zinc-800">
+                        <h3 class="text-lg font-bold text-white mb-2">Gestión de Equipo</h3>
+                        <p class="text-sm mb-4">Invita a tus colaboradores desde la sección <em>Equipo</em>.</p>
+                        <ul class="list-disc list-inside text-sm text-zinc-400 space-y-1">
+                            <li><strong>Administrador:</strong> Acceso total a configuración y facturación.</li>
+                            <li><strong>Agente:</strong> Solo puede ver y gestionar sus propios clientes y propiedades
+                                (o las públicas).</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. AI Mastery -->
+            <section id="ai-mastery" class="mb-20 scroll-mt-20">
+                <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                    <span class="bg-amber-500/10 text-amber-500 p-2 rounded-lg">🤖</span> Dominando la IA
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Asistente -->
+                    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
+                        <h3 class="font-bold text-white mb-3">El Asistente 24/7</h3>
+                        <p class="text-sm mb-4">Tu copiloto experto. Puedes hablarle por voz o escribir.</p>
+                        <div class="bg-black/30 p-4 rounded-lg">
+                            <p class="text-xs text-zinc-500 uppercase font-bold mb-2">Prompts de Ejemplo:</p>
+                            <ul class="space-y-2 text-sm italic text-amber-200/80">
+                                <li>"Dame un resumen de las ventas de este mes."</li>
+                                <li>"Redacta un correo de seguimiento para el cliente Juan Pérez."</li>
+                                <li>"¿Qué propiedades tenemos en Polanco por menos de 5 millones?"</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Vision & Ads -->
+                    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
+                        <h3 class="font-bold text-white mb-3">Computer Vision & Ads</h3>
+                        <p class="text-sm mb-4">Automatización visual y creativa.</p>
+                        <ul class="space-y-3 text-sm">
+                            <li class="flex items-start gap-2">
+                                <span class="text-amber-500">👁️</span>
+                                <span><strong>Análisis de Fotos:</strong> Al subir imágenes, la IA detecta
+                                    automáticamente: tipo de habitación, acabados y condición.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-amber-500">📣</span>
+                                <span><strong>Generador de Anuncios:</strong> En la ficha de propiedad, clic en "Generar
+                                    Anuncio" para crear copy viral para Instagram/Facebook en segundos.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. Properties -->
+            <section id="properties" class="mb-20 scroll-mt-20">
+                <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                    <span class="bg-amber-500/10 text-amber-500 p-2 rounded-lg">🏠</span> Gestión de Propiedades
+                </h2>
+
+                <div class="space-y-8">
+                    <!-- Basic CRUD -->
+                    <div>
+                        <h3 class="text-xl font-bold text-white mb-4">Operaciones Básicas</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="p-4 bg-zinc-900 rounded-lg border-l-4 border-green-500">
+                                <strong class="block text-white mb-1">Crear</strong>
+                                <p class="text-xs text-zinc-400">Botón "+ Agregar Propiedad". Sube fotos primero para
+                                    autocompletado.</p>
+                            </div>
+                            <div class="p-4 bg-zinc-900 rounded-lg border-l-4 border-blue-500">
+                                <strong class="block text-white mb-1">Editar</strong>
+                                <p class="text-xs text-zinc-400">Clic en el icono de lápiz en la tarjeta de propiedad.
+                                </p>
+                            </div>
+                            <div class="p-4 bg-zinc-900 rounded-lg border-l-4 border-red-500">
+                                <strong class="block text-white mb-1">Eliminar</strong>
+                                <p class="text-xs text-zinc-400">Icono de basura. ¡Cuidado! Esta acción no se puede
+                                    deshacer.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 360 & PDF -->
+                    <div>
+                        <h3 class="text-xl font-bold text-white mb-4">Funciones Avanzadas</h3>
+                        <ul class="space-y-4">
+                            <li class="bg-zinc-900 p-5 rounded-xl flex gap-4">
+                                <div class="bg-zinc-800 p-3 rounded-lg h-fit">🌐</div>
+                                <div>
+                                    <strong class="text-white">Tours Virtuales 360°</strong>
+                                    <p class="text-sm text-zinc-400 mt-1">
+                                        Pega el enlace de Matterport, Kuula o tu proveedor favorito en el campo "URL
+                                        Tour Virtual".
+                                        Aparecerá un botón interactivo en la ficha pública.
+                                    </p>
+                                </div>
+                            </li>
+                            <li class="bg-zinc-900 p-5 rounded-xl flex gap-4">
+                                <div class="bg-zinc-800 p-3 rounded-lg h-fit">📄</div>
+                                <div>
+                                    <strong class="text-white">Ficha Técnica PDF</strong>
+                                    <p class="text-sm text-zinc-400 mt-1">
+                                        Genera PDFs profesionales con un clic. El PDF incluirá automáticamente:
+                                        Logo de tu agencia, tus datos de contacto y código QR hacia la web.
+                                    </p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. Reports -->
+            <section id="reports" class="mb-20 scroll-mt-20">
+                <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                    <span class="bg-amber-500/10 text-amber-500 p-2 rounded-lg">📊</span> Reportes y Ventas
+                </h2>
+                <div class="prose prose-invert max-w-none text-zinc-400">
+                    <p>El módulo de <strong>Analytics</strong> te da superpoderes de visión sobre tu negocio.</p>
+                    <ul>
+                        <li><strong>Reporte de Ventas:</strong> Filtra por mes, trimestre o año. Ve el volumen total
+                            vendido y comisiones generadas.</li>
+                        <li><strong>Rendimiento de Agentes:</strong> Ranking de quién vende más y quién capta más
+                            propiedades.</li>
+                        <li><strong>Embudo de Conversión:</strong> Visualiza cuántos leads se convierten en visitas y
+                            cuántas visitas en cierres.</li>
+                    </ul>
+                    <div class="bg-amber-900/20 border border-amber-900/50 p-4 rounded-lg mt-4">
+                        <p class="text-amber-200 text-sm font-medium">💡 Tip: Usa el botón "Exportar Reporte Ejecutivo"
+                            para descargar un PDF listo para presentar a inversores o directivos.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. Library -->
+            <section id="library" class="mb-20 scroll-mt-20">
+                <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                    <span class="bg-amber-500/10 text-amber-500 p-2 rounded-lg">📚</span> Biblioteca y Documentos
+                </h2>
+                <p class="text-zinc-400 mb-4">Centraliza el conocimiento de tu agencia.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div class="bg-zinc-900 p-4 rounded-lg">
+                        <strong class="text-white block mb-2">Subir Documentos</strong>
+                        <p>Sube contratos machote (plantillas), guías de infonavit o manuales internos. Clic en "Subir
+                            Recurso".</p>
+                    </div>
+                    <div class="bg-zinc-900 p-4 rounded-lg">
+                        <strong class="text-white block mb-2">Categorías</strong>
+                        <p>Organiza por: Legal, Marketing, Capacitación, etc. para que tu equipo encuentre todo rápido.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. Billing -->
+            <section id="billing" class="mb-20 scroll-mt-20">
+                <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                    <span class="bg-amber-500/10 text-amber-500 p-2 rounded-lg">💰</span> Facturación y Tokens
+                </h2>
+                <div class="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+                    <div class="p-6">
+                        <h3 class="text-lg font-bold text-white mb-4">Entendiendo los Tokens</h3>
+                        <p class="text-sm text-zinc-400 mb-6">
+                            Cada acción de IA consume "tokens" (unidades de procesamiento).
+                            Tu plan incluye una cantidad mensual.
+                        </p>
+                        <div class="space-y-3">
+                            <div class="flex justify-between text-sm border-b border-zinc-800 pb-2">
+                                <span>Chat Simple (Texto)</span>
+                                <span class="text-amber-400 font-mono">~100 - 500 tokens</span>
+                            </div>
+                            <div class="flex justify-between text-sm border-b border-zinc-800 pb-2">
+                                <span>Análisis Visión (1 Foto)</span>
+                                <span class="text-amber-400 font-mono">~1,500 tokens</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>Asistente de Voz (1 min)</span>
+                                <span class="text-amber-400 font-mono">Variable</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-zinc-800/50 p-6 border-t border-zinc-800">
+                        <h4 class="text-white font-bold text-sm mb-2">¿Cómo pagar?</h4>
+                        <p class="text-xs text-zinc-400">Ve a <strong>Configuración > Facturación</strong>. Usamos
+                            Stripe para pagos seguros. Puedes actualizar a Plan Pro o Enterprise en cualquier momento.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 8. Mobile -->
+            <section id="mobile" class="mb-20 scroll-mt-20">
+                <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                    <span class="bg-amber-500/10 text-amber-500 p-2 rounded-lg">📱</span> App Móvil (PWA)
+                </h2>
+                <p class="text-zinc-400 mb-6">No necesitas buscar en la App Store. Instala la app directamente desde el
+                    navegador.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-black p-6 rounded-xl border border-zinc-800 text-center">
+                        <strong class="block text-white mb-2">iOS (iPhone)</strong>
+                        <p class="text-sm text-zinc-400">En Safari, pulsa el botón <strong>Compartir</strong> (cuadrado
+                            con flecha) y selecciona <strong>"Agregar a Inicio"</strong>.</p>
+                    </div>
+                    <div class="bg-black p-6 rounded-xl border border-zinc-800 text-center">
+                        <strong class="block text-white mb-2">Android (Chrome)</strong>
+                        <p class="text-sm text-zinc-400">Pulsa los <strong>3 puntos</strong> arriba a la derecha y
+                            selecciona <strong>"Instalar aplicación"</strong>.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 9. Troubleshooting -->
+            <section id="troubleshooting" class="mb-20 scroll-mt-20">
+                <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                    <span class="bg-amber-500/10 text-amber-500 p-2 rounded-lg">🔧</span> Ayuda y Soporte
+                </h2>
+                <div class="space-y-4">
+                    <details class="bg-zinc-900 border border-zinc-800 rounded-lg p-4 cursor-pointer group">
+                        <summary class="text-white font-medium flex justify-between items-center">
+                            ¿Por qué no carga una imagen?
+                            <span class="text-zinc-500 group-open:rotate-180 transition-transform">▼</span>
+                        </summary>
+                        <p class="text-sm text-zinc-400 mt-2">Verifica que tu archivo sea JPG o PNG y pese menos de 5MB.
+                            Si persiste, revisa tu conexión a internet.</p>
+                    </details>
+                    <details class="bg-zinc-900 border border-zinc-800 rounded-lg p-4 cursor-pointer group">
+                        <summary class="text-white font-medium flex justify-between items-center">
+                            Olvidé mi contraseña
+                            <span class="text-zinc-500 group-open:rotate-180 transition-transform">▼</span>
+                        </summary>
+                        <p class="text-sm text-zinc-400 mt-2">En la pantalla de login, pulsa "¿Olvidaste tu
+                            contraseña?". Recibirás un enlace de recuperación a tu email registrado.</p>
+                    </details>
+                    <details class="bg-zinc-900 border border-zinc-800 rounded-lg p-4 cursor-pointer group">
+                        <summary class="text-white font-medium flex justify-between items-center">
+                            El Asistente de Voz no me escucha
+                            <span class="text-zinc-500 group-open:rotate-180 transition-transform">▼</span>
+                        </summary>
+                        <p class="text-sm text-zinc-400 mt-2">Asegúrate de haber dado permiso de micrófono al navegador.
+                            En Chrome, pulsa el icono de candado en la barra de dirección > Permisos > Micrófono:
+                            Permitir.</p>
+                    </details>
+                </div>
+            </section>
+
+            <footer class="border-t border-zinc-800 pt-12 pb-24 text-center">
+                <p class="text-zinc-500 text-sm">© 2024 Inmueble IA Pro. Todos los derechos reservados.</p>
+            </footer>
+
+        </main>
+    </div>
+
+    <script>
+        // Simple scroll spy logic for highlighting sidebar links
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.sidebar-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 150) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
