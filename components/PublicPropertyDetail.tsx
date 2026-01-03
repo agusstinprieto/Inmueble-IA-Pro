@@ -12,6 +12,7 @@ import {
     Maximize2,
     Calendar,
     User,
+    X,
     ChevronLeft,
     ChevronRight,
     Info,
@@ -40,6 +41,7 @@ const PublicPropertyDetail: React.FC<PublicPropertyDetailProps> = ({
 }) => {
     const t = translations[lang];
     const [activeImage, setActiveImage] = useState(0);
+    const [showCalculator, setShowCalculator] = useState(false);
 
     const handleShare = async () => {
         const shareData = {
@@ -304,6 +306,13 @@ const PublicPropertyDetail: React.FC<PublicPropertyDetailProps> = ({
                                     <Calendar size={20} />
                                     Solicitar Visita
                                 </button>
+                                <button
+                                    onClick={() => setShowCalculator(true)}
+                                    className="w-full py-4 bg-zinc-800 text-white rounded-3xl font-black uppercase italic flex items-center justify-center gap-3 hover:bg-zinc-700 transition-all"
+                                >
+                                    <Calculator size={20} />
+                                    Calcular Hipoteca
+                                </button>
                             </div>
 
                             <div className="flex items-center gap-4 pt-4 border-t border-white/5">
@@ -355,6 +364,25 @@ const PublicPropertyDetail: React.FC<PublicPropertyDetailProps> = ({
                     </div>
                 </div>
             </main>
+
+            {/* Mortgage Calculator Modal */}
+            {showCalculator && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+                    <div className="bg-[#050505] w-full max-w-4xl max-h-[90vh] rounded-[2.5rem] overflow-y-auto border border-zinc-800 shadow-2xl relative">
+                        <button
+                            onClick={() => setShowCalculator(false)}
+                            className="absolute top-6 right-6 p-2 bg-zinc-800 rounded-full text-white hover:bg-zinc-700 z-10"
+                        >
+                            <X size={24} className="text-white" />
+                        </button>
+                        <MortgageCalculator
+                            lang={lang}
+                            brandColor={brandColor}
+                            defaultPrice={property.operation === OperationType.VENTA ? property.salePrice : property.rentPrice}
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

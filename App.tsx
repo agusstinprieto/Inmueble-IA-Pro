@@ -78,6 +78,7 @@ function App() {
   const [location, setLocation] = useState(() => localStorage.getItem('inmueble_location') || '');
   const [logoUrl, setLogoUrl] = useState(() => localStorage.getItem('inmueble_logoUrl') || '');
   const [scriptUrl, setScriptUrl] = useState('');
+  const [calculatorInitialPrice, setCalculatorInitialPrice] = useState<number>(0);
 
   // App state
   const [lang, setLang] = useState<'es' | 'en'>('es');
@@ -559,6 +560,13 @@ function App() {
   const handleEditRequest = (property: Property) => {
     setPropertyToEdit(property);
     setActiveView('properties');
+    setActiveView('properties');
+  };
+
+  const handleOpenCalculator = (price: number) => {
+    setCalculatorInitialPrice(price);
+    setActiveView('calculator');
+    setSidebarOpen(false);
   };
 
   // ============ RENDER ============
@@ -740,6 +748,7 @@ function App() {
           <MortgageCalculator
             lang={lang}
             brandColor={brandColor}
+            defaultPrice={calculatorInitialPrice > 0 ? calculatorInitialPrice : undefined}
           />
         );
 

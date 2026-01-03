@@ -12,6 +12,7 @@ import {
     Car,
     Ruler,
     DollarSign,
+    Calculator,
     Eye,
     Heart,
     Share2,
@@ -53,6 +54,7 @@ interface PropertiesViewProps {
     agents: Agent[];
     userRole: string;
     userId: string;
+    onOpenCalculator: (price: number) => void;
 }
 
 const PropertiesView: React.FC<PropertiesViewProps> = ({
@@ -69,7 +71,8 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
     onClearEditingProperty,
     agents,
     userRole,
-    userId
+    userId,
+    onOpenCalculator
 }) => {
     const t = translations[lang];
 
@@ -410,6 +413,17 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                         >
                             <Share2 size={18} />
                         </button>
+                        <button
+                            onClick={e => {
+                                e.stopPropagation();
+                                const price = property.operation === 'RENTA' ? property.rentPrice : property.salePrice;
+                                if (price) onOpenCalculator(price);
+                            }}
+                            className="p-2 bg-black/50 rounded-full text-white hover:bg-black/70"
+                            title="Calcular Hipoteca"
+                        >
+                            <Calculator size={18} />
+                        </button>
                     </div>
 
                     {/* Image count */}
@@ -578,6 +592,17 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                         className="p-2 bg-zinc-800 rounded-lg hover:bg-red-500/20 text-red-400"
                     >
                         <Trash2 size={18} />
+                    </button>
+                    <button
+                        onClick={e => {
+                            e.stopPropagation();
+                            const price = property.operation === 'RENTA' ? property.rentPrice : property.salePrice;
+                            if (price) onOpenCalculator(price);
+                        }}
+                        className="p-2 bg-zinc-800 rounded-lg hover:bg-zinc-700 text-zinc-400"
+                        title="Calcular Hipoteca"
+                    >
+                        <Calculator size={18} />
                     </button>
                 </div>
             </div>
