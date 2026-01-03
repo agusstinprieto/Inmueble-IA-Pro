@@ -606,7 +606,7 @@ export async function chatWithAssistant(
   }
 
   const ai = new GoogleGenAI({ apiKey });
-  const model = 'gemini-1.5-flash';
+  const model = 'gemini-2.0-flash-exp';
 
   const systemPrompt = lang === 'es'
     ? `Eres un asistente experto en bienes raíces.
