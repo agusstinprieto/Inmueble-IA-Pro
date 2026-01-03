@@ -1,5 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { PropertyAnalysis, Property, MarketAnalysis, PropertyType } from "../types";
+import { checkUsageLimit, incrementUsage, getLimitReachedMessage } from "./usageLimits";
 
 // ============ CONFIGURACIÓN REGIONAL ============
 
@@ -195,8 +196,17 @@ const PROPERTY_EXTRACT_SCHEMA = {
 export async function analyzePropertyImages(
   base64Images: string[],
   businessName: string,
-  location: string
+  location: string,
+  agencyId?: string,
+  userId?: string
 ): Promise<{ properties: PropertyAnalysis[] }> {
+  // Check usage limit
+  if (agencyId) {
+    const limitCheck = await checkUsageLimit(agencyId, 'propertyAnalysis');
+    if (!limitCheck.allowed) {
+      throw new Error(getLimitReachedMessage('propertyAnalysis', limitCheck.current, limitCheck.limit));
+    }
+  }
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error('VITE_GEMINI_API_KEY is not configured');

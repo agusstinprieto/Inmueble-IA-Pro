@@ -24,6 +24,7 @@ import LibraryView from './components/LibraryView';
 import NotaryDirectoryView from './components/NotaryDirectoryView';
 import AssistantView from './components/AssistantView';
 import PhotoStudioView from './components/PhotoStudioView';
+import UsageDashboardView from './components/UsageDashboardView';
 import { translations } from './translations';
 import {
   supabase, getUserProfile, getAgencyProfile, signOut, addProperty, getProperties, uploadPropertyImages, updateProperty, deleteProperty, updateUserProfile, updateAgencyProfile, getAgents, addAgent, updateAgent, deleteAgent, addSale, updateClient,
@@ -729,26 +730,8 @@ function App() {
             onAddContract={handleAddContract}
             onDeleteContract={handleDeleteContract}
             lang={lang}
-            brandColor={brandColor}
-            businessName={businessName}
-          />
-        );
 
-      case 'sales':
-        return (
-          <SalesView
-            sales={sales}
-            properties={properties}
-            clients={clients}
-            lang={lang}
-            brandColor={brandColor}
-            businessName={businessName}
-            onAddSale={handleAddSaleRequest}
-            agentId={userId || ''}
-          />
-        );
-
-      case 'agents':
+            case 'agents':
         return (
           <AgentsView
             agents={agents}

@@ -67,171 +67,237 @@
         <h1 class="text-5xl md:text-7xl font-black italic tracking-tighter uppercase mb-6">
             Planes y <span class="text-brand">Precios</span>
         </h1>
-        <p class="text-xl text-zinc-400 max-w-2xl mx-auto mb-12">
-            Elige la modalidad que mejor se adapte a tu negocio: Suscripción SaaS o Código Fuente Propio.
+        <p class="text-xl text-zinc-400 max-w-2xl mx-auto mb-4">
+            Elige el plan que mejor se adapte a tu negocio inmobiliario.
+        </p>
+        <p class="text-sm text-zinc-500 max-w-xl mx-auto mb-12">
+            Todos los planes incluyen IA avanzada, análisis de propiedades, generación de anuncios y más.
         </p>
 
-        <!-- Pricing Cards -->
-        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 px-4">
+        <!-- Pricing Cards - SaaS Plans -->
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-4 mb-12">
 
-            <!-- Agente Pro -->
+            <!-- Individual -->
             <div
-                class="bg-zinc-900/50 border border-zinc-800 rounded-3xl p-8 hover:border-brand transition-all group relative overflow-hidden flex flex-col">
-                <h3 class="text-2xl font-black italic uppercase text-zinc-300">Agente Pro</h3>
-                <div class="flex items-end gap-1 my-6">
-                    <span class="text-4xl font-black">$599</span>
-                    <span class="text-zinc-500 font-bold mb-1">/mes MXN</span>
+                class="bg-zinc-900/50 border border-zinc-800 rounded-3xl p-6 hover:border-brand transition-all group relative overflow-hidden flex flex-col">
+                <h3 class="text-xl font-black italic uppercase text-zinc-300">Agente Individual</h3>
+                <div class="flex items-end gap-1 my-4">
+                    <span class="text-3xl font-black">$29</span>
+                    <span class="text-zinc-500 font-bold mb-1">/mes USD</span>
                 </div>
-                <p class="text-zinc-400 text-sm mb-8 min-h-[40px]">Para agentes independientes que quieren destacar.</p>
+                <p class="text-zinc-400 text-xs mb-6">Para agentes independientes que inician.</p>
 
-                <ul class="space-y-4 mb-8 text-left flex-1">
-                    <li class="flex items-center gap-3 text-sm text-zinc-300">
-                        <i data-lucide="check" class="text-brand w-4 h-4"></i> Asistente IA 24/7
+                <ul class="space-y-3 mb-6 text-left flex-1">
+                    <li class="flex items-center gap-2 text-xs text-zinc-300">
+                        <i data-lucide="check" class="text-brand w-3 h-3"></i> 50 Análisis de propiedades/mes
                     </li>
-                    <li class="flex items-center gap-3 text-sm text-zinc-300">
-                        <i data-lucide="check" class="text-brand w-4 h-4"></i> Valuaciones PDF Ilimitadas
+                    <li class="flex items-center gap-2 text-xs text-zinc-300">
+                        <i data-lucide="check" class="text-brand w-3 h-3"></i> 100 Anuncios generados/mes
                     </li>
-                    <li class="flex items-center gap-3 text-sm text-zinc-300">
-                        <i data-lucide="check" class="text-brand w-4 h-4"></i> 1,000,000 Tokens mes
+                    <li class="flex items-center gap-2 text-xs text-zinc-300">
+                        <i data-lucide="check" class="text-brand w-3 h-3"></i> 20 Consultas de voz/mes
                     </li>
-                    <li class="flex items-center gap-3 text-sm text-zinc-300">
-                        <i data-lucide="check" class="text-brand w-4 h-4"></i> Soporte Prioritario
+                    <li class="flex items-center gap-2 text-xs text-zinc-300">
+                        <i data-lucide="check" class="text-brand w-3 h-3"></i> 10 Contratos/mes
+                    </li>
+                    <li class="flex items-center gap-2 text-xs text-zinc-300">
+                        <i data-lucide="check" class="text-brand w-3 h-3"></i> Soporte por email
                     </li>
                 </ul>
 
-                <a href="https://wa.me/528713911135?text=Hola,%20me%20interesa%20el%20plan%20Agente%20Pro%20($599%20MXN)"
+                <a href="https://wa.me/528711439941?text=Hola,%20me%20interesa%20el%20plan%20Individual%20($29%20USD)"
                     target="_blank"
-                    class="block w-full py-4 rounded-xl border border-zinc-700 hover:bg-zinc-800 font-black uppercase italic transition-all group-hover:scale-[1.02] text-center">
+                    class="block w-full py-3 rounded-xl border border-zinc-700 hover:bg-zinc-800 font-bold uppercase italic transition-all text-center text-sm">
                     Seleccionar Plan
                 </a>
             </div>
 
-            <!-- Agencia Core -->
+            <!-- Small Agency -->
             <div
-                class="bg-zinc-900 border-2 border-brand rounded-3xl p-8 transform md:-translate-y-4 shadow-2xl shadow-brand/20 relative overflow-hidden flex flex-col">
+                class="bg-zinc-900/50 border border-zinc-800 rounded-3xl p-6 hover:border-green-500 transition-all group relative overflow-hidden flex flex-col">
+                <h3 class="text-xl font-black italic uppercase text-green-400">Agencia Pequeña</h3>
+                <div class="flex items-end gap-1 my-4">
+                    <span class="text-3xl font-black">$99</span>
+                    <span class="text-zinc-500 font-bold mb-1">/mes USD</span>
+                </div>
+                <p class="text-zinc-400 text-xs mb-6">Para equipos de 3-10 agentes.</p>
+
+                <ul class="space-y-3 mb-6 text-left flex-1">
+                    <li class="flex items-center gap-2 text-xs text-zinc-300">
+                        <i data-lucide="check" class="text-green-500 w-3 h-3"></i> 200 Análisis de propiedades/mes
+                    </li>
+                    <li class="flex items-center gap-2 text-xs text-zinc-300">
+                        <i data-lucide="check" class="text-green-500 w-3 h-3"></i> 400 Anuncios generados/mes
+                    </li>
+                    <li class="flex items-center gap-2 text-xs text-zinc-300">
+                        <i data-lucide="check" class="text-green-500 w-3 h-3"></i> 80 Consultas de voz/mes
+                    </li>
+                    <li class="flex items-center gap-2 text-xs text-zinc-300">
+                        <i data-lucide="check" class="text-green-500 w-3 h-3"></i> 40 Contratos/mes
+                    </li>
+                    <li class="flex items-center gap-2 text-xs text-zinc-300">
+                        <i data-lucide="check" class="text-green-500 w-3 h-3"></i> Panel de agencia
+                    </li>
+                    <li class="flex items-center gap-2 text-xs text-zinc-300">
+                        <i data-lucide="check" class="text-green-500 w-3 h-3"></i> Soporte prioritario
+                    </li>
+                </ul>
+
+                <a href="https://wa.me/528711439941?text=Hola,%20me%20interesa%20el%20plan%20Agencia%20Pequeña%20($99%20USD)"
+                    target="_blank"
+                    class="block w-full py-3 rounded-xl border border-green-500/50 hover:bg-green-500/10 text-green-400 font-bold uppercase italic transition-all text-center text-sm">
+                    Seleccionar Plan
+                </a>
+            </div>
+
+            <!-- Corporate -->
+            <div
+                class="bg-zinc-900 border-2 border-brand rounded-3xl p-6 transform md:-translate-y-2 shadow-2xl shadow-brand/20 relative overflow-hidden flex flex-col">
                 <div
-                    class="absolute top-0 right-0 bg-brand text-black text-xs font-black uppercase px-3 py-1 rounded-bl-xl">
+                    class="absolute top-0 right-0 bg-brand text-black text-[10px] font-black uppercase px-2 py-1 rounded-bl-xl">
                     Más Popular
                 </div>
 
-                <h3 class="text-2xl font-black italic uppercase text-brand">Agencia Core</h3>
-                <div class="flex items-end gap-1 my-6">
-                    <span class="text-5xl font-black">$2,499</span>
-                    <span class="text-zinc-500 font-bold mb-1">/mes MXN</span>
+                <h3 class="text-xl font-black italic uppercase text-brand">Agencia Corporativa</h3>
+                <div class="flex items-end gap-1 my-4">
+                    <span class="text-4xl font-black">$299</span>
+                    <span class="text-zinc-500 font-bold mb-1">/mes USD</span>
                 </div>
-                <p class="text-zinc-400 text-sm mb-8 min-h-[40px]">Potencia tu equipo con gestión avanzada e IA.</p>
+                <p class="text-zinc-400 text-xs mb-6">Para agencias de 11-50 agentes.</p>
 
-                <ul class="space-y-4 mb-8 text-left flex-1">
-                    <li class="flex items-center gap-3 text-sm text-white font-bold">
-                        <i data-lucide="check-circle-2" class="text-brand w-4 h-4"></i> Hasta 5 Agentes
+                <ul class="space-y-3 mb-6 text-left flex-1">
+                    <li class="flex items-center gap-2 text-xs text-white font-bold">
+                        <i data-lucide="check-circle-2" class="text-brand w-3 h-3"></i> 1,000 Análisis de
+                        propiedades/mes
                     </li>
-                    <li class="flex items-center gap-3 text-sm text-zinc-300">
-                        <i data-lucide="check" class="text-brand w-4 h-4"></i> 5,000,000 Tokens mes
+                    <li class="flex items-center gap-2 text-xs text-zinc-300">
+                        <i data-lucide="check" class="text-brand w-3 h-3"></i> 2,000 Anuncios generados/mes
                     </li>
-                    <li class="flex items-center gap-3 text-sm text-zinc-300">
-                        <i data-lucide="check" class="text-brand w-4 h-4"></i> Panel de Control de Agencia
+                    <li class="flex items-center gap-2 text-xs text-zinc-300">
+                        <i data-lucide="check" class="text-brand w-3 h-3"></i> 400 Consultas de voz/mes
                     </li>
-                    <li class="flex items-center gap-3 text-sm text-zinc-300">
-                        <i data-lucide="check" class="text-brand w-4 h-4"></i> CRM Integrado
+                    <li class="flex items-center gap-2 text-xs text-zinc-300">
+                        <i data-lucide="check" class="text-brand w-3 h-3"></i> 200 Contratos/mes
                     </li>
-                    <li class="flex items-center gap-3 text-sm text-zinc-300">
-                        <i data-lucide="check" class="text-brand w-4 h-4"></i> Dominio Personalizado
+                    <li class="flex items-center gap-2 text-xs text-zinc-300">
+                        <i data-lucide="check" class="text-brand w-3 h-3"></i> CRM completo
+                    </li>
+                    <li class="flex items-center gap-2 text-xs text-zinc-300">
+                        <i data-lucide="check" class="text-brand w-3 h-3"></i> Dominio personalizado
+                    </li>
+                    <li class="flex items-center gap-2 text-xs text-zinc-300">
+                        <i data-lucide="check" class="text-brand w-3 h-3"></i> Soporte 24/7
                     </li>
                 </ul>
 
-                <a href="https://wa.me/528713911135?text=Hola,%20me%20interesa%20el%20plan%20Agencia%20Core%20($2,499%20MXN)"
+                <a href="https://wa.me/528711439941?text=Hola,%20me%20interesa%20el%20plan%20Corporativa%20($299%20USD)"
                     target="_blank"
-                    class="block w-full py-4 rounded-xl bg-brand hover:bg-brand/90 text-black font-black uppercase italic transition-all scale-[1.02] shadow-lg text-center">
+                    class="block w-full py-3 rounded-xl bg-brand hover:bg-brand/90 text-black font-black uppercase italic transition-all shadow-lg text-center text-sm">
                     Seleccionar Plan
                 </a>
             </div>
 
-            <!-- Enterprise Premium -->
+            <!-- Enterprise -->
             <div
-                class="bg-zinc-900/50 border border-zinc-800 rounded-3xl p-8 hover:border-purple-500 transition-all group relative overflow-hidden flex flex-col">
-                <h3 class="text-2xl font-black italic uppercase text-purple-400">Enterprise</h3>
-                <div class="flex items-end gap-1 my-6">
-                    <span class="text-4xl font-black">$5,999</span>
-                    <span class="text-zinc-500 font-bold mb-1">/mes MXN</span>
+                class="bg-zinc-900/50 border border-purple-500/50 rounded-3xl p-6 hover:border-purple-500 transition-all group relative overflow-hidden flex flex-col">
+                <h3 class="text-xl font-black italic uppercase text-purple-400">Enterprise</h3>
+                <div class="flex items-end gap-1 my-4">
+                    <span class="text-3xl font-black">$999</span>
+                    <span class="text-zinc-500 font-bold mb-1">/mes USD</span>
                 </div>
-                <p class="text-zinc-400 text-sm mb-8 min-h-[40px]">Marca Blanca Total y control total de tu tecnología.
-                </p>
+                <p class="text-zinc-400 text-xs mb-6">Para grandes corporativos (50+ agentes).</p>
 
-                <ul class="space-y-4 mb-8 text-left flex-1">
-                    <li class="flex items-center gap-3 text-sm text-zinc-300">
-                        <i data-lucide="check" class="text-purple-500 w-4 h-4"></i> Marca Blanca (Tu Logo)
+                <ul class="space-y-3 mb-6 text-left flex-1">
+                    <li class="flex items-center gap-2 text-xs text-zinc-300">
+                        <i data-lucide="infinity" class="text-purple-500 w-3 h-3"></i> Análisis ilimitados
                     </li>
-                    <li class="flex items-center gap-3 text-sm text-zinc-300">
-                        <i data-lucide="check" class="text-purple-500 w-4 h-4"></i> Llave API Propia (BYOK)
+                    <li class="flex items-center gap-2 text-xs text-zinc-300">
+                        <i data-lucide="infinity" class="text-purple-500 w-3 h-3"></i> Anuncios ilimitados
                     </li>
-                    <li class="flex items-center gap-3 text-sm text-zinc-300">
-                        <i data-lucide="check" class="text-purple-500 w-4 h-4"></i> Tokens Ilimitados
+                    <li class="flex items-center gap-2 text-xs text-zinc-300">
+                        <i data-lucide="infinity" class="text-purple-500 w-3 h-3"></i> Consultas ilimitadas
                     </li>
-                    <li class="flex items-center gap-3 text-sm text-zinc-300">
-                        <i data-lucide="check" class="text-purple-500 w-4 h-4"></i> Soporte 24/7 Dedicado
+                    <li class="flex items-center gap-2 text-xs text-zinc-300">
+                        <i data-lucide="infinity" class="text-purple-500 w-3 h-3"></i> Contratos ilimitados
+                    </li>
+                    <li class="flex items-center gap-2 text-xs text-zinc-300">
+                        <i data-lucide="check" class="text-purple-500 w-3 h-3"></i> Marca blanca (tu logo)
+                    </li>
+                    <li class="flex items-center gap-2 text-xs text-zinc-300">
+                        <i data-lucide="check" class="text-purple-500 w-3 h-3"></i> API Key propia (BYOK)
+                    </li>
+                    <li class="flex items-center gap-2 text-xs text-zinc-300">
+                        <i data-lucide="check" class="text-purple-500 w-3 h-3"></i> Soporte dedicado
                     </li>
                 </ul>
 
-                <a href="https://wa.me/528713911135?text=Hola,%20me%20interesa%20el%20plan%20Enterprise%20Premium%20($5,999%20MXN)"
+                <a href="https://wa.me/528711439941?text=Hola,%20me%20interesa%20el%20plan%20Enterprise%20($999%20USD)"
                     target="_blank"
-                    class="block w-full py-4 rounded-xl border border-purple-500/50 hover:bg-purple-500/10 text-purple-400 font-black uppercase italic transition-all group-hover:scale-[1.02] text-center">
-                    Seleccionar Plan
+                    class="block w-full py-3 rounded-xl border border-purple-500/50 hover:bg-purple-500/10 text-purple-400 font-bold uppercase italic transition-all text-center text-sm">
+                    Contactar Ventas
                 </a>
             </div>
 
-            <!-- Lifetime License (Enterprise Source) -->
-            <div
-                class="bg-gradient-to-b from-zinc-800 to-black border border-zinc-700 rounded-3xl p-8 hover:scale-105 transition-all duration-300 group relative overflow-hidden flex flex-col shadow-2xl">
-                <div
-                    class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-white/5 blur-3xl rounded-full pointer-events-none">
-                </div>
+        </div>
 
-                <div class="text-center mb-4">
+        <!-- Source Code Option -->
+        <div class="max-w-4xl mx-auto px-4 mt-16">
+            <div
+                class="bg-gradient-to-b from-zinc-800 to-black border border-zinc-700 rounded-3xl p-8 hover:scale-[1.02] transition-all duration-300 shadow-2xl">
+                <div class="text-center mb-6">
                     <i data-lucide="code-2" class="w-12 h-12 text-brand mx-auto drop-shadow-lg"></i>
                 </div>
 
-                <h3 class="text-3xl font-black italic uppercase text-white text-center drop-shadow-md">Propiedad Total
+                <h3 class="text-3xl font-black italic uppercase text-white text-center drop-shadow-md mb-2">
+                    Propiedad Total del Código
                 </h3>
 
-                <div class="flex justify-center items-end gap-1 my-6">
+                <div class="flex justify-center items-end gap-1 my-4">
                     <span class="text-5xl font-black text-white drop-shadow-md">$5,900</span>
                     <span class="text-zinc-500 font-bold mb-1 text-xl">USD</span>
                 </div>
 
-                <p class="text-zinc-400 font-bold text-center text-sm mb-6 uppercase tracking-wide">
+                <p class="text-zinc-400 font-bold text-center text-sm mb-8 uppercase tracking-wide">
                     Pago único • Código Fuente • Sin mensualidades
                 </p>
 
-                <ul class="space-y-4 mb-8 text-left flex-1 px-2">
-                    <li class="flex items-start gap-3 text-zinc-300 font-medium">
-                        <i data-lucide="check" class="w-5 h-5 text-brand flex-shrink-0 mt-0.5 stroke-[3px]"></i>
-                        Código Fuente Completo (React/Vite)
-                    </li>
-                    <li class="flex items-start gap-3 text-zinc-300 font-medium">
-                        <i data-lucide="check" class="w-5 h-5 text-brand flex-shrink-0 mt-0.5 stroke-[3px]"></i>
-                        Infraestructura en tu propia cuenta
-                    </li>
-                    <li class="flex items-start gap-3 text-zinc-300 font-medium">
-                        <i data-lucide="check" class="w-5 h-5 text-brand flex-shrink-0 mt-0.5 stroke-[3px]"></i>
-                        Sin límites de usuarios o propiedades
-                    </li>
-                    <li class="flex items-start gap-3 text-zinc-300 font-medium">
-                        <i data-lucide="check" class="w-5 h-5 text-brand flex-shrink-0 mt-0.5 stroke-[3px]"></i>
-                        Instalación asistida incluida
-                    </li>
-                    <li class="flex items-start gap-3 text-zinc-300 font-medium">
-                        <i data-lucide="check" class="w-5 h-5 text-brand flex-shrink-0 mt-0.5 stroke-[3px]"></i>
-                        6 meses de soporte premium
-                    </li>
-                </ul>
+                <div class="grid md:grid-cols-2 gap-4 mb-8">
+                    <ul class="space-y-3">
+                        <li class="flex items-start gap-3 text-zinc-300 font-medium text-sm">
+                            <i data-lucide="check" class="w-5 h-5 text-brand flex-shrink-0 mt-0.5 stroke-[3px]"></i>
+                            Código Fuente Completo (React/Vite)
+                        </li>
+                        <li class="flex items-start gap-3 text-zinc-300 font-medium text-sm">
+                            <i data-lucide="check" class="w-5 h-5 text-brand flex-shrink-0 mt-0.5 stroke-[3px]"></i>
+                            Infraestructura en tu propia cuenta
+                        </li>
+                        <li class="flex items-start gap-3 text-zinc-300 font-medium text-sm">
+                            <i data-lucide="check" class="w-5 h-5 text-brand flex-shrink-0 mt-0.5 stroke-[3px]"></i>
+                            Sin límites de usuarios o propiedades
+                        </li>
+                    </ul>
+                    <ul class="space-y-3">
+                        <li class="flex items-start gap-3 text-zinc-300 font-medium text-sm">
+                            <i data-lucide="check" class="w-5 h-5 text-brand flex-shrink-0 mt-0.5 stroke-[3px]"></i>
+                            Instalación asistida incluida
+                        </li>
+                        <li class="flex items-start gap-3 text-zinc-300 font-medium text-sm">
+                            <i data-lucide="check" class="w-5 h-5 text-brand flex-shrink-0 mt-0.5 stroke-[3px]"></i>
+                            6 meses de soporte premium
+                        </li>
+                        <li class="flex items-start gap-3 text-zinc-300 font-medium text-sm">
+                            <i data-lucide="check" class="w-5 h-5 text-brand flex-shrink-0 mt-0.5 stroke-[3px]"></i>
+                            Actualizaciones por 1 año
+                        </li>
+                    </ul>
+                </div>
 
-                <a href="https://wa.me/528713911135?text=Hola,%20quiero%20comprar%20la%20Licencia%20de%20Código%20Fuente%20($5,900%20USD)"
+                <a href="https://wa.me/528711439941?text=Hola,%20quiero%20comprar%20la%20Licencia%20de%20Código%20Fuente%20($5,900%20USD)"
                     target="_blank"
-                    class="block w-full py-4 rounded-xl bg-white text-black font-black uppercase italic transition-all hover:bg-zinc-200 shadow-xl text-center transform hover:-translate-y-1">
+                    class="block w-full max-w-md mx-auto py-4 rounded-xl bg-white text-black font-black uppercase italic transition-all hover:bg-zinc-200 shadow-xl text-center transform hover:-translate-y-1">
                     ADQUIRIR CÓDIGO
                 </a>
             </div>
-
         </div>
 
     </div>
@@ -243,21 +309,31 @@
 
             <div class="space-y-4">
                 <div class="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
+                    <h4 class="font-bold text-lg mb-2">¿Qué pasa si excedo mi límite mensual?</h4>
+                    <p class="text-zinc-400 text-sm">Recibirás una notificación cuando alcances el 80% de tu límite. Si
+                        lo excedes, puedes comprar créditos adicionales o actualizar tu plan en cualquier momento.</p>
+                </div>
+                <div class="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
+                    <h4 class="font-bold text-lg mb-2">¿Puedo cambiar de plan en cualquier momento?</h4>
+                    <p class="text-zinc-400 text-sm">Sí, puedes actualizar o degradar tu plan cuando lo necesites. Los
+                        cambios se aplicarán en tu próximo ciclo de facturación.</p>
+                </div>
+                <div class="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
                     <h4 class="font-bold text-lg mb-2">¿Qué obtengo con el Código Fuente?</h4>
                     <p class="text-zinc-400 text-sm">Recibes el repositorio completo de Git (Frontend y Backend). Eres
                         libre de modificarlo, adaptarlo y hostearlo donde prefieras. La licencia te permite uso
                         comercial para una instancia de negocio.</p>
                 </div>
                 <div class="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
-                    <h4 class="font-bold text-lg mb-2">¿Cómo funciona el soporte en la Licencia Perpetua?</h4>
-                    <p class="text-zinc-400 text-sm">Incluimos 6 meses de soporte directo para instalación y corrección
-                        de bugs críticos. Después de ese periodo, puedes contratar pólizas de mantenimiento opcionales.
-                    </p>
+                    <h4 class="font-bold text-lg mb-2">¿Los precios incluyen IVA?</h4>
+                    <p class="text-zinc-400 text-sm">Los precios mostrados son en USD y no incluyen impuestos locales.
+                        El IVA se calculará según tu ubicación al momento del pago.</p>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Footer -->
     <div class="mt-20 py-12 border-t border-white/10 text-center w-full relative z-10">
         <div class="max-w-4xl mx-auto px-4">
             <h3 class="text-2xl font-black text-white tracking-tighter mb-2">IA.AGUS</h3>
