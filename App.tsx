@@ -87,10 +87,20 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [propertyToEdit, setPropertyToEdit] = useState<Property | null>(null);
 
-  // Enforce Dark Mode
+  // Theme State
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+
   useEffect(() => {
-    document.documentElement.classList.add('dark');
-  }, []);
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
 
   // Data state
   const [properties, setProperties] = useState<Property[]>([]);
@@ -955,6 +965,8 @@ function App() {
         onToggle={() => setSidebarOpen(!sidebarOpen)}
         onLogout={handleLogout}
         onViewPublic={() => setIsPublicView(true)}
+        theme={theme}
+        onToggleTheme={toggleTheme}
       />
 
       {/* Main Content */}

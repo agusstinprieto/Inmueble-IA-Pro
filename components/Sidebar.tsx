@@ -129,12 +129,12 @@ const Sidebar: React.FC<SidebarProps> = ({
       {/* Sidebar */}
       <aside
         className={`
-          fixed lg:static inset-y-0 left-0 z-50
-          w-64 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800
-          transform transition-transform duration-200 ease-in-out
-          ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-          flex flex-col
-        `}
+            fixed lg:static inset-y-0 left-0 z-50
+            w-64 bg-white dark:bg-black border-r border-zinc-200 dark:border-zinc-800
+            transform transition-transform duration-200 ease-in-out
+            ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+            flex flex-col
+          `}
       >
         {/* Header */}
         <div
@@ -243,6 +243,19 @@ const Sidebar: React.FC<SidebarProps> = ({
           {/* Settings & Logout */}
           <div className="px-3 space-y-1">
 
+
+            <button
+              onClick={onToggleTheme}
+              className="
+                  w-full flex items-center gap-3 px-3 py-2.5 rounded-lg
+                  text-left text-sm font-medium
+                  text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800
+                  transition-all duration-150
+                "
+            >
+              {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+              <span>{theme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>
+            </button>
 
             <button
               onClick={() => onNavigate('settings')}
