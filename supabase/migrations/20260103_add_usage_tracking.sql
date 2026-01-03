@@ -1,6 +1,6 @@
 -- Migration: Add Usage Tracking and Subscription Tiers
 -- Created: 2026-01-03
--- CORRECTED VERSION: Uses 'agencies' table
+-- FINAL CORRECTED VERSION: Uses correct table names (agencies, profiles)
 
 -- 1. Create subscription_tiers table
 CREATE TABLE IF NOT EXISTS subscription_tiers (
@@ -66,7 +66,7 @@ CREATE POLICY "Users can view own agency usage"
   ON usage_tracking FOR SELECT
   USING (
     agency_id IN (
-      SELECT agency_id FROM agents WHERE user_id = auth.uid()
+      SELECT agency_id FROM profiles WHERE user_id = auth.uid()
     )
   );
 
