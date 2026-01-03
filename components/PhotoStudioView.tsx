@@ -282,11 +282,18 @@ export default function PhotoStudioView({ lang }: PhotoStudioViewProps) {
                 <div className="flex-1 bg-zinc-200 dark:bg-black rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden relative flex flex-col shadow-inner">
                     {/* Canvas Toolbar */}
                     <div className="absolute top-4 right-4 z-10 flex gap-2">
-                        <button className="p-2 bg-white/80 dark:bg-zinc-900/80 backdrop-blur border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-700 dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors" title="Undo">
-                            <Undo size={18} />
-                        </button>
-                        <button className="p-2 bg-white/80 dark:bg-zinc-900/80 backdrop-blur border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-700 dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors" title="Redo">
-                            <Redo size={18} />
+                        <button
+                            onClick={() => {
+                                const canvas = canvasRef.current;
+                                const ctx = canvas?.getContext('2d');
+                                if (canvas && ctx) {
+                                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                                }
+                            }}
+                            className="p-2 bg-white/80 dark:bg-zinc-900/80 backdrop-blur border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-700 dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                            title="Clear Mask"
+                        >
+                            <Trash2 size={18} />
                         </button>
                         <div className="w-px h-8 bg-zinc-300 dark:bg-zinc-700 mx-1"></div>
                         <button className="p-2 bg-white/80 dark:bg-zinc-900/80 backdrop-blur border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-700 dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors" title="Download">
@@ -296,7 +303,7 @@ export default function PhotoStudioView({ lang }: PhotoStudioViewProps) {
 
                     <div
                         ref={containerRef}
-                        className="flex-1 flex items-center justify-center p-8 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-100"
+                        className="flex-1 flex items-center justify-center p-8 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-100 relative"
                     >
                         {!selectedImage ? (
                             <div className="text-center space-y-4">
@@ -326,14 +333,58 @@ export default function PhotoStudioView({ lang }: PhotoStudioViewProps) {
                                     alt="Workspace"
                                     className="max-w-full max-h-[80vh] object-contain block select-none"
                                     draggable={false}
+                                    onLoad={() => {
+                                        if (canvasRef.current && imageRef.current) {
+                                            canvasRef.current.width = imageRef.current.width;
+                                            canvasRef.current.height = imageRef.current.height;
+                                        }
+                                    }}
                                 />
 
-                                {/* Overlay for 'Cleanup' mode to visualize brush - purely cosmetic for this mock */}
-                                {activeTool === 'cleanup' && (
-                                    <div className="absolute inset-0 cursor-crosshair group-hover:ring-1 ring-amber-500/50 pointer-events-none">
-                                        {/* Brush visualization would go here via proper canvas implementation */}
-                                    </div>
-                                )}
+                                {/* Interactive Canvas Layer */}
+                                <canvas
+                                    ref={canvasRef}
+                                    className={`absolute inset-0 w-full h-full touch-none ${activeTool === 'cleanup' ? 'cursor-crosshair' : 'cursor-default'}`}
+                                    onMouseDown={(e) => {
+                                        if (activeTool !== 'cleanup') return;
+                                        const canvas = canvasRef.current;
+                                        const ctx = canvas?.getContext('2d');
+                                        if (!canvas || !ctx) return;
+
+                                        const rect = canvas.getBoundingClientRect();
+                                        const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+                                        const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+                                        ctx.beginPath();
+                                        ctx.moveTo(x, y);
+                                        ctx.strokeStyle = 'rgba(245, 158, 11, 0.5)'; // Amber 500 with 50% opacity
+                                        ctx.lineWidth = brushSize;
+                                        ctx.lineCap = 'round';
+                                        ctx.lineJoin = 'round';
+
+                                        // Start drawing flag
+                                        canvas.dataset.drawing = 'true';
+                                    }}
+                                    onMouseMove={(e) => {
+                                        if (activeTool !== 'cleanup' || canvasRef.current?.dataset.drawing !== 'true') return;
+                                        const canvas = canvasRef.current;
+                                        const ctx = canvas?.getContext('2d');
+                                        if (!canvas || !ctx) return;
+
+                                        const rect = canvas.getBoundingClientRect();
+                                        const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+                                        const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+                                        ctx.lineTo(x, y);
+                                        ctx.stroke();
+                                    }}
+                                    onMouseUp={() => {
+                                        if (canvasRef.current) canvasRef.current.dataset.drawing = 'false';
+                                    }}
+                                    onMouseLeave={() => {
+                                        if (canvasRef.current) canvasRef.current.dataset.drawing = 'false';
+                                    }}
+                                />
                             </div>
                         )}
                     </div>
