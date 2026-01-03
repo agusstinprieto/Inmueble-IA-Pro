@@ -240,6 +240,12 @@ export async function analyzePropertyImages(
 
     try {
       const parsed = JSON.parse(response.text || '{"properties":[]}');
+
+      // Increment usage after successful analysis
+      if (agencyId && userId && parsed.properties.length > 0) {
+        await incrementUsage(agencyId, userId, 'propertyAnalysis');
+      }
+
       return parsed;
     } catch (e) {
       console.error("Error parsing AI response", e);
@@ -366,8 +372,17 @@ export async function generatePropertyListing(
   property: Property,
   lang: 'es' | 'en',
   businessName: string,
-  location: string
+  location: string,
+  agencyId?: string,
+  userId?: string
 ): Promise<string> {
+  // Check usage limit
+  if (agencyId) {
+    const limitCheck = await checkUsageLimit(agencyId, 'adGeneration');
+    if (!limitCheck.allowed) {
+      throw new Error(getLimitReachedMessage('adGeneration', limitCheck.current, limitCheck.limit, lang));
+    }
+  }
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   const ai = new GoogleGenAI({ apiKey });
   const reg = getRegionalInfo(location);
@@ -412,6 +427,11 @@ export async function generatePropertyListing(
     }
   });
 
+  // Increment usage
+  if (agencyId && userId) {
+    await incrementUsage(agencyId, userId, 'adGeneration');
+  }
+
   return response.text || '';
 }
 
@@ -421,8 +441,17 @@ export async function generateSocialAd(
   property: Property,
   platform: 'facebook' | 'whatsapp',
   businessName: string,
-  location: string
+  location: string,
+  agencyId?: string,
+  userId?: string
 ): Promise<string> {
+  // Check usage limit
+  if (agencyId) {
+    const limitCheck = await checkUsageLimit(agencyId, 'adGeneration');
+    if (!limitCheck.allowed) {
+      throw new Error(getLimitReachedMessage('adGeneration', limitCheck.current, limitCheck.limit));
+    }
+  }
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   const ai = new GoogleGenAI({ apiKey });
   const reg = getRegionalInfo(location);
@@ -478,6 +507,11 @@ export async function generateSocialAd(
       systemInstruction: "Eres un experto en Community Management inmobiliario. Tu objetivo es generar clics y mensajes."
     }
   });
+
+  // Increment usage
+  if (agencyId && userId) {
+    await incrementUsage(agencyId, userId, 'adGeneration');
+  }
 
   return response.text || '';
 }
