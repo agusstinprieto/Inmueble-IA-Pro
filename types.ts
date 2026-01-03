@@ -345,3 +345,28 @@ export interface Notary {
   coordinates?: { lat: number; lng: number };
   dateAdded: string;
 }
+
+// ============ SAAS BILLING & USAGE ============
+
+export interface UsageLog {
+  id: string;
+  agencyId: string;
+  userId: string;
+  feature: 'AI_ASSISTANT' | 'COMPUTER_VISION' | 'AD_GENERATION' | 'VOICE_AGENT'; // Added AD_GENERATION
+  tokensUsed: number;
+  costEstimate: number;
+  timestamp: string;
+  metadata?: any;
+}
+
+export interface AgencyBilling {
+  agencyId: string;
+  plan: 'FREE' | 'PRO' | 'ENTERPRISE';
+  status: 'ACTIVE' | 'PAST_DUE' | 'CANCELED';
+  currentMonthTokens: number;
+  monthlyTokenLimit: number;
+  creditsBalance: number;
+  billingPeriodStart: string;
+  billingPeriodEnd: string;
+  customApiKey?: string;
+}
