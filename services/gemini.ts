@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import { PropertyAnalysis, Property, MarketAnalysis, PropertyType } from "../types";
 
@@ -17,6 +16,60 @@ const getRegionalInfo = (location: string) => {
     isMexico
   };
 };
+
+// ============ MODEL FALLBACK STRATEGY ============
+
+// List of models to try in order of preference/reliability
+// 2.0-flash-exp is top preference for quality/speed, but falls back to 1.5 series if quota hits.
+const FALLBACK_MODELS = [
+  'gemini-2.0-flash-exp',
+  'gemini-1.5-flash',
+  'gemini-1.5-flash-8b',
+  'gemini-1.5-pro',
+  'gemini-1.0-pro'
+];
+
+async function generateWithFallback(
+  ai: GoogleGenAI,
+  params: {
+    contents: any,
+    config?: any
+  }
+): Promise<any> {
+  let lastError;
+
+  for (const modelName of FALLBACK_MODELS) {
+    try {
+      // console.log(`Attempting generation with model: ${modelName}`);
+      const result = await ai.models.generateContent({
+        model: modelName,
+        contents: params.contents,
+        config: params.config
+      });
+
+      return result;
+    } catch (error: any) {
+      console.warn(`Model ${modelName} failed:`, error.message);
+      // Continue to next model if 404 (Not Found) or 429 (Too Many Requests/Quota)
+      // or 503 (Service Unavailable)
+      if (
+        error.message.includes('404') ||
+        error.message.includes('429') ||
+        error.message.includes('not found') ||
+        error.message.includes('quota') ||
+        error.message.includes('503')
+      ) {
+        lastError = error;
+        continue;
+      }
+      // If it's a different error (e.g. invalid prompt), throw immediately
+      throw error;
+    }
+  }
+
+  throw new Error(`All AI models failed. Please check API Key or Quota. Last error: ${lastError?.message}`);
+}
+
 
 // ============ INSTRUCCIONES DEL SISTEMA ============
 
@@ -145,7 +198,6 @@ export async function analyzePropertyImages(
     throw new Error('VITE_GEMINI_API_KEY is not configured');
   }
   const ai = new GoogleGenAI({ apiKey });
-  const model = 'gemini-1.5-flash-8b';
 
   const imageParts = base64Images.map(img => ({
     inlineData: {
@@ -154,28 +206,33 @@ export async function analyzePropertyImages(
     }
   }));
 
-  const response = await ai.models.generateContent({
-    model,
-    contents: {
-      parts: [
-        ...imageParts,
-        {
-          text: `Analiza estas imágenes de una propiedad inmobiliaria. Identifica el tipo de propiedad, estima sus especificaciones (m², recámaras, baños, etc.), detecta amenidades, evalúa la condición y proporciona un precio estimado de mercado.`
-        }
-      ]
-    },
-    config: {
-      systemInstruction: getPropertySystemInstruction(businessName, location),
-      responseMimeType: "application/json",
-      responseSchema: PROPERTY_ANALYSIS_SCHEMA as any
-    }
-  });
-
   try {
-    const parsed = JSON.parse(response.text || '{"properties":[]}');
-    return parsed;
-  } catch (e) {
-    console.error("Error parsing AI response", e);
+    const response = await generateWithFallback(ai, {
+      contents: {
+        role: 'user',
+        parts: [
+          ...imageParts,
+          {
+            text: `Analiza estas imágenes de una propiedad inmobiliaria. Identifica el tipo de propiedad, estima sus especificaciones (m², recámaras, baños, etc.), detecta amenidades, evalúa la condición y proporciona un precio estimado de mercado.`
+          }
+        ]
+      },
+      config: {
+        systemInstruction: getPropertySystemInstruction(businessName, location),
+        responseMimeType: "application/json",
+        responseSchema: PROPERTY_ANALYSIS_SCHEMA as any
+      }
+    });
+
+    try {
+      const parsed = JSON.parse(response.text || '{"properties":[]}');
+      return parsed;
+    } catch (e) {
+      console.error("Error parsing AI response", e);
+      return { properties: [] };
+    }
+  } catch (error) {
+    console.error("Analysis failed:", error);
     return { properties: [] };
   }
 }
@@ -190,7 +247,6 @@ export async function getPropertyValuation(
   if (!apiKey) throw new Error('VITE_GEMINI_API_KEY not found');
 
   const ai = new GoogleGenAI({ apiKey });
-  const model = 'gemini-2.5-flash'; // Using experimental for broader availability
   const reg = getRegionalInfo(location);
 
   const prompt = `Realiza una valuación inmobiliaria profesional y un estudio de mercado para:
@@ -212,8 +268,7 @@ export async function getPropertyValuation(
   6. Proporciona insights y sugerencias de mejora.`;
 
   try {
-    const response = await ai.models.generateContent({
-      model,
+    const response = await generateWithFallback(ai, {
       contents: { parts: [{ text: prompt }] },
       config: {
         tools: [{ googleSearch: {} } as any],
@@ -238,7 +293,6 @@ export async function searchSimilarProperties(
 ): Promise<MarketAnalysis> {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   const ai = new GoogleGenAI({ apiKey });
-  const model = 'gemini-1.5-flash-8b';
   const reg = getRegionalInfo(location);
 
   const prompt = `Busca propiedades similares en el mercado de ${location}:
@@ -251,8 +305,7 @@ export async function searchSimilarProperties(
   Proporciona el precio promedio, rango de precios y una recomendación de precio competitivo.`;
 
   try {
-    const response = await ai.models.generateContent({
-      model,
+    const response = await generateWithFallback(ai, {
       contents: prompt,
       config: {
         tools: [{ googleSearch: {} }],
@@ -260,7 +313,6 @@ export async function searchSimilarProperties(
       }
     });
 
-    // Parse response into structured data
     return {
       averagePrice: 0,
       averagePricePerM2: 0,
@@ -290,7 +342,6 @@ export async function generatePropertyListing(
 ): Promise<string> {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   const ai = new GoogleGenAI({ apiKey });
-  const model = 'gemini-1.5-flash-8b';
   const reg = getRegionalInfo(location);
 
   const operationText = property.operation === 'VENTA' ? 'venta' : 'renta';
@@ -325,8 +376,8 @@ export async function generatePropertyListing(
   
   Inmobiliaria: ${businessName}
   Idioma: ${lang === 'es' ? 'Español' : 'English'}`;
-  const response = await ai.models.generateContent({
-    model,
+
+  const response = await generateWithFallback(ai, {
     contents: prompt,
     config: {
       systemInstruction: `Eres un experto en marketing inmobiliario de ${businessName}. Creas anuncios que generan leads de calidad.`
@@ -346,7 +397,6 @@ export async function generateSocialAd(
 ): Promise<string> {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   const ai = new GoogleGenAI({ apiKey });
-  const model = 'gemini-1.5-flash-8b';
   const reg = getRegionalInfo(location);
 
   const operationText = property.operation === 'VENTA' ? 'venta' : 'renta';
@@ -394,8 +444,7 @@ export async function generateSocialAd(
     Inmobiliaria: ${businessName}`;
   }
 
-  const response = await ai.models.generateContent({
-    model,
+  const response = await generateWithFallback(ai, {
     contents: prompt,
     config: {
       systemInstruction: "Eres un experto en Community Management inmobiliario. Tu objetivo es generar clics y mensajes."
@@ -414,19 +463,17 @@ export async function analyzePropertyText(
 ): Promise<{ properties: PropertyAnalysis[] }> {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   const ai = new GoogleGenAI({ apiKey });
-  const model = 'gemini-1.5-flash-8b';
-
-  const response = await ai.models.generateContent({
-    model,
-    contents: `Analiza esta descripción de propiedad y extrae la información: "${description}"`,
-    config: {
-      systemInstruction: getPropertySystemInstruction(businessName, location),
-      responseMimeType: "application/json",
-      responseSchema: PROPERTY_ANALYSIS_SCHEMA as any
-    }
-  });
 
   try {
+    const response = await generateWithFallback(ai, {
+      contents: `Analiza esta descripción de propiedad y extrae la información: "${description}"`,
+      config: {
+        systemInstruction: getPropertySystemInstruction(businessName, location),
+        responseMimeType: "application/json",
+        responseSchema: PROPERTY_ANALYSIS_SCHEMA as any
+      }
+    });
+
     return JSON.parse(response.text || '{"properties":[]}');
   } catch (e) {
     return { properties: [] };
@@ -441,7 +488,6 @@ export async function getImprovementSuggestions(
 ): Promise<string> {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   const ai = new GoogleGenAI({ apiKey });
-  const model = 'gemini-1.5-flash-8b';
   const reg = getRegionalInfo(location);
 
   const prompt = `Como experto en valorización inmobiliaria, analiza esta propiedad y sugiere mejoras para aumentar su valor:
@@ -462,8 +508,7 @@ export async function getImprovementSuggestions(
   3. Aumento de valor esperado
   4. Prioridad de implementación`;
 
-  const response = await ai.models.generateContent({
-    model,
+  const response = await generateWithFallback(ai, {
     contents: prompt,
     config: {
       systemInstruction: "Eres un consultor inmobiliario especializado en home staging y valorización de propiedades."
@@ -481,7 +526,6 @@ export async function generatePropertyDescription(
 ): Promise<string> {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   const ai = new GoogleGenAI({ apiKey });
-  const model = 'gemini-1.5-flash-8b';
 
   const prompt = `Genera una descripción profesional para esta propiedad:
   Tipo: ${property.type}
@@ -499,8 +543,7 @@ export async function generatePropertyDescription(
   - 150-200 palabras
   - Idioma: ${lang === 'es' ? 'Español' : 'English'}`;
 
-  const response = await ai.models.generateContent({
-    model,
+  const response = await generateWithFallback(ai, {
     contents: prompt,
     config: {
       systemInstruction: "Eres un copywriter especializado en bienes raíces de lujo."
@@ -521,7 +564,6 @@ export async function extractPropertyFromHtml(
   if (!apiKey) return null;
 
   const ai = new GoogleGenAI({ apiKey });
-  const model = 'gemini-1.5-flash-8b';
 
   // Clean HTML to reduce noise
   const cleanHtml = html
@@ -537,8 +579,7 @@ export async function extractPropertyFromHtml(
   `;
 
   try {
-    const response = await ai.models.generateContent({
-      model,
+    const response = await generateWithFallback(ai, {
       contents: prompt,
       config: {
         systemInstruction: `Eres un extractor de datos experto. Extrae la información de la propiedad del HTML proporcionado. 
@@ -606,7 +647,6 @@ export async function chatWithAssistant(
   }
 
   const ai = new GoogleGenAI({ apiKey });
-  const model = 'gemini-1.5-flash-8b';
 
   const systemPrompt = lang === 'es'
     ? `Eres un asistente experto en bienes raíces.
@@ -635,15 +675,11 @@ ${userName ? `You are talking to ${userName}.` : ''}`;
 
   const promptText = `${formattedHistory}\nUsuario: ${message}`;
 
-  // Wrap in parts to match analyzePropertyImages successful pattern
-  const contents = {
-    parts: [{ text: promptText }]
-  };
-
   try {
-    const response = await ai.models.generateContent({
-      model,
-      contents,
+    const response = await generateWithFallback(ai, {
+      contents: {
+        parts: [{ text: promptText }]
+      },
       config: {
         systemInstruction: systemPrompt,
         temperature: 0.7,
@@ -659,4 +695,3 @@ ${userName ? `You are talking to ${userName}.` : ''}`;
     throw error;
   }
 }
-
