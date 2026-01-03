@@ -168,235 +168,222 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
 
             setMessages(prev => [...prev, assistantMessage]);
 
-            if (!isMuted && 'speechSynthesis' in window) {
-                speakText(response);
-            }
-        } catch (error: any) {
-            console.error('Assistant error detail:', error);
-            const errorMessage: Message = {
-                role: 'assistant',
-                content: lang === 'es' ? `Error: ${error.message || 'Intenta de nuevo.'}` : `Error: ${error.message || 'Try again.'}`,
-                timestamp: new Date()
-            };
-            setMessages(prev => [...prev, errorMessage]);
-            if (isHandsFree) setIsHandsFree(false);
-        } finally {
-            setIsThinking(false);
-        }
-    };
+            // State for voice selection
+            const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
+            const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
+            const [showSettings, setShowSettings] = useState(false);
 
-    const speakText = (text: string) => {
-        if (!('speechSynthesis' in window)) return;
-        window.speechSynthesis.cancel();
-
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = lang === 'es' ? 'es-MX' : 'en-US';
-
-        const setVoiceAndSpeak = () => {
-            const voices = window.speechSynthesis.getVoices();
-            if (voices.length === 0) return;
-
-            const femalePatterns = [
-                'Sabina', 'Paulina', 'Dalia', 'Helena', 'Laura', 'Elena', 'Google español', 'Microsoft Salma',
-                'Microsoft Larisa', 'Monica', 'Libby', 'Lucia', 'google us english female', 'swara',
-                'Hilda', 'Pilar', 'Rosa', 'Lorena', 'Google UK English Female', 'Microsoft Dalia', 'Google US English'
-            ];
-
-            const maleExclusions = [
-                'male', 'guy', 'david', 'pablo', 'raul', 'antonio', 'sergio', 'kevin', 'james',
-                'paul', 'stefan', 'jorge', 'juan', 'ricardo', 'diego', 'carlos', 'paco', 'luis',
-                'enrique', 'fernando', 'manuel', 'jose', 'javier', 'alberto', 'rafael'
-            ];
-
-            const qualityPatterns = ['Natural', 'Online', 'Neural', 'Premium', 'Google'];
-            const targetLang = lang === 'es' ? 'es' : 'en';
-
-            // Filter by language
-            let availableVoices = voices.filter(v => v.lang.toLowerCase().startsWith(targetLang));
-
-            let selectedVoice = null;
-
-            // Tier 1: Best Specific Female Voices (e.g. Sabina is great for MX)
-            for (const name of femalePatterns) {
-                selectedVoice = availableVoices.find(v =>
-                    v.name.toLowerCase().includes(name.toLowerCase()) &&
-                    !v.name.toLowerCase().includes('mobile') // Prefer desktop/online versions
-                );
-                if (selectedVoice) break;
-            }
-
-            // Tier 2: Any "Natural" or "Google" voice (usually better quality)
-            if (!selectedVoice) {
-                for (const q of qualityPatterns) {
-                    selectedVoice = availableVoices.find(v =>
-                        v.name.includes(q) &&
-                        !maleExclusions.some(m => v.name.toLowerCase().includes(m))
+            // Initialize voices
+            useEffect(() => {
+                const loadVoices = () => {
+                    const voices = window.speechSynthesis.getVoices();
+                    // Filter by current language
+                    const targetLang = lang === 'es' ? 'es' : 'en';
+                    const filtered = voices.filter(v =>
+                        v.lang.toLowerCase().startsWith(targetLang)
                     );
-                    if (selectedVoice) break;
+                    setAvailableVoices(filtered);
+
+                    if (filtered.length > 0 && !selectedVoice) {
+                        // Try to find a good default if none selected
+                        const defaultVoice = filtered.find(v =>
+                            v.name.includes('Sabina') ||
+                            v.name.includes('Google español') ||
+                            v.name.includes('Natural')
+                        );
+                        setSelectedVoice(defaultVoice || filtered[0]);
+                    }
+                };
+
+                loadVoices();
+
+                if (window.speechSynthesis.onvoiceschanged !== undefined) {
+                    window.speechSynthesis.onvoiceschanged = loadVoices;
                 }
-            }
+            }, [lang]);
 
-            // Tier 3: Any voice that isn't male
-            if (!selectedVoice) {
-                selectedVoice = availableVoices.find(v =>
-                    !maleExclusions.some(m => v.name.toLowerCase().includes(m))
-                );
-            }
+            const speakText = (text: string) => {
+                if (!('speechSynthesis' in window)) return;
+                window.speechSynthesis.cancel();
 
-            // Final Fallback
-            if (!selectedVoice) {
-                selectedVoice = availableVoices[0] || voices[0];
-            }
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = lang === 'es' ? 'es-MX' : 'en-US';
 
-            if (selectedVoice) {
-                utterance.voice = selectedVoice;
+                if (selectedVoice) {
+                    utterance.voice = selectedVoice;
 
-                // CRITICAL: Natural configurations to avoid robotic sound
-                // Pitch 1.0 is natural. Slight increase (1.05) can sound more feminine but >1.1 sounds robotic.
-                utterance.pitch = 1.0;
-
-                // Rate 0.9 - 1.0 allows for better enunciation which sounds more intelligent/less rushed
-                utterance.rate = 1.0;
-
-                // Adjustments for specific engines
-                if (selectedVoice.name.includes('Google')) {
-                    utterance.rate = 0.95; // Google tends to speak fast
-                    utterance.pitch = 1.05; // Google's base pitch is a bit low sometimes
+                    // Optimization for Google voices to sound less robotic
+                    if (selectedVoice.name.includes('Google')) {
+                        utterance.pitch = 1.0;
+                        utterance.rate = 1.0;
+                    } else {
+                        // For Microsoft/Native voices, usually default is best
+                        utterance.pitch = 1.0;
+                        utterance.rate = 1.0;
+                    }
                 }
-            }
 
-            utterance.onstart = () => setIsSpeaking(true);
-            utterance.onend = () => {
-                setIsSpeaking(false);
+                utterance.onstart = () => setIsSpeaking(true);
+                utterance.onend = () => setIsSpeaking(false);
+                window.speechSynthesis.speak(utterance);
             };
 
-            window.speechSynthesis.speak(utterance);
-        };
+            return (
+                <>
+                    {!isOpen && (
+                        <button
+                            onClick={() => setIsOpen(true)}
+                            className="fixed bottom-4 left-4 lg:left-auto lg:bottom-6 lg:right-6 z-[9999] w-14 h-14 lg:w-16 lg:h-16 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center justify-center group"
+                        >
+                            <Mic className="w-6 h-6 lg:w-8 lg:h-8 text-black" />
+                            <div className="absolute -top-1 -right-1 w-3 h-3 lg:w-4 lg:h-4 bg-green-500 rounded-full animate-pulse"></div>
+                            <span className="absolute left-16 lg:-left-32 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Asistente de Voz</span>
+                        </button>
+                    )}
 
-        if (window.speechSynthesis.getVoices().length === 0) {
-            window.speechSynthesis.onvoiceschanged = setVoiceAndSpeak;
-        } else {
-            setVoiceAndSpeak();
-        }
-    };
+                    {isOpen && (
+                        <div className="fixed bottom-6 right-6 z-[9999] w-96 h-[600px] max-h-[85vh] bg-zinc-900 border border-zinc-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden font-sans">
+                            {/* Header */}
+                            <div className={`p-4 flex items-center justify-between transition-colors duration-500 ${isHandsFree ? 'bg-gradient-to-r from-green-600/50 to-amber-600/50 animate-pulse' : 'bg-gradient-to-r from-amber-500 to-amber-600'}`}>
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-black/20 rounded-full flex items-center justify-center relative">
+                                        <MessageCircle className="w-6 h-6 text-white" />
+                                        {isHandsFree && (
+                                            <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-zinc-900 animate-ping"></div>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold text-white text-sm">{t[lang].title}</h3>
+                                        <p className="text-xs text-black/70 font-medium">
+                                            {isHandsFree ? 'MODO ACTIVO' : 'IA Experta 24/7'}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => setShowSettings(!showSettings)}
+                                        className="w-8 h-8 hover:bg-black/10 rounded-full flex items-center justify-center transition-colors"
+                                        title="Configurar Voz"
+                                    >
+                                        <Volume2 className="w-5 h-5 text-white" />
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setIsOpen(false);
+                                            setIsHandsFree(false);
+                                            if (isSpeaking) window.speechSynthesis.cancel();
+                                            if (isListening) recognitionRef.current?.stop();
+                                        }}
+                                        className="w-8 h-8 hover:bg-black/10 rounded-full flex items-center justify-center transition-colors"
+                                    >
+                                        <X className="w-5 h-5 text-white" />
+                                    </button>
+                                </div>
+                            </div>
 
-    return (
-        <>
-            {!isOpen && (
-                <button
-                    onClick={() => setIsOpen(true)}
-                    className="fixed bottom-4 left-4 lg:left-auto lg:bottom-6 lg:right-6 z-[9999] w-14 h-14 lg:w-16 lg:h-16 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center justify-center group"
-                >
-                    <Mic className="w-6 h-6 lg:w-8 lg:h-8 text-black" />
-                    <div className="absolute -top-1 -right-1 w-3 h-3 lg:w-4 lg:h-4 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="absolute left-16 lg:-left-32 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Asistente de Voz</span>
-                </button>
+                            {/* Settings Panel */}
+                            {showSettings && (
+                                <div className="bg-zinc-800 p-4 border-b border-zinc-700 animate-in slide-in-from-top-2">
+                                    <h4 className="text-white text-xs font-bold mb-2 uppercase tracking-wider text-amber-500">Configuración de Voz</h4>
+                                    <div className="space-y-2">
+                                        <label className="text-xs text-zinc-400">Seleccionar Voz:</label>
+                                        <select
+                                            className="w-full bg-zinc-900 text-white text-xs p-2 rounded border border-zinc-700"
+                                            value={selectedVoice?.name || ''}
+                                            onChange={(e) => {
+                                                const voice = availableVoices.find(v => v.name === e.target.value);
+                                                setSelectedVoice(voice || null);
+                                                // Test voice immediately
+                                                if (voice) {
+                                                    window.speechSynthesis.cancel();
+                                                    const u = new SpeechSynthesisUtterance("Prueba de voz.");
+                                                    u.voice = voice;
+                                                    window.speechSynthesis.speak(u);
+                                                }
+                                            }}
+                                        >
+                                            {availableVoices.map(v => (
+                                                <option key={v.name} value={v.name}>
+                                                    {v.name.replace('Microsoft', '').replace('Desktop', '')}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <p className="text-[10px] text-zinc-500 italic">
+                                            * Selecciona "Google Español" o "Microsoft Sabina" para mejor calidad.
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
 
-            )}
+                            {/* Chat Area */}
+                            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                                {messages.map((msg, idx) => (
+                                    <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                        <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${msg.role === 'user' ? 'bg-amber-500 text-black shadow-lg rounded-tr-none' : 'bg-zinc-800 text-white border border-zinc-700 rounded-tl-none'}`}>
+                                            <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                                            <p className="text-[10px] opacity-50 mt-1 text-right">
+                                                {msg.timestamp.toLocaleTimeString(lang === 'es' ? 'es-MX' : 'en-US', { hour: '2-digit', minute: '2-digit' })}
+                                            </p>
+                                        </div>
+                                    </div>
+                                ))}
+                                {isThinking && (
+                                    <div className="flex justify-start">
+                                        <div className="bg-zinc-800 rounded-2xl px-4 py-3 flex gap-1 border border-zinc-700 rounded-tl-none">
+                                            <div className="w-2 h-2 bg-amber-400 rounded-full animate-bounce"></div>
+                                            <div className="w-2 h-2 bg-amber-400 rounded-full animate-bounce delay-75"></div>
+                                            <div className="w-2 h-2 bg-amber-400 rounded-full animate-bounce delay-150"></div>
+                                        </div>
+                                    </div>
+                                )}
+                                <div ref={messagesEndRef} />
+                            </div>
 
-            {isOpen && (
-                <div className="fixed bottom-6 right-6 z-[9999] w-96 h-[550px] max-h-[80vh] bg-zinc-900 border border-zinc-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden">
-                    <div className={`p-4 flex items-center justify-between transition-colors duration-500 ${isHandsFree ? 'bg-gradient-to-r from-green-600/50 to-amber-600/50 animate-pulse' : 'bg-gradient-to-r from-amber-500 to-amber-600'}`}>
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-black/20 rounded-full flex items-center justify-center relative">
-                                <MessageCircle className="w-6 h-6 text-white" />
+                            {/* Input Area */}
+                            <div className="p-4 border-t border-zinc-800 bg-zinc-900/95 backdrop-blur-sm">
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={() => setIsMuted(!isMuted)}
+                                        className="w-10 h-10 hover:bg-zinc-800 rounded-full flex items-center justify-center transition-colors group"
+                                        title={isMuted ? 'Activar Sonido' : 'Silenciar'}
+                                    >
+                                        {isMuted ? <VolumeX className="w-5 h-5 text-zinc-500" /> : <Volume2 className="w-5 h-5 text-amber-400 group-hover:scale-110 transition-transform" />}
+                                    </button>
+
+                                    <input
+                                        type="text"
+                                        value={inputText}
+                                        onChange={(e) => setInputText(e.target.value)}
+                                        onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                                        placeholder={isListening ? 'Escuchando...' : t[lang].placeholder}
+                                        className={`flex-1 bg-zinc-800 text-white px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all ${isListening ? 'ring-2 ring-green-500/50 placeholder-green-400' : ''}`}
+                                        disabled={isListening || isThinking}
+                                    />
+
+                                    <button
+                                        onClick={toggleListening}
+                                        className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${isListening ? 'bg-red-500 shadow-lg shadow-red-500/20 animate-pulse' : 'bg-zinc-800 hover:bg-zinc-700'}`}
+                                        title={isHandsFree ? 'Desactivar Micrófono' : 'Activar Micrófono'}
+                                    >
+                                        {isListening ? <MicOff className="w-5 h-5 text-white" /> : <Mic className="w-5 h-5 text-amber-400" />}
+                                    </button>
+                                </div>
                                 {isHandsFree && (
-                                    <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-zinc-900 animate-ping"></div>
+                                    <div className="flex items-center justify-center gap-2 mt-3">
+                                        <span className="relative flex h-2 w-2">
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                                        </span>
+                                        <p className="text-[10px] text-green-400 font-bold uppercase tracking-widest">
+                                            Modo Conversación Activo
+                                        </p>
+                                    </div>
                                 )}
                             </div>
-                            <div>
-                                <h3 className="font-bold text-white text-sm">{t[lang].title}</h3>
-                                <p className="text-xs text-black/70 font-medium">
-                                    {isHandsFree ? 'ESCUCHANDO SIEMPRE' : 'IA Experta 24/7'}
-                                </p>
-                            </div>
                         </div>
-                        <button
-                            onClick={() => {
-                                setIsOpen(false);
-                                setIsHandsFree(false);
-                                if (isSpeaking) window.speechSynthesis.cancel();
-                                if (isListening) recognitionRef.current?.stop();
-                            }}
-                            className="w-8 h-8 hover:bg-black/10 rounded-full flex items-center justify-center transition-colors"
-                        >
-                            <X className="w-5 h-5 text-white" />
-                        </button>
-                    </div>
+                    )}
+                </>
+            );
+        };
 
-                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                        {messages.map((msg, idx) => (
-                            <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${msg.role === 'user' ? 'bg-amber-500 text-black shadow-lg' : 'bg-zinc-800 text-white border border-zinc-700'}`}>
-                                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
-                                    <p className="text-xs opacity-50 mt-1">
-                                        {msg.timestamp.toLocaleTimeString(lang === 'es' ? 'es-MX' : 'en-US', { hour: '2-digit', minute: '2-digit' })}
-                                    </p>
-                                </div>
-                            </div>
-                        ))}
-                        {isThinking && (
-                            <div className="flex justify-start">
-                                <div className="bg-zinc-800 rounded-2xl px-4 py-3 flex gap-1 border border-zinc-700">
-                                    <div className="w-2 h-2 bg-amber-400 rounded-full animate-bounce"></div>
-                                    <div className="w-2 h-2 bg-amber-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                                    <div className="w-2 h-2 bg-amber-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                                </div>
-                            </div>
-                        )}
-                        <div ref={messagesEndRef} />
-                    </div>
-
-                    <div className="p-4 border-t border-zinc-800 bg-zinc-900/50 backdrop-blur-sm">
-                        <div className="flex items-center gap-2">
-                            <button
-                                onClick={() => setIsMuted(!isMuted)}
-                                className="w-10 h-10 hover:bg-zinc-800 rounded-full flex items-center justify-center transition-colors group"
-                                title={isMuted ? 'Activar Sonido' : 'Silenciar'}
-                            >
-                                {isMuted ? <VolumeX className="w-5 h-5 text-zinc-500" /> : <Volume2 className="w-5 h-5 text-amber-400 group-hover:scale-110 transition-transform" />}
-                            </button>
-
-                            <input
-                                type="text"
-                                value={inputText}
-                                onChange={(e) => setInputText(e.target.value)}
-                                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                                placeholder={isListening ? 'Habla ahora...' : t[lang].placeholder}
-                                className={`flex-1 bg-zinc-800 text-white px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all ${isListening ? 'ring-2 ring-green-500/50' : ''}`}
-                                disabled={isListening || isThinking}
-                            />
-
-                            <button
-                                onClick={toggleListening}
-                                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${isListening ? 'bg-red-500 shadow-lg shadow-red-500/20' : 'bg-zinc-800 hover:bg-zinc-700'}`}
-                                title={isHandsFree ? 'Desactivar Manos Libres' : 'Activar Micrófono'}
-                            >
-                                {isListening ? <MicOff className="w-5 h-5 text-white" /> : <Mic className="w-5 h-5 text-amber-400" />}
-                            </button>
-
-                            <button
-                                onClick={() => handleSendMessage()}
-                                disabled={!inputText.trim() || isThinking}
-                                className="w-10 h-10 bg-amber-500 hover:bg-amber-600 disabled:opacity-30 disabled:cursor-not-allowed rounded-full flex items-center justify-center transition-all shadow-lg shadow-amber-500/10"
-                            >
-                                <Send className="w-5 h-5 text-black" />
-                            </button>
-                        </div>
-                        {isHandsFree && (
-                            <div className="flex items-center justify-center gap-2 mt-3 overflow-hidden">
-                                <div className="w-1 h-1 bg-green-500 rounded-full animate-ping"></div>
-                                <p className="text-[9px] text-green-400 font-bold uppercase tracking-widest animate-pulse">
-                                    Modo Conversación Abierta Activo
-                                </p>
-                                <div className="w-1 h-1 bg-green-500 rounded-full animate-ping"></div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            )}
-        </>
-    );
-};
-
-export default AssistantView;
+        export default AssistantView;
