@@ -20,35 +20,51 @@ const BillingView: React.FC<BillingViewProps> = ({ billing, subscription, lang }
     const plans = [
         {
             id: 'INDEPENDENT',
-            name: lang === 'es' ? 'Agente Independiente' : 'Independent Agent',
+            name: lang === 'es' ? 'Agente Pro' : 'Pro Agent',
             price: lang === 'es' ? '$599 MXN' : '$29 USD',
             period: '/mo',
             tokens: '1,000,000 Tokens',
             features: [
                 lang === 'es' ? 'Asistente IA 24/7' : '24/7 AI Assistant',
-                lang === 'es' ? 'Computer Vision (Fotos)' : 'Computer Vision',
-                lang === 'es' ? 'Generador de Anuncios' : 'Ad Generator',
+                lang === 'es' ? 'Valuaciones PDF' : 'PDF Valuations',
+                lang === 'es' ? 'Computer Vision' : 'Computer Vision',
                 lang === 'es' ? 'Soporte Prioritario' : 'Priority Support'
             ],
             color: 'text-amber-400',
             bg: 'bg-amber-400',
-            priceId: 'price_independent_monthly'
+            priceId: 'price_agent_pro'
         },
         {
             id: 'AGENCY',
-            name: lang === 'es' ? 'Agencia Inmobiliaria' : 'Real Estate Agency',
-            price: lang === 'es' ? '$3,000 MXN' : '$149 USD',
+            name: lang === 'es' ? 'Agencia Core' : 'Agency Core',
+            price: lang === 'es' ? '$2,499 MXN' : '$125 USD',
+            period: '/mo',
+            tokens: '5,000,000 Tokens',
+            features: [
+                lang === 'es' ? 'Equipo hasta 5 agentes' : 'Team up to 5 agents',
+                lang === 'es' ? 'Panel de Control' : 'Agency Dashboard',
+                lang === 'es' ? 'CRM Integrado' : 'Integrated CRM',
+                lang === 'es' ? 'Reportes Personalizados' : 'Custom Reports'
+            ],
+            color: 'text-blue-400',
+            bg: 'bg-blue-400',
+            priceId: 'price_agency_core'
+        },
+        {
+            id: 'ENTERPRISE',
+            name: lang === 'es' ? 'Enterprise Premium' : 'Enterprise Premium',
+            price: lang === 'es' ? '$5,999 MXN' : '$299 USD',
             period: '/mo',
             tokens: lang === 'es' ? 'Tokens Ilimitados*' : 'Unlimited Tokens*',
             features: [
-                lang === 'es' ? 'Multi-Agente (Hasta 10)' : 'Multi-Agent (Up to 10)',
-                lang === 'es' ? 'Panel Administrativo' : 'Admin Dashboard',
+                lang === 'es' ? 'Marca Blanca Total' : 'Full White Label',
                 lang === 'es' ? 'Llave API Propia (BYOK)' : 'Own API Key (BYOK)',
-                lang === 'es' ? 'Marca Blanca Total' : 'Full White Label'
+                lang === 'es' ? 'Usuarios Ilimitados' : 'Unlimited Users',
+                lang === 'es' ? 'Soporte 24/7 Dedicado' : '24/7 Dedicated Support'
             ],
             color: 'text-purple-400',
             bg: 'bg-purple-400',
-            priceId: 'price_agency_monthly'
+            priceId: 'price_enterprise_premium'
         }
     ];
 
