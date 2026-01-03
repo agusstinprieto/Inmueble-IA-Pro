@@ -14,11 +14,6 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         input: {
           main: path.resolve(__dirname, 'index.html'),
-          docs: path.resolve(__dirname, 'docs/index.html'),
-          sales: path.resolve(__dirname, 'docs/sales-pitch.html'),
-          features: path.resolve(__dirname, 'docs/features.html'),
-          specs: path.resolve(__dirname, 'docs/specs.html'),
-          pricing: path.resolve(__dirname, 'docs/pricing.html'),
         },
       },
     },
