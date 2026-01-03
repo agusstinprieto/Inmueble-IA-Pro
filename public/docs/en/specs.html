@@ -175,22 +175,22 @@
                 </h3>
                 <div class="bg-[#141416] p-6 rounded-2xl border border-zinc-800 overflow-x-auto">
                     <pre class="mermaid">
-                    graph TD
-                        User((User)) -->|Interacts| App[Inmueble IA Pro]
-                        
-                        subgraph "Frontend Layer"
-                            App -->|Routing| ReactRouter
-                            App -->|UI State| ContextAPI
-                        end
-                        
-                        subgraph "Backend Services"
-                            App -->|Auth and Data| Supabase[Supabase PostgreSQL]
-                            App -->|Storage| S3[Supabase Storage]
-                            App -->|AI Processing| Gemini[Google Gemini 2.0]
-                        end
+graph TD
+    User((User)) -->|Interacts| App[Inmueble IA Pro]
+    
+    subgraph "Frontend Layer"
+        App -->|Routing| ReactRouter
+        App -->|UI State| ContextAPI
+    end
+    
+    subgraph "Backend Services"
+        App -->|Auth and Data| Supabase[Supabase PostgreSQL]
+        App -->|Storage| S3[Supabase Storage]
+        App -->|AI Processing| Gemini[Google Gemini 2.0]
+    end
 
-                        Supabase -->|Realtime| App
-                        Gemini -->|Analysis| App
+    Supabase -->|Realtime| App
+    Gemini -->|Analysis| App
                     </pre>
                 </div>
             </div>
@@ -203,29 +203,29 @@
                 <p class="text-zinc-400 text-sm mb-4">Automated flow from capture to intelligent publication.</p>
                 <div class="bg-[#141416] p-6 rounded-2xl border border-zinc-800 overflow-x-auto">
                     <pre class="mermaid">
-                    sequenceDiagram
-                        participant Agent
-                        participant App
-                        participant Storage
-                        participant AI as Gemini Vision
-                        participant DB as Database
+sequenceDiagram
+    participant Agent
+    participant App
+    participant Storage
+    participant AI as Gemini Vision
+    participant DB as Database
 
-                        Agent->>App: 1. Upload Photos (Drag Drop)
-                        App->>Storage: 2. Upload optimized images
-                        Storage-->>App: Return URLs
-                        
-                        par Parallel Analysis
-                            App->>AI: 3. Analyze images (Vision API)
-                            AI-->>App: Detect: Rooms, Finishes, Lighting
-                        and Valuation
-                            App->>AI: 4. Estimate market price
-                        end
+    Agent->>App: 1. Upload Photos (Drag Drop)
+    App->>Storage: 2. Upload optimized images
+    Storage-->>App: Return URLs
+    
+    par Parallel Analysis
+        App->>AI: 3. Analyze images (Vision API)
+        AI-->>App: Detect: Rooms, Finishes, Lighting
+    and Valuation
+        App->>AI: 4. Estimate market price
+    end
 
-                        App->>App: 5. Auto-complete form
-                        Agent->>App: 6. Confirm data
-                        App->>DB: 7. Save record (RLS)
-                        DB-->>App: Confirmation
-                        App->>Agent: Property Published!
+    App->>App: 5. Auto-complete form
+    Agent->>App: 6. Confirm data
+    App->>DB: 7. Save record (RLS)
+    DB-->>App: Confirmation
+    App->>Agent: Property Published!
                     </pre>
                 </div>
             </div>
@@ -237,21 +237,21 @@
                 </h3>
                 <div class="bg-[#141416] p-6 rounded-2xl border border-zinc-800 overflow-x-auto">
                     <pre class="mermaid">
-                    flowchart LR
-                        Start((Start)) --> Auth{Has Account?}
-                        Auth -- No --> Register[New Registration]
-                        Auth -- Yes --> Login[Login]
-                        
-                        Register --> Role{Role}
-                        
-                        Role -- Freelance --> CreateProfile[Create Independent Profile]
-                        Role -- Agency --> CreateAgency[Create New Agency]
-                        
-                        CreateAgency --> Config[Configure Branding<br/>Color/Logo/Location]
-                        Config --> Invite[Invite Agents]
-                        
-                        Invite --> Dashboard[Main Dashboard]
-                        CreateProfile --> Dashboard
+flowchart LR
+    Start((Start)) --> Auth{Has Account?}
+    Auth -- No --> Register[New Registration]
+    Auth -- Yes --> Login[Login]
+    
+    Register --> Role{Role}
+    
+    Role -- Freelance --> CreateProfile[Create Independent Profile]
+    Role -- Agency --> CreateAgency[Create New Agency]
+    
+    CreateAgency --> Config[Configure Branding<br/>Color/Logo/Location]
+    Config --> Invite[Invite Agents]
+    
+    Invite --> Dashboard[Main Dashboard]
+    CreateProfile --> Dashboard
                     </pre>
                 </div>
             </div>
@@ -263,22 +263,22 @@
                 </h3>
                 <div class="bg-[#141416] p-6 rounded-2xl border border-zinc-800 overflow-x-auto">
                     <pre class="mermaid">
-                    stateDiagram-v2
-                        [*] --> Prospect
-                        Prospect --> Visit : Schedule Appointment
-                        Visit --> Offer : Client Interested
-                        Offer --> Negotiation : Counteroffer
-                        Negotiation --> Closing : Accepted
-                        
-                        Closing --> GenerateContract : Legal Data
-                        GenerateContract --> DigitalSign : PDF
-                        
-                        DigitalSign --> SaleFinalized
-                        SaleFinalized --> Commission : Calculate %
-                        Commission --> [*]
-                        
-                        state "PDF Report" as PDF
-                        SaleFinalized --> PDF : Generate Closing Sheet
+stateDiagram-v2
+    [*] --> Prospect
+    Prospect --> Visit : Schedule Appointment
+    Visit --> Offer : Client Interested
+    Offer --> Negotiation : Counteroffer
+    Negotiation --> Closing : Accepted
+    
+    Closing --> GenerateContract : Legal Data
+    GenerateContract --> DigitalSign : PDF
+    
+    DigitalSign --> SaleFinalized
+    SaleFinalized --> Commission : Calculate %
+    Commission --> [*]
+    
+    state "PDF Report" as PDF
+    SaleFinalized --> PDF : Generate Closing Sheet
                     </pre>
                 </div>
             </div>
@@ -292,48 +292,48 @@
                     Properties using Supabase Storage.</p>
                 <div class="bg-[#141416] p-6 rounded-2xl border border-zinc-800 overflow-x-auto">
                     <pre class="mermaid">
-                    graph TD
-                        subgraph "Frontend Layer"
-                            Uploader[File Input Component]
-                            Preview[Image Preview]
-                            Display[Image Component (img tag)]
-                        end
+graph TD
+    subgraph "Frontend Layer"
+        Uploader[File Input Component]
+        Preview[Image Preview]
+        Display[Image Component (img tag)]
+    end
 
-                        subgraph "Supabase Cloud"
-                            bucket[Bucket: property-images]
-                            folderA[Folder: agency-logos]
-                            folderB[Folder: agents]
-                            folderC[Folder: property-id]
-                        end
+    subgraph "Supabase Cloud"
+        bucket[Bucket: property-images]
+        folderA[Folder: agency-logos]
+        folderB[Folder: agents]
+        folderC[Folder: property-id]
+    end
 
-                        subgraph "Database"
-                            TableAgency[Table: agency_settings]
-                            TableAgent[Table: agents]
-                            TableProp[Table: property_images]
-                        end
+    subgraph "Database"
+        TableAgency[Table: agency_settings]
+        TableAgent[Table: agents]
+        TableProp[Table: property_images]
+    end
 
-                        %% Upload Flow
-                        Uploader -->|1. Upload File| bucket
-                        bucket --> folderA
-                        bucket --> folderB
-                        bucket --> folderC
-                        
-                        %% URL Generation
-                        bucket -->|2. Return Public URL| Uploader
-                        
-                        %% Save to DB
-                        Uploader -->|3. Save URL| TableAgency
-                        Uploader -->|3. Save URL| TableAgent
-                        Uploader -->|3. Save URL| TableProp
-                        
-                        %% Display Flow
-                        TableAgency -->|4. Fetch URL| Display
-                        TableAgent -->|4. Fetch URL| Display
-                        TableProp -->|4. Fetch URL| Display
-                        
-                        style bucket fill:#d97706,stroke:#fff,stroke-width:2px
-                        style Uploader fill:#202020,stroke:#d97706
-                        style Display fill:#202020,stroke:#fff
+    %% Upload Flow
+    Uploader -->|1. Upload File| bucket
+    bucket --> folderA
+    bucket --> folderB
+    bucket --> folderC
+    
+    %% URL Generation
+    bucket -->|2. Return Public URL| Uploader
+    
+    %% Save to DB
+    Uploader -->|3. Save URL| TableAgency
+    Uploader -->|3. Save URL| TableAgent
+    Uploader -->|3. Save URL| TableProp
+    
+    %% Display Flow
+    TableAgency -->|4. Fetch URL| Display
+    TableAgent -->|4. Fetch URL| Display
+    TableProp -->|4. Fetch URL| Display
+    
+    style bucket fill:#d97706,stroke:#fff,stroke-width:2px
+    style Uploader fill:#202020,stroke:#d97706
+    style Display fill:#202020,stroke:#fff
                     </pre>
                 </div>
             </div>

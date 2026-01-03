@@ -177,22 +177,22 @@
                 </h3>
                 <div class="bg-[#141416] p-6 rounded-2xl border border-zinc-800 overflow-x-auto">
                     <pre class="mermaid">
-                    graph TD
-                        User((Usuario)) -->|Interactúa| App[Inmueble IA Pro]
-                        
-                        subgraph "Frontend Layer"
-                            App -->|Routing| ReactRouter
-                            App -->|UI State| ContextAPI
-                        end
-                        
-                        subgraph "Backend Services"
-                            App -->|Auth y Data| Supabase[Supabase PostgreSQL]
-                            App -->|Storage| S3[Supabase Storage]
-                            App -->|AI Processing| Gemini[Google Gemini 2.0]
-                        end
+graph TD
+    User((Usuario)) -->|Interactúa| App[Inmueble IA Pro]
+    
+    subgraph "Frontend Layer"
+        App -->|Routing| ReactRouter
+        App -->|UI State| ContextAPI
+    end
+    
+    subgraph "Backend Services"
+        App -->|Auth y Data| Supabase[Supabase PostgreSQL]
+        App -->|Storage| S3[Supabase Storage]
+        App -->|AI Processing| Gemini[Google Gemini 2.0]
+    end
 
-                        Supabase -->|Realtime| App
-                        Gemini -->|Analysis| App
+    Supabase -->|Realtime| App
+    Gemini -->|Analysis| App
                     </pre>
                 </div>
             </div>
@@ -206,29 +206,29 @@
                     inteligente.</p>
                 <div class="bg-[#141416] p-6 rounded-2xl border border-zinc-800 overflow-x-auto">
                     <pre class="mermaid">
-                    sequenceDiagram
-                        participant Agente
-                        participant App
-                        participant Storage
-                        participant AI as Gemini Vision
-                        participant DB as Database
+sequenceDiagram
+    participant Agente
+    participant App
+    participant Storage
+    participant AI as Gemini Vision
+    participant DB as Database
 
-                        Agente->>App: 1. Carga Fotos (Drag Drop)
-                        App->>Storage: 2. Sube imágenes optimizadas
-                        Storage-->>App: Retorna URLs
-                        
-                        par Análisis Paralelo
-                            App->>AI: 3. Analiza imágenes (Vision API)
-                            AI-->>App: Detecta: Habitaciones, Acabados, Iluminación
-                        and Valuación
-                            App->>AI: 4. Estima precio mercado
-                        end
+    Agente->>App: 1. Carga Fotos (Drag Drop)
+    App->>Storage: 2. Sube imágenes optimizadas
+    Storage-->>App: Retorna URLs
+    
+    par Análisis Paralelo
+        App->>AI: 3. Analiza imágenes (Vision API)
+        AI-->>App: Detecta: Habitaciones, Acabados, Iluminación
+    and Valuación
+        App->>AI: 4. Estima precio mercado
+    end
 
-                        App->>App: 5. Auto-completa formulario
-                        Agente->>App: 6. Confirma datos
-                        App->>DB: 7. Guarda registro (Row Level Security)
-                        DB-->>App: Confirmación
-                        App->>Agente: ¡Propiedad Publicada!
+    App->>App: 5. Auto-completa formulario
+    Agente->>App: 6. Confirma datos
+    App->>DB: 7. Guarda registro (Row Level Security)
+    DB-->>App: Confirmación
+    App->>Agente: ¡Propiedad Publicada!
                     </pre>
                 </div>
             </div>
@@ -240,21 +240,21 @@
                 </h3>
                 <div class="bg-[#141416] p-6 rounded-2xl border border-zinc-800 overflow-x-auto">
                     <pre class="mermaid">
-                    flowchart LR
-                        Start((Inicio)) --> Auth{¿Tiene Cuenta?}
-                        Auth -- No --> Register[Registro Nuevo]
-                        Auth -- Si --> Login[Iniciar Sesión]
-                        
-                        Register --> Role{Rol}
-                        
-                        Role -- Freelance --> CreateProfile[Crear Perfil Independiente]
-                        Role -- Agencia --> CreateAgency[Crear Nueva Agencia]
-                        
-                        CreateAgency --> Config[Configurar Branding<br/>Color/Logo/Ubicación]
-                        Config --> Invite[Invitar Agentes]
-                        
-                        Invite --> Dashboard[Dashboard Principal]
-                        CreateProfile --> Dashboard
+flowchart LR
+    Start((Inicio)) --> Auth{¿Tiene Cuenta?}
+    Auth -- No --> Register[Registro Nuevo]
+    Auth -- Si --> Login[Iniciar Sesión]
+    
+    Register --> Role{Rol}
+    
+    Role -- Freelance --> CreateProfile[Crear Perfil Independiente]
+    Role -- Agency --> CreateAgency[Crear Nueva Agencia]
+    
+    CreateAgency --> Config[Configurar Branding<br/>Color/Logo/Ubicación]
+    Config --> Invite[Invitar Agentes]
+    
+    Invite --> Dashboard[Dashboard Principal]
+    CreateProfile --> Dashboard
                     </pre>
                 </div>
             </div>
@@ -266,22 +266,22 @@
                 </h3>
                 <div class="bg-[#141416] p-6 rounded-2xl border border-zinc-800 overflow-x-auto">
                     <pre class="mermaid">
-                    stateDiagram-v2
-                        [*] --> Prospecto
-                        Prospecto --> Visita : Agendar Cita
-                        Visita --> Oferta : Cliente Interesado
-                        Oferta --> Negociación : Contraoferta
-                        Negociación --> Cierre : Aceptada
-                        
-                        Cierre --> GenerarContrato : Datos Legales
-                        GenerarContrato --> FirmaDigital : PDF
-                        
-                        FirmaDigital --> VentaFinalizada
-                        VentaFinalizada --> Comision : Calcular Porcentaje
-                        Comision --> [*]
-                        
-                        state "Reporte PDF" as PDF
-                        VentaFinalizada --> PDF : Generar Ficha Cierre
+stateDiagram-v2
+    [*] --> Prospecto
+    Prospecto --> Visita : Agendar Cita
+    Visita --> Oferta : Cliente Interesado
+    Oferta --> Negociación : Contraoferta
+    Negociación --> Cierre : Aceptada
+    
+    Cierre --> GenerarContrato : Datos Legales
+    GenerarContrato --> FirmaDigital : PDF
+    
+    FirmaDigital --> VentaFinalizada
+    VentaFinalizada --> Comision : Calcular Porcentaje
+    Comision --> [*]
+    
+    state "Reporte PDF" as PDF
+    VentaFinalizada --> PDF : Generar Ficha Cierre
                     </pre>
                 </div>
             </div>
@@ -295,48 +295,48 @@
                     Propiedades usando Supabase Storage.</p>
                 <div class="bg-[#141416] p-6 rounded-2xl border border-zinc-800 overflow-x-auto">
                     <pre class="mermaid">
-                    graph TD
-                        subgraph "Frontend Layer"
-                            Uploader[Componente File Input]
-                            Preview[Vista Previa]
-                            Display[Componente Imagen (img tag)]
-                        end
+graph TD
+    subgraph "Frontend Layer"
+        Uploader[Componente File Input]
+        Preview[Vista Previa]
+        Display[Componente Imagen (img tag)]
+    end
 
-                        subgraph "Supabase Cloud"
-                            bucket[Bucket: property-images]
-                            folderA[Folder: agency-logos]
-                            folderB[Folder: agents]
-                            folderC[Folder: property-id]
-                        end
+    subgraph "Supabase Cloud"
+        bucket[Bucket: property-images]
+        folderA[Folder: agency-logos]
+        folderB[Folder: agents]
+        folderC[Folder: property-id]
+    end
 
-                        subgraph "Base de Datos"
-                            TableAgency[Tabla: agency_settings]
-                            TableAgent[Tabla: agents]
-                            TableProp[Tabla: property_images]
-                        end
+    subgraph "Base de Datos"
+        TableAgency[Tabla: agency_settings]
+        TableAgent[Tabla: agents]
+        TableProp[Table: property_images]
+    end
 
-                        %% Upload Flow
-                        Uploader -->|1. Sube Archivo| bucket
-                        bucket --> folderA
-                        bucket --> folderB
-                        bucket --> folderC
-                        
-                        %% URL Generation
-                        bucket -->|2. Retorna URL Pública| Uploader
-                        
-                        %% Save to DB
-                        Uploader -->|3. Guarda URL| TableAgency
-                        Uploader -->|3. Guarda URL| TableAgent
-                        Uploader -->|3. Guarda URL| TableProp
-                        
-                        %% Display Flow
-                        TableAgency -->|4. Lee URL| Display
-                        TableAgent -->|4. Lee URL| Display
-                        TableProp -->|4. Lee URL| Display
-                        
-                        style bucket fill:#d97706,stroke:#fff,stroke-width:2px
-                        style Uploader fill:#202020,stroke:#d97706
-                        style Display fill:#202020,stroke:#fff
+    %% Upload Flow
+    Uploader -->|1. Sube Archivo| bucket
+    bucket --> folderA
+    bucket --> folderB
+    bucket --> folderC
+    
+    %% URL Generation
+    bucket -->|2. Retorna URL Pública| Uploader
+    
+    %% Save to DB
+    Uploader -->|3. Guarda URL| TableAgency
+    Uploader -->|3. Guarda URL| TableAgent
+    Uploader -->|3. Guarda URL| TableProp
+    
+    %% Display Flow
+    TableAgency -->|4. Lee URL| Display
+    TableAgent -->|4. Lee URL| Display
+    TableProp -->|4. Lee URL| Display
+    
+    style bucket fill:#d97706,stroke:#fff,stroke-width:2px
+    style Uploader fill:#202020,stroke:#d97706
+    style Display fill:#202020,stroke:#fff
                     </pre>
                 </div>
             </div>
