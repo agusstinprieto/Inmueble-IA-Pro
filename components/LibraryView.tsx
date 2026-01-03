@@ -138,6 +138,11 @@ const LibraryView: React.FC<LibraryViewProps> = ({ lang, brandColor, agencyId })
         return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : url;
     };
 
+    const isPlayableUrl = (url: string) => {
+        if (!url) return false;
+        return url.includes('youtube.com') || url.includes('youtu.be') || url.endsWith('.mp4') || url.endsWith('.webm');
+    };
+
     return (
         <div className="p-4 lg:p-6 space-y-6">
             {/* Header */}
@@ -293,7 +298,7 @@ const LibraryView: React.FC<LibraryViewProps> = ({ lang, brandColor, agencyId })
                             className="group bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden hover:border-zinc-700 transition-all hover:shadow-2xl hover:shadow-black/50 flex flex-col"
                         >
                             {/* Card Media (if video/thumbnail) */}
-                            {resource.type === 'video' || resource.type === 'course' ? (
+                            {resource.type === 'video' || resource.type === 'course' || isPlayableUrl(resource.url) ? (
                                 <div className="relative aspect-video bg-black overflow-hidden">
                                     {resource.thumbnailUrl ? (
                                         <img
@@ -344,13 +349,13 @@ const LibraryView: React.FC<LibraryViewProps> = ({ lang, brandColor, agencyId })
                                     <p className="text-[10px] text-zinc-600">
                                         Agregado el {new Date(resource.dateAdded).toLocaleDateString()}
                                     </p>
-                                    {resource.type === 'video' ? (
+                                    {resource.type === 'video' || isPlayableUrl(resource.url) ? (
                                         <button
                                             onClick={() => setSelectedVideoUrl(resource.url)}
                                             className="inline-flex items-center gap-2 text-xs font-bold text-white hover:text-amber-500 transition-colors"
                                         >
                                             {t.view}
-                                            <ChevronRight size={14} />
+                                            <Play size={14} />
                                         </button>
                                     ) : (
                                         <a
