@@ -900,3 +900,22 @@ function mapContractToDb(contract: Partial<Contract>): any {
         branch_id: contract.branchId
     };
 }
+// ============ STORAGE ============
+
+export const uploadAgentPhoto = async (file: File, agentId: string): Promise<string | null> => {
+    try {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `photo.${fileExt}`;
+        const filePath = `agents/${agentId}/${fileName}`;
+
+        // Upload to 'avatars' or a new 'agents' bucket. 
+        // Assuming 'avatars' for user profiles might be reused or we create a specific folder in 'public' bucket.
+        // Let's use a bucket named 'storage' or similar if generic, but usually Supabase has specific buckets.
+        // Existing code uses `uploadPropertyImage`. Let's check where it uploads.
+        // It's likely hidden in the truncated file. I'll make a best guess or check uploadPropertyImage first.
+        // For safety, I'll view uploadPropertyImage first in next step.
+        return null;
+    } catch (error) {
+        return null;
+    }
+};

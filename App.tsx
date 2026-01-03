@@ -679,8 +679,9 @@ function App() {
             editingPropertyProp={propertyToEdit}
             onClearEditingProperty={() => setPropertyToEdit(null)}
             agents={agents}
-            userRole={userRole}
+            userRole={profile?.role || 'agent'}
             userId={userId || ''}
+            onOpenCalculator={handleOpenCalculator}
           />
         );
 
