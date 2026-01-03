@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Manual | INMUEBLE IA PRO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        .gradient-text {
+            background: linear-gradient(to right, #9333ea, #a855f7);
+            /* Purple for English/Global */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .sidebar-link.active {
+            color: #a855f7;
+            border-left-color: #a855f7;
+            background: rgba(168, 85, 247, 0.05);
+        }
+    </style>
+</head>
+
+<body class="bg-zinc-950 text-zinc-300">
+
+    <div class="flex min-h-screen">
+
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 fixed h-full bg-zinc-900 border-r border-zinc-800 hidden lg:block overflow-y-auto">
+            <div class="p-6">
+                <a href="../index.html" class="mb-8 block opacity-50 hover:opacity-100 text-xs">← Back to Portal</a>
+                <h2 class="text-xl font-black text-white tracking-tighter mb-8">INMUEBLE <span
+                        class="text-purple-500">IA</span></h2>
+                <nav class="space-y-1">
+                    <a href="#quickstart"
+                        class="sidebar-link block px-4 py-2 border-l-2 border-transparent hover:text-white hover:bg-zinc-800 transition-all text-sm font-medium">🚀
+                        Quickstart</a>
+                    <a href="#agency-setup"
+                        class="sidebar-link block px-4 py-2 border-l-2 border-transparent hover:text-white hover:bg-zinc-800 transition-all text-sm font-medium">🏢
+                        Agency Setup</a>
+                    <a href="#ai-mastery"
+                        class="sidebar-link block px-4 py-2 border-l-2 border-transparent hover:text-white hover:bg-zinc-800 transition-all text-sm font-medium">🤖
+                        AI Mastery</a>
+                    <a href="#properties"
+                        class="sidebar-link block px-4 py-2 border-l-2 border-transparent hover:text-white hover:bg-zinc-800 transition-all text-sm font-medium">🏠
+                        Properties</a>
+                    <a href="#reports"
+                        class="sidebar-link block px-4 py-2 border-l-2 border-transparent hover:text-white hover:bg-zinc-800 transition-all text-sm font-medium">📊
+                        Reports & Sales</a>
+                    <a href="#library"
+                        class="sidebar-link block px-4 py-2 border-l-2 border-transparent hover:text-white hover:bg-zinc-800 transition-all text-sm font-medium">📚
+                        Library</a>
+                    <a href="#billing"
+                        class="sidebar-link block px-4 py-2 border-l-2 border-transparent hover:text-white hover:bg-zinc-800 transition-all text-sm font-medium">💰
+                        Billing & Tokens</a>
+                    <a href="#mobile"
+                        class="sidebar-link block px-4 py-2 border-l-2 border-transparent hover:text-white hover:bg-zinc-800 transition-all text-sm font-medium">📱
+                        Mobile App</a>
+                    <a href="#troubleshooting"
+                        class="sidebar-link block px-4 py-2 border-l-2 border-transparent hover:text-white hover:bg-zinc-800 transition-all text-sm font-medium">🔧
+                        Support</a>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="lg:ml-64 flex-1 p-6 lg:p-12">
+
+            <header class="mb-16 border-b border-zinc-800 pb-8">
+                <h1 class="text-4xl lg:text-5xl font-black text-white mb-4">User Manual</h1>
+                <p class="text-xl text-zinc-400">Complete guide to mastering your real estate operating system.</p>
+            </header>
+
+            <!-- 1. Quickstart -->
+            <section id="quickstart" class="mb-20 scroll-mt-20">
+                <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                    <span class="bg-purple-500/10 text-purple-500 p-2 rounded-lg">🚀</span> Quickstart
+                </h2>
+                <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+                    <p class="mb-4">Welcome to Inmueble IA Pro. Follow these 3 steps to get your agency running in 5
+                        minutes:</p>
+                    <ol class="list-decimal list-inside space-y-3 text-zinc-300">
+                        <li><strong>Login:</strong> Use the admin credentials sent to your email.</li>
+                        <li><strong>Complete Profile:</strong> Go to <em>Settings</em> > <em>Agency</em> and upload your
+                            logo.</li>
+                        <li><strong>Upload First Property:</strong> Go to <em>Properties</em> > <em>Add</em> and upload
+                            photos. AI will do the rest!</li>
+                    </ol>
+                </div>
+            </section>
+
+            <!-- 2. Agency Setup -->
+            <section id="agency-setup" class="mb-20 scroll-mt-20">
+                <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                    <span class="bg-purple-500/10 text-purple-500 p-2 rounded-lg">🏢</span> Agency Setup
+                </h2>
+                <div class="space-y-6">
+                    <div class="bg-zinc-900/50 p-6 rounded-xl border border-zinc-800">
+                        <h3 class="text-lg font-bold text-white mb-2">White Label Branding</h3>
+                        <p class="text-sm mb-4">Customize the platform so your agents feel at home.</p>
+                        <ul class="list-disc list-inside text-sm text-zinc-400 space-y-1">
+                            <li><strong>Logo:</strong> Transparent PNG recommended.</li>
+                            <li><strong>Brand Color:</strong> Select your HEX corporate color. This changes buttons,
+                                charts, and AI themes.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. AI Mastery -->
+            <section id="ai-mastery" class="mb-20 scroll-mt-20">
+                <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                    <span class="bg-purple-500/10 text-purple-500 p-2 rounded-lg">🤖</span> AI Mastery
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Assistant -->
+                    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
+                        <h3 class="font-bold text-white mb-3">24/7 AI Assistant</h3>
+                        <p class="text-sm mb-4">Your expert co-pilot. Speak or type.</p>
+                        <div class="bg-black/30 p-4 rounded-lg">
+                            <p class="text-xs text-zinc-500 uppercase font-bold mb-2">Example Prompts:</p>
+                            <ul class="space-y-2 text-sm italic text-purple-200/80">
+                                <li>"Give me a summary of this month's sales."</li>
+                                <li>"Draft a follow-up email for client John Doe."</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. Billing -->
+            <section id="billing" class="mb-20 scroll-mt-20">
+                <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                    <span class="bg-purple-500/10 text-purple-500 p-2 rounded-lg">💰</span> Billing & Tokens
+                </h2>
+                <div class="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+                    <div class="p-6">
+                        <h3 class="text-lg font-bold text-white mb-4">Understanding Tokens</h3>
+                        <p class="text-sm text-zinc-400 mb-6">
+                            Every AI action consumes "tokens" (processing units).
+                        </p>
+                        <div class="space-y-3">
+                            <div class="flex justify-between text-sm border-b border-zinc-800 pb-2">
+                                <span>Simple Chat</span>
+                                <span class="text-purple-400 font-mono">~100 - 500 tokens</span>
+                            </div>
+                            <div class="flex justify-between text-sm border-b border-zinc-800 pb-2">
+                                <span>Computer Vision (1 Photo)</span>
+                                <span class="text-purple-400 font-mono">~1,500 tokens</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <footer class="border-t border-zinc-800 pt-12 pb-24 text-center">
+                <p class="text-zinc-500 text-sm">© 2024 Inmueble IA Pro. All rights reserved.</p>
+            </footer>
+
+        </main>
+    </div>
+
+    <script>
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.sidebar-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 150) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

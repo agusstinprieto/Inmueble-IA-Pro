@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing - Inmueble IA Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: '#f59e0b',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #0a0a0a;
+            color: white;
+        }
+    </style>
+</head>
+
+<body class="bg-zinc-950 text-zinc-100 min-h-screen">
+
+    <!-- Navbar -->
+    <nav class="fixed w-full z-50 bg-black/50 backdrop-blur-lg border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center gap-2">
+                    <div class="bg-brand p-2 rounded-xl">
+                        <i data-lucide="building-2" class="text-black w-6 h-6"></i>
+                    </div>
+                    <span class="text-xl font-black italic tracking-tighter uppercase">Inmueble <span
+                            class="text-brand">IA Pro</span></span>
+                </div>
+                <div class="hidden md:block">
+                    <a href="hub.html"
+                        class="ml-8 px-4 py-2 rounded-lg hover:bg-white/5 transition-colors font-bold text-sm uppercase italic">Hub</a>
+                    <a href="features.html"
+                        class="ml-4 px-4 py-2 rounded-lg hover:bg-white/5 transition-colors font-bold text-sm uppercase italic">Features</a>
+                    <a href="#"
+                        class="ml-4 px-4 py-2 bg-brand text-black rounded-xl font-black text-sm uppercase italic hover:opacity-90 transition-opacity">Buy
+                        License</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <div class="pt-32 pb-20 px-4 text-center relative overflow-hidden">
+        <div
+            class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-full bg-brand/20 blur-[120px] -z-10 rounded-full">
+        </div>
+
+        <h1 class="text-5xl md:text-7xl font-black italic tracking-tighter uppercase mb-6">
+            Plans & <span class="text-brand">Pricing</span>
+        </h1>
+        <p class="text-xl text-zinc-400 max-w-2xl mx-auto mb-12">
+            Choose the model that best fits your business: SaaS Subscription or Own Source Code.
+        </p>
+
+        <!-- Pricing Cards -->
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 px-4">
+
+            <!-- Starter (SaaS) -->
+            <div
+                class="bg-zinc-900/50 border border-zinc-800 rounded-3xl p-8 hover:border-zinc-600 transition-all group relative overflow-hidden flex flex-col">
+                <h3 class="text-2xl font-black italic uppercase text-zinc-300">Starter SaaS</h3>
+                <div class="flex items-end gap-1 my-6">
+                    <span class="text-4xl font-black">$59</span>
+                    <span class="text-zinc-500 font-bold mb-1">/mo USD</span>
+                </div>
+                <p class="text-zinc-400 text-sm mb-8 min-h-[40px]">To start digitizing your inventory.</p>
+
+                <ul class="space-y-4 mb-8 text-left flex-1">
+                    <li class="flex items-center gap-3 text-sm text-zinc-300">
+                        <i data-lucide="check" class="text-brand w-4 h-4"></i> Cloud Hosting Included
+                    </li>
+                    <li class="flex items-center gap-3 text-sm text-zinc-300">
+                        <i data-lucide="check" class="text-brand w-4 h-4"></i> Up to 100 Properties
+                    </li>
+                    <li class="flex items-center gap-3 text-sm text-zinc-300">
+                        <i data-lucide="check" class="text-brand w-4 h-4"></i> 1 Admin User
+                    </li>
+                    <li class="flex items-center gap-3 text-sm text-zinc-300">
+                        <i data-lucide="check" class="text-brand w-4 h-4"></i> Basic Support
+                    </li>
+                </ul>
+
+                <a href="https://wa.me/528711439941?text=Hello,%20I'm%20interested%20in%20the%20Starter%20SaaS%20plan%20($59%20USD)"
+                    target="_blank"
+                    class="block w-full py-4 rounded-xl border border-zinc-700 hover:bg-zinc-800 font-black uppercase italic transition-all group-hover:scale-[1.02]">
+                    Start Free
+                </a>
+            </div>
+
+            <!-- Pro Agency (SaaS) -->
+            <div
+                class="bg-zinc-900 border-2 border-brand rounded-3xl p-8 transform md:-translate-y-4 shadow-2xl shadow-brand/20 relative overflow-hidden flex flex-col">
+                <div
+                    class="absolute top-0 right-0 bg-brand text-black text-xs font-black uppercase px-3 py-1 rounded-bl-xl">
+                    Popular SaaS
+                </div>
+
+                <h3 class="text-2xl font-black italic uppercase text-brand">Agency SaaS</h3>
+                <div class="flex items-end gap-1 my-6">
+                    <span class="text-5xl font-black">$179</span>
+                    <span class="text-zinc-500 font-bold mb-1">/mo USD</span>
+                </div>
+                <p class="text-zinc-400 text-sm mb-8 min-h-[40px]">Power your agency with AI and a full team.</p>
+
+                <ul class="space-y-4 mb-8 text-left flex-1">
+                    <li class="flex items-center gap-3 text-sm text-white font-bold">
+                        <i data-lucide="check-circle-2" class="text-brand w-4 h-4"></i> Everything unlimited
+                    </li>
+                    <li class="flex items-center gap-3 text-sm text-zinc-300">
+                        <i data-lucide="check" class="text-brand w-4 h-4"></i> 5 Agent Accounts
+                    </li>
+                    <li class="flex items-center gap-3 text-sm text-zinc-300">
+                        <i data-lucide="check" class="text-brand w-4 h-4"></i> Triple Duel (3-way comparison)
+                    </li>
+                    <li class="flex items-center gap-3 text-sm text-zinc-300">
+                        <i data-lucide="check" class="text-brand w-4 h-4"></i> Advanced Generative AI
+                    </li>
+                    <li class="flex items-center gap-3 text-sm text-zinc-300">
+                        <i data-lucide="check" class="text-brand w-4 h-4"></i> Custom Domain
+                    </li>
+                </ul>
+
+                <a href="https://wa.me/528711439941?text=Hello,%20I'm%20interested%20in%20the%20Agency%20SaaS%20plan%20($179%20USD)"
+                    target="_blank"
+                    class="block w-full py-4 rounded-xl bg-brand hover:bg-brand/90 text-black font-black uppercase italic transition-all scale-[1.02] shadow-lg">
+                    Try 14 Days
+                </a>
+            </div>
+
+            <!-- Lifetime License (From Image) -->
+            <div
+                class="bg-gradient-to-b from-orange-500 to-orange-600 border border-orange-400 rounded-3xl p-8 hover:scale-105 transition-all duration-300 group relative overflow-hidden flex flex-col shadow-[0_0_50px_rgba(249,115,22,0.3)]">
+                <div
+                    class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-white/10 blur-3xl rounded-full pointer-events-none">
+                </div>
+
+                <div class="text-center mb-4">
+                    <i data-lucide="gem" class="w-12 h-12 text-white mx-auto drop-shadow-lg"></i>
+                </div>
+
+                <h3 class="text-3xl font-black italic uppercase text-white text-center drop-shadow-md">Lifetime License
+                </h3>
+
+                <div class="flex justify-center items-end gap-1 my-6">
+                    <span class="text-5xl font-black text-white drop-shadow-md">$5,900</span>
+                    <span class="text-orange-100 font-bold mb-1 text-xl">USD</span>
+                </div>
+
+                <p class="text-white font-bold text-center text-sm mb-6 uppercase tracking-wide">
+                    One-time payment • All included • Source Code • Self-Hosted
+                </p>
+
+                <ul class="space-y-4 mb-8 text-left flex-1 px-2">
+                    <li class="flex items-start gap-3 text-white font-medium">
+                        <i data-lucide="check" class="w-5 h-5 flex-shrink-0 mt-0.5 stroke-[3px]"></i>
+                        Triple Duel & AI Verdict
+                    </li>
+                    <li class="flex items-start gap-3 text-white font-medium">
+                        <i data-lucide="check" class="w-5 h-5 flex-shrink-0 mt-0.5 stroke-[3px]"></i>
+                        All Enterprise Features
+                    </li>
+                    <li class="flex items-start gap-3 text-white font-medium">
+                        <i data-lucide="check" class="w-5 h-5 flex-shrink-0 mt-0.5 stroke-[3px]"></i>
+                        1 Year Free Updates
+                    </li>
+                    <li class="flex items-start gap-3 text-white font-medium">
+                        <i data-lucide="check" class="w-5 h-5 flex-shrink-0 mt-0.5 stroke-[3px]"></i>
+                        Installation on Own Server
+                    </li>
+                    <li class="flex items-start gap-3 text-white font-medium">
+                        <i data-lucide="check" class="w-5 h-5 flex-shrink-0 mt-0.5 stroke-[3px]"></i>
+                        Full Source Code
+                    </li>
+                    <li class="flex items-start gap-3 text-white font-medium">
+                        <i data-lucide="check" class="w-5 h-5 flex-shrink-0 mt-0.5 stroke-[3px]"></i>
+                        6 Months Technical Support
+                    </li>
+                </ul>
+
+                <a href="https://wa.me/528711439941?text=Hello,%20I%20want%20to%20buy%20the%20Lifetime%20License%20of%20Inmueble%20IA%20Pro%20($5,900%20USD)"
+                    target="_blank"
+                    class="block w-full py-4 rounded-xl bg-white text-orange-600 font-black uppercase italic transition-all hover:bg-orange-50 shadow-xl text-center transform hover:-translate-y-1">
+                    BUY LICENSE
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- FAQ Section -->
+    <div class="py-20 bg-black/50 border-t border-zinc-900">
+        <div class="max-w-4xl mx-auto px-4">
+            <h2 class="text-3xl font-black italic text-center uppercase mb-12">Frequently Asked Questions</h2>
+
+            <div class="space-y-4">
+                <div class="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
+                    <h4 class="font-bold text-lg mb-2">What do I get with the Source Code?</h4>
+                    <p class="text-zinc-400 text-sm">You receive the complete Git repository (Frontend and Backend). You
+                        are free to modify, adapt, and host it wherever you prefer. The license allows commercial use
+                        for one business instance.</p>
+                </div>
+                <div class="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
+                    <h4 class="font-bold text-lg mb-2">How does support work for the Lifetime License?</h4>
+                    <p class="text-zinc-400 text-sm">We include 6 months of direct support for installation and critical
+                        bug fixes. After that period, you can contract optional maintenance policies.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-zinc-900 mt-20 py-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <h3 class="text-xl font-bold text-white tracking-tight mb-2">IA.AGUS</h3>
+            <p class="text-zinc-600 mb-6">Innovation in Artificial Intelligence for Real Estate</p>
+
+            <div class="flex flex-col md:flex-row items-center justify-center gap-6 text-sm text-zinc-500 mb-8">
+                <span class="flex items-center gap-2">
+                    <i data-lucide="user" class="w-4 h-4"></i>
+                    Agustín Prieto
+                </span>
+                <a href="tel:+528711439941" class="flex items-center gap-2 hover:text-white transition-colors">
+                    <i data-lucide="phone" class="w-4 h-4"></i>
+                    +52 871 143 9941
+                </a>
+                <a href="https://agusstinprieto.wixsite.com/ia-agus" target="_blank"
+                    class="flex items-center gap-2 hover:text-white transition-colors">
+                    <i data-lucide="globe" class="w-4 h-4"></i>
+                    agusstinprieto.wixsite.com/ia-agus
+                </a>
+            </div>
+
+            <p class="text-zinc-700 text-xs text-center uppercase tracking-widest">
+                © 2026 All rights reserved.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>
