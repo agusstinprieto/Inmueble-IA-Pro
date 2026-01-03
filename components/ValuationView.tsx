@@ -18,6 +18,7 @@ import {
 import { PropertyType } from '../types';
 import { translations } from '../translations';
 import { getPropertyValuation } from '../services/gemini';
+import { pdfService } from '../services/pdfService';
 
 interface ValuationViewProps {
     lang: 'es' | 'en';
@@ -273,24 +274,15 @@ const ValuationView: React.FC<ValuationViewProps> = ({
 
                             <button
                                 onClick={() => {
-                                    const content = `VALUACIÓN INMOBILIARIA - ${businessName}\n\n` +
-                                        `Estimado: ${formatCurrency(result.estimatedPrice, result.currency)}\n` +
-                                        `Rango: ${formatCurrency(result.priceRange.min, result.currency)} - ${formatCurrency(result.priceRange.max, result.currency)}\n` +
-                                        `Precio/m2: ${formatCurrency(result.pricePerM2, result.currency)}\n` +
-                                        `Confianza: ${(result.marketConfidence * 100).toFixed(0)}%\n\n` +
-                                        `INSIGHTS:\n${result.suggestions.join('\n')}\n\n` +
-                                        `Ubicación: ${formData.city}, ${formData.neighborhood}\n` +
-                                        `Características: ${formData.propertyType}, ${formData.bedrooms} rec, ${formData.bathrooms} baños, ${formData.m2Built}m2 const / ${formData.m2Total}m2 total`;
-
-                                    const blob = new Blob([content], { type: 'text/plain' });
-                                    const link = document.createElement('a');
-                                    link.href = URL.createObjectURL(blob);
-                                    link.download = `Valuacion_${formData.city}_${Date.now()}.txt`;
-                                    link.click();
+                                    pdfService.generateValuationPDF(result, formData, {
+                                        name: businessName,
+                                        color: brandColor,
+                                        lang: lang
+                                    });
                                 }}
                                 className="w-full group py-4 flex items-center justify-center gap-2 text-zinc-500 hover:text-white transition-all text-[10px] font-black uppercase tracking-widest pt-4"
                             >
-                                {lang === 'es' ? 'Exportar Estudio de Mercado' : 'Export Market Study'}
+                                {lang === 'es' ? 'Exportar Estudio de Mercado (PDF)' : 'Export Market Study (PDF)'}
                                 <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                             </button>
                         </div>

@@ -52,13 +52,14 @@ const BillingView: React.FC<BillingViewProps> = ({ billing, subscription, lang }
         }
     ];
 
-    const handleSubscribe = async (priceId: string) => {
-        try {
-            await stripeService.createCheckoutSession(priceId, billing.agencyId);
-        } catch (error) {
-            console.error('Billing error:', error);
-            alert('Error al iniciar el pago.');
-        }
+    const handleSubscribe = (planName: string, price: string) => {
+        const phoneNumber = "528713911135"; // USER phone from context/history
+        const message = lang === 'es'
+            ? `Hola! Me interesa activar el plan *${planName}* (${price}) en Inmueble IA Pro. ¿Me podrías ayudar con el proceso de pago?`
+            : `Hello! I'm interested in activating the *${planName}* plan (${price}) in Inmueble IA Pro. Could you help me with the payment process?`;
+
+        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+        window.open(whatsappUrl, '_blank');
     };
 
     return (
@@ -170,9 +171,9 @@ const BillingView: React.FC<BillingViewProps> = ({ billing, subscription, lang }
                             </div>
 
                             <button
-                                onClick={() => handleSubscribe(plan.priceId)}
+                                onClick={() => handleSubscribe(plan.name, plan.price)}
                                 disabled={billing.plan === plan.id}
-                                className={`w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all
+                                className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all
                                     ${billing.plan === plan.id
                                         ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed'
                                         : 'bg-white text-black hover:bg-zinc-200 hover:scale-[1.02]'}`}

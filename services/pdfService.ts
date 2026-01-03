@@ -173,5 +173,144 @@ export const pdfService = {
     } catch (err) {
       console.error('Error in generateReportFromElement:', err);
     }
+  },
+
+  /**
+   * Generates a professional PDF report for a property valuation
+   * @param result The valuation result from Gemini
+   * @param propertyData The search parameters used
+   * @param agencyInfo Agency branding
+   */
+  async generateValuationPDF(
+    result: any,
+    propertyData: any,
+    agencyInfo: { name: string; color: string; email?: string; phone?: string; lang: 'es' | 'en' }
+  ) {
+    const container = document.createElement('div');
+    container.style.position = 'fixed';
+    container.style.left = '-9999px';
+    container.style.top = '0';
+    container.style.width = '800px';
+    container.style.background = '#050505';
+    container.style.color = 'white';
+    container.style.fontFamily = 'Inter, system-ui, sans-serif';
+    container.style.padding = '60px';
+
+    const formatCurrency = (amount: number, currency: string) => {
+      return new Intl.NumberFormat(currency === 'MXN' ? 'es-MX' : 'en-US', {
+        style: 'currency',
+        currency: currency.includes('MXN') ? 'MXN' : 'USD',
+        maximumFractionDigits: 0
+      }).format(amount);
+    };
+
+    const isEs = agencyInfo.lang === 'es';
+
+    container.innerHTML = `
+      <div style="border: 1px solid rgba(255,255,255,0.1); padding: 40px; border-radius: 40px; background: linear-gradient(135deg, #0a0a0a 0%, #000 100%);">
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid ${agencyInfo.color}; padding-bottom: 20px; margin-bottom: 40px;">
+          <div>
+            <h1 style="font-size: 28px; font-weight: 900; font-style: italic; text-transform: uppercase; margin: 0;">${agencyInfo.name}</h1>
+            <p style="color: ${agencyInfo.color}; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 3px;">ESTUDIO DE MERCADO CON INTELIGENCIA ARTIFICIAL</p>
+          </div>
+          <div style="text-align: right;">
+            <p style="font-size: 12px; color: #666; margin: 0;">${new Date().toLocaleDateString()}</p>
+          </div>
+        </div>
+
+        <!-- Main Value -->
+        <div style="text-align: center; margin-bottom: 50px; background: rgba(255,255,255,0.02); padding: 40px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.05);">
+          <p style="text-transform: uppercase; font-size: 10px; font-weight: 900; color: #666; letter-spacing: 2px; margin-bottom: 10px;">
+            ${isEs ? 'VALOR ESTIMADO DE MERCADO' : 'ESTIMATED MARKET VALUE'}
+          </p>
+          <h2 style="font-size: 56px; font-weight: 900; font-style: italic; margin: 0; color: white;">
+            ${formatCurrency(result.estimatedPrice, result.currency)}
+          </h2>
+          <p style="font-size: 16px; color: #888; margin-top: 10px;">
+            ${isEs ? 'Rango Sugerido' : 'Suggested Range'}: 
+            ${formatCurrency(result.priceRange.min, result.currency)} - ${formatCurrency(result.priceRange.max, result.currency)}
+          </p>
+        </div>
+
+        <!-- Specs Grid -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 40px;">
+          <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 20px; text-align: center;">
+            <p style="font-size: 9px; color: #666; text-transform: uppercase; margin-bottom: 5px;">${isEs ? 'PRECIO POR M²' : 'PRICE PER M²'}</p>
+            <p style="font-size: 18px; font-weight: 900;">${formatCurrency(result.pricePerM2, result.currency)}</p>
+          </div>
+          <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 20px; text-align: center;">
+            <p style="font-size: 9px; color: #666; text-transform: uppercase; margin-bottom: 5px;">${isEs ? 'CONFIANZA IA' : 'AI CONFIDENCE'}</p>
+            <p style="font-size: 18px; font-weight: 900; color: #10b981;">${(result.marketConfidence * 100).toFixed(0)}%</p>
+          </div>
+          <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 20px; text-align: center;">
+            <p style="font-size: 9px; color: #666; text-transform: uppercase; margin-bottom: 5px;">${isEs ? 'TENDENCIA' : 'TREND'}</p>
+            <p style="font-size: 18px; font-weight: 900; color: ${agencyInfo.color};">${result.marketTrend || (isEs ? 'ESTABLE' : 'STABLE')}</p>
+          </div>
+        </div>
+
+        <!-- Property Details -->
+        <div style="margin-bottom: 40px;">
+          <h3 style="font-size: 12px; font-weight: 900; text-transform: uppercase; color: #666; border-left: 4px solid ${agencyInfo.color}; padding-left: 12px; margin-bottom: 20px;">
+            ${isEs ? 'DETALLES DE LA PROPIEDAD ANALIZADA' : 'PROPERTY DETAILS ANALYZED'}
+          </h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; background: rgba(255,255,255,0.01); padding: 25px; border-radius: 25px;">
+             <p style="font-size: 13px; margin: 0; color: #aaa;"><strong style="color: white; font-weight: 900;">${isEs ? 'Tipo' : 'Type'}:</strong> ${propertyData.propertyType}</p>
+             <p style="font-size: 13px; margin: 0; color: #aaa;"><strong style="color: white; font-weight: 900;">${isEs ? 'Ubicación' : 'Location'}:</strong> ${propertyData.neighborhood}, ${propertyData.city}</p>
+             <p style="font-size: 13px; margin: 0; color: #aaa;"><strong style="color: white; font-weight: 900;">${isEs ? 'Construcción' : 'Built'}:</strong> ${propertyData.m2Built} m²</p>
+             <p style="font-size: 13px; margin: 0; color: #aaa;"><strong style="color: white; font-weight: 900;">${isEs ? 'Terreno' : 'Total'}:</strong> ${propertyData.m2Total} m²</p>
+             <p style="font-size: 13px; margin: 0; color: #aaa;"><strong style="color: white; font-weight: 900;">${isEs ? 'Habitaciones' : 'Bedrooms'}:</strong> ${propertyData.bedrooms}</p>
+             <p style="font-size: 13px; margin: 0; color: #aaa;"><strong style="color: white; font-weight: 900;">${isEs ? 'Baños' : 'Bathrooms'}:</strong> ${propertyData.bathrooms}</p>
+          </div>
+        </div>
+
+        <!-- AI Insights -->
+        <div style="margin-bottom: 40px;">
+          <h3 style="font-size: 12px; font-weight: 900; text-transform: uppercase; color: #666; border-left: 4px solid ${agencyInfo.color}; padding-left: 12px; margin-bottom: 20px;">
+            ${isEs ? 'ANÁLISIS Y RECOMENDACIONES ESTRATÉGICAS' : 'STRATEGIC ANALYSIS AND RECOMMENDATIONS'}
+          </h3>
+          <div style="space-y: 15px;">
+            ${result.suggestions.map((s: string) => `
+              <div style="margin-bottom: 12px; font-size: 13px; line-height: 1.5; color: #ccc; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 15px;">
+                ${s}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="margin-top: 60px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 30px; display: flex; justify-content: space-between; align-items: center;">
+          <div style="font-size: 10px; color: #555;">
+            Estudio generado por Inmueble IA Pro Engine
+          </div>
+          <div style="text-align: right;">
+            <p style="font-size: 12px; font-weight: 900; margin: 0;">${agencyInfo.phone || ''}</p>
+            <p style="font-size: 10px; color: #888; margin: 0;">${agencyInfo.email || ''}</p>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(container);
+
+    try {
+      const canvas = await html2canvas(container, {
+        scale: 2,
+        backgroundColor: '#050505',
+        useCORS: true,
+        logging: false
+      });
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const imgWidth = pageWidth - 20;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      pdf.addImage(imgData, 'JPEG', 10, 10, imgWidth, imgHeight);
+      pdf.save(`Valuacion_${propertyData.city}_${propertyData.neighborhood}.pdf`);
+    } finally {
+      document.body.removeChild(container);
+    }
   }
 };
