@@ -16,28 +16,39 @@ const BillingView: React.FC<BillingViewProps> = ({ billing, subscription, lang }
 
     // Pricing Config
     // Pricing Config
+    // Pricing Config
     const plans = [
         {
-            id: 'PRO',
-            name: 'Plan Pro',
+            id: 'INDEPENDENT',
+            name: lang === 'es' ? 'Agente Independiente' : 'Independent Agent',
             price: lang === 'es' ? '$599 MXN' : '$29 USD',
             period: '/mo',
             tokens: '1,000,000 Tokens',
-            features: ['Asistente IA 24/7', 'Computer Vision (Fotos)', 'Generador de Anuncios', 'Soporte Prioritario'],
+            features: [
+                lang === 'es' ? 'Asistente IA 24/7' : '24/7 AI Assistant',
+                lang === 'es' ? 'Computer Vision (Fotos)' : 'Computer Vision',
+                lang === 'es' ? 'Generador de Anuncios' : 'Ad Generator',
+                lang === 'es' ? 'Soporte Prioritario' : 'Priority Support'
+            ],
             color: 'text-amber-400',
             bg: 'bg-amber-400',
-            priceId: 'price_pro_monthly' // Mock
+            priceId: 'price_independent_monthly'
         },
         {
-            id: 'ENTERPRISE',
-            name: 'Enterprise',
-            price: lang === 'es' ? '$1,999 MXN' : '$99 USD',
+            id: 'AGENCY',
+            name: lang === 'es' ? 'Agencia Inmobiliaria' : 'Real Estate Agency',
+            price: lang === 'es' ? '$3,000 MXN' : '$149 USD',
             period: '/mo',
-            tokens: 'Tokens Ilimitados*',
-            features: ['Llave API Propia (BYOK)', 'Marca Blanca Total', 'Gerente de Cuenta', 'SLA 99.9%'],
+            tokens: lang === 'es' ? 'Tokens Ilimitados*' : 'Unlimited Tokens*',
+            features: [
+                lang === 'es' ? 'Multi-Agente (Hasta 10)' : 'Multi-Agent (Up to 10)',
+                lang === 'es' ? 'Panel Administrativo' : 'Admin Dashboard',
+                lang === 'es' ? 'Llave API Propia (BYOK)' : 'Own API Key (BYOK)',
+                lang === 'es' ? 'Marca Blanca Total' : 'Full White Label'
+            ],
             color: 'text-purple-400',
             bg: 'bg-purple-400',
-            priceId: 'price_enterprise_monthly' // Mock
+            priceId: 'price_agency_monthly'
         }
     ];
 
