@@ -272,19 +272,33 @@ export async function getPropertyValuation(
   6. Proporciona insights y sugerencias de mejora.`;
 
   try {
-    const response = await generateWithFallback(ai, {
-      contents: { parts: [{ text: prompt }] },
-      config: {
-        tools: [{ googleSearch: {} } as any],
-        systemInstruction: "Eres un perito valuador inmobiliario internacional con acceso a datos de mercado en tiempo real.",
-        responseMimeType: "application/json",
-        responseSchema: VALUATION_SCHEMA as any
-      }
-    });
-
-    return JSON.parse(response.text || '{}');
+    // Try WITH Google Search first (Preferred for real market data)
+    try {
+      const response = await generateWithFallback(ai, {
+        contents: { parts: [{ text: prompt }] },
+        config: {
+          tools: [{ googleSearch: {} } as any],
+          systemInstruction: "Eres un perito valuador inmobiliario internacional con acceso a datos de mercado en tiempo real.",
+          responseMimeType: "application/json",
+          responseSchema: VALUATION_SCHEMA as any
+        }
+      });
+      return JSON.parse(response.text || '{}');
+    } catch (searchError: any) {
+      console.warn("Valuation with search failed, falling back to basic knowledge:", searchError.message);
+      // Fallback WITHOUT Search (Uses AI training data only)
+      const fallbackResponse = await generateWithFallback(ai, {
+        contents: { parts: [{ text: prompt + "\n(Nota: Si no puedes buscar en la web, usa tu conocimiento base para estimar basado en los metros y zona)." }] },
+        config: {
+          systemInstruction: "Eres un perito valuador inmobiliario profesional. Estima valores basados en tu conocimiento del mercado.",
+          responseMimeType: "application/json",
+          responseSchema: VALUATION_SCHEMA as any
+        }
+      });
+      return JSON.parse(fallbackResponse.text || '{}');
+    }
   } catch (error) {
-    console.error("Valuation failed:", error);
+    console.error("Valuation failed completely:", error);
     throw error;
   }
 }
