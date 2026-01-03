@@ -1,5 +1,6 @@
 -- Migration: Add Usage Tracking and Subscription Tiers
 -- Created: 2026-01-03
+-- CORRECTED VERSION: Uses 'agencies' table
 
 -- 1. Create subscription_tiers table
 CREATE TABLE IF NOT EXISTS subscription_tiers (
@@ -14,7 +15,7 @@ CREATE TABLE IF NOT EXISTS subscription_tiers (
 -- 2. Create usage_tracking table
 CREATE TABLE IF NOT EXISTS usage_tracking (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  agency_id UUID REFERENCES agency_settings(id) ON DELETE CASCADE,
+  agency_id UUID REFERENCES agencies(id) ON DELETE CASCADE,
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   feature_type TEXT NOT NULL,
   month_year TEXT NOT NULL,
@@ -24,8 +25,8 @@ CREATE TABLE IF NOT EXISTS usage_tracking (
   UNIQUE(agency_id, feature_type, month_year)
 );
 
--- 3. Add subscription columns to agency_settings
-ALTER TABLE agency_settings 
+-- 3. Add subscription columns to agencies
+ALTER TABLE agencies 
 ADD COLUMN IF NOT EXISTS subscription_tier TEXT DEFAULT 'individual',
 ADD COLUMN IF NOT EXISTS subscription_status TEXT DEFAULT 'active';
 
@@ -121,5 +122,5 @@ CREATE INDEX IF NOT EXISTS idx_usage_tracking_agency_month
   ON usage_tracking(agency_id, month_year);
 CREATE INDEX IF NOT EXISTS idx_usage_tracking_feature 
   ON usage_tracking(feature_type);
-CREATE INDEX IF NOT EXISTS idx_agency_settings_tier 
-  ON agency_settings(subscription_tier);
+CREATE INDEX IF NOT EXISTS idx_agencies_tier 
+  ON agencies(subscription_tier);

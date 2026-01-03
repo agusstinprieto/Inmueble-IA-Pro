@@ -60,7 +60,7 @@ export async function checkUsageLimit(
     try {
         // Get agency's subscription tier
         const { data: agency, error: agencyError } = await supabase
-            .from('agency_settings')
+            .from('agencies')
             .select('subscription_tier')
             .eq('id', agencyId)
             .single();
@@ -144,7 +144,7 @@ export async function getUsageStats(agencyId: string): Promise<UsageStats> {
     try {
         // Get agency tier
         const { data: agency, error: agencyError } = await supabase
-            .from('agency_settings')
+            .from('agencies')
             .select('subscription_tier')
             .eq('id', agencyId)
             .single();
