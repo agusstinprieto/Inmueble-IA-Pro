@@ -730,8 +730,12 @@ function App() {
             onAddContract={handleAddContract}
             onDeleteContract={handleDeleteContract}
             lang={lang}
+            brandColor={brandColor}
+            businessName={businessName}
+          />
+        );
 
-            case 'agents':
+      case 'agents':
         return (
           <AgentsView
             agents={agents}
