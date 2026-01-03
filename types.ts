@@ -369,4 +369,18 @@ export interface AgencyBilling {
   billingPeriodStart: string;
   billingPeriodEnd: string;
   customApiKey?: string;
+  stripeCustomerId?: string;
+  subscriptionId?: string;
+}
+
+export interface StripeSubscription {
+  id: string;
+  customerId: string;
+  status: 'active' | 'past_due' | 'canceled' | 'incomplete' | 'trialing';
+  currentPeriodEnd: string;
+  cancelAtPeriodEnd: boolean;
+  planId: string;
+  amount: number;
+  currency: string;
+  interval: 'month' | 'year';
 }
