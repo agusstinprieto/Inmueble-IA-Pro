@@ -68,13 +68,67 @@ const DashboardView: React.FC<DashboardViewProps> = ({
         count: properties.filter(p => p.type === type).length
     })).filter(item => item.count > 0);
 
-    // Recent activity (mock for now)
-    const recentActivity = [
-        { type: 'property', action: 'Nueva propiedad agregada', time: 'Hace 2 horas' },
-        { type: 'client', action: 'Nuevo lead registrado', time: 'Hace 3 horas' },
-        { type: 'sale', action: 'Venta cerrada', time: 'Hace 1 día' },
-        { type: 'view', action: '15 nuevas visitas', time: 'Hoy' }
-    ];
+    // Helper for relative time
+    const getRelativeTime = (date: Date) => {
+        const now = new Date();
+        const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+        if (diffInSeconds < 60) return lang === 'es' ? 'Hace unos momentos' : 'Just now';
+
+        const minutes = Math.floor(diffInSeconds / 60);
+        if (minutes < 60) return lang === 'es' ? `Hace ${minutes} min` : `${minutes} min ago`;
+
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return lang === 'es' ? `Hace ${hours} horas` : `${hours} hours ago`;
+
+        const days = Math.floor(hours / 24);
+        if (days === 1) return lang === 'es' ? 'Ayer' : 'Yesterday';
+        if (days < 7) return lang === 'es' ? `Hace ${days} días` : `${days} days ago`;
+
+        return date.toLocaleDateString(lang === 'es' ? 'es-MX' : 'en-US');
+    };
+
+    // Calculate dynamic recent activity
+    const recentActivity = React.useMemo(() => {
+        const activities = [];
+
+        // Properties
+        properties.forEach(p => {
+            activities.push({
+                type: 'property',
+                action: lang === 'es' ? `Nueva propiedad: ${p.title}` : `New property: ${p.title}`,
+                timestamp: new Date(p.dateAdded)
+            });
+        });
+
+        // Clients
+        clients.forEach(c => {
+            activities.push({
+                type: 'client',
+                action: lang === 'es' ? `Nuevo cliente: ${c.name}` : `New client: ${c.name}`,
+                timestamp: new Date(c.dateAdded)
+            });
+        });
+
+        // Sales
+        sales.forEach(s => {
+            const prop = properties.find(p => p.id === s.propertyId);
+            activities.push({
+                type: 'sale',
+                action: lang === 'es' ? `Venta cerrada: ${prop?.title || 'Propiedad'}` : `Sale closed: ${prop?.title || 'Property'}`,
+                timestamp: new Date(s.dateClosed)
+            });
+        });
+
+        // Sort by newest first and take top 5
+        return activities
+            .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+            .slice(0, 5)
+            .map(item => ({
+                ...item,
+                time: getRelativeTime(item.timestamp)
+            }));
+    }, [properties, clients, sales, lang]);
 
     // Format currency
     const formatCurrency = (value: number) => {
