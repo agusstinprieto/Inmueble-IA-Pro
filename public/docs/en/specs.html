@@ -184,7 +184,7 @@
                         end
                         
                         subgraph "Backend Services"
-                            App -->|Auth & Data| Supabase[Supabase PostgreSQL]
+                            App -->|Auth and Data| Supabase[Supabase PostgreSQL]
                             App -->|Storage| S3[Supabase Storage]
                             App -->|AI Processing| Gemini[Google Gemini 2.0]
                         end
@@ -210,7 +210,7 @@
                         participant AI as Gemini Vision
                         participant DB as Database
 
-                        Agent->>App: 1. Upload Photos (Drag & Drop)
+                        Agent->>App: 1. Upload Photos (Drag Drop)
                         App->>Storage: 2. Upload optimized images
                         Storage-->>App: Return URLs
                         
@@ -223,7 +223,7 @@
 
                         App->>App: 5. Auto-complete form
                         Agent->>App: 6. Confirm data
-                        App->>DB: 7. Save record (Row Level Security)
+                        App->>DB: 7. Save record (RLS)
                         DB-->>App: Confirmation
                         App->>Agent: Property Published!
                     </pre>
@@ -257,7 +257,7 @@
             </div>
 
             <!-- 4. Sales & Reports -->
-            <div>
+            <div class="mb-12">
                 <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
                     <span class="text-amber-400">04.</span> Sales Flow & Reports
                 </h3>
@@ -279,6 +279,61 @@
                         
                         state "PDF Report" as PDF
                         SaleFinalized --> PDF : Generate Closing Sheet
+                    </pre>
+                </div>
+            </div>
+
+            <!-- 5. Global Image Architecture (NEW) -->
+            <div>
+                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <span class="text-amber-400">05.</span> Global Image Ecosystem
+                </h3>
+                <p class="text-zinc-400 text-sm mb-4">Unified architecture for Agency Logos, Agent Photos, and
+                    Properties using Supabase Storage.</p>
+                <div class="bg-[#141416] p-6 rounded-2xl border border-zinc-800 overflow-x-auto">
+                    <pre class="mermaid">
+                    graph TD
+                        subgraph "Frontend Layer"
+                            Uploader[File Input Component]
+                            Preview[Image Preview]
+                            Display[Image Component (img tag)]
+                        end
+
+                        subgraph "Supabase Cloud"
+                            bucket[Bucket: property-images]
+                            folderA[Folder: agency-logos]
+                            folderB[Folder: agents]
+                            folderC[Folder: property-id]
+                        end
+
+                        subgraph "Database"
+                            TableAgency[Table: agency_settings]
+                            TableAgent[Table: agents]
+                            TableProp[Table: property_images]
+                        end
+
+                        %% Upload Flow
+                        Uploader -->|1. Upload File| bucket
+                        bucket --> folderA
+                        bucket --> folderB
+                        bucket --> folderC
+                        
+                        %% URL Generation
+                        bucket -->|2. Return Public URL| Uploader
+                        
+                        %% Save to DB
+                        Uploader -->|3. Save URL| TableAgency
+                        Uploader -->|3. Save URL| TableAgent
+                        Uploader -->|3. Save URL| TableProp
+                        
+                        %% Display Flow
+                        TableAgency -->|4. Fetch URL| Display
+                        TableAgent -->|4. Fetch URL| Display
+                        TableProp -->|4. Fetch URL| Display
+                        
+                        style bucket fill:#d97706,stroke:#fff,stroke-width:2px
+                        style Uploader fill:#202020,stroke:#d97706
+                        style Display fill:#202020,stroke:#fff
                     </pre>
                 </div>
             </div>
