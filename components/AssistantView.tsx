@@ -28,7 +28,7 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
 
     const t = {
         es: {
-            title: 'Asistente Inmobiliario',
+            title: agencyName ? `Asistente de ${agencyName}` : 'Asesor de Bienes Raíces',
             placeholder: 'Escribe o habla...',
             listening: 'Escuchando...',
             thinking: 'Pensando...',
@@ -36,7 +36,7 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
             handsFreeOff: 'Manos libres desactivado'
         },
         en: {
-            title: 'Real Estate Assistant',
+            title: agencyName ? `${agencyName} Assistant` : 'Real Estate Agent',
             placeholder: 'Type or speak...',
             listening: 'Listening...',
             thinking: 'Thinking...',
