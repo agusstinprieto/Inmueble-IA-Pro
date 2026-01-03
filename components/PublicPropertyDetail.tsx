@@ -20,7 +20,7 @@ import {
     Calculator,
     Download
 } from 'lucide-react';
-import { Property, PropertyType, OperationType } from '../types';
+import { Property, PropertyType, OperationType, Agent } from '../types';
 import MortgageCalculator from './MortgageCalculator';
 import { translations } from '../translations';
 
@@ -30,6 +30,7 @@ interface PublicPropertyDetailProps {
     brandColor: string;
     onBack: () => void;
     agencyName: string;
+    agent?: Agent;
 }
 
 const PublicPropertyDetail: React.FC<PublicPropertyDetailProps> = ({
@@ -37,8 +38,11 @@ const PublicPropertyDetail: React.FC<PublicPropertyDetailProps> = ({
     lang,
     brandColor,
     onBack,
-    agencyName
+    agencyName,
+    agent
 }) => {
+
+
     const t = translations[lang];
     const [activeImage, setActiveImage] = useState(0);
     const [showCalculator, setShowCalculator] = useState(false);
@@ -316,12 +320,18 @@ const PublicPropertyDetail: React.FC<PublicPropertyDetailProps> = ({
                             </div>
 
                             <div className="flex items-center gap-4 pt-4 border-t border-white/5">
-                                <div className="w-12 h-12 bg-amber-500/20 rounded-2xl flex items-center justify-center">
-                                    <User className="text-amber-500" size={24} />
-                                </div>
+                                {agent?.photo ? (
+                                    <img src={agent.photo} alt={agent.name} className="w-12 h-12 rounded-2xl object-cover" />
+                                ) : (
+                                    <div className="w-12 h-12 bg-amber-500/20 rounded-2xl flex items-center justify-center">
+                                        <User className="text-amber-500" size={24} />
+                                    </div>
+                                )}
                                 <div className="min-w-0">
                                     <p className="text-[10px] font-black text-zinc-500 uppercase italic">Asesor Inmobiliario</p>
-                                    <p className="text-white text-xs font-black uppercase italic truncate tracking-tight">Atención Personalizada</p>
+                                    <p className="text-white text-xs font-black uppercase italic truncate tracking-tight">
+                                        {agent?.name || 'Atención Personalizada'}
+                                    </p>
                                 </div>
                             </div>
                         </div>

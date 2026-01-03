@@ -14,6 +14,7 @@ import {
     CreditCard
 } from 'lucide-react';
 import { translations } from '../translations';
+import { uploadAgencyLogo } from '../services/supabase';
 
 interface SettingsViewProps {
     businessName: string;
@@ -121,21 +122,35 @@ const SettingsView: React.FC<SettingsViewProps> = ({
                         </div>
 
                         <div>
-                            <label className="block text-zinc-400 text-sm mb-2">Logo URL (Opcional)</label>
-                            <div className="flex gap-4">
-                                <input
-                                    type="text"
-                                    value={logoUrl}
-                                    onChange={(e) => setLogoUrl(e.target.value)}
-                                    placeholder="https://ejemplo.com/logo.png"
-                                    className="flex-1 bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2"
-                                    style={{ '--tw-ring-color': brandColor } as any}
-                                />
-                                {logoUrl && (
-                                    <div className="w-12 h-12 bg-white rounded-lg p-1 flex items-center justify-center shrink-0">
-                                        <img src={logoUrl} alt="Logo Preview" className="max-w-full max-h-full object-contain" />
+                            <label className="block text-zinc-400 text-sm mb-2">Logo de Agencia</label>
+                            <div className="flex gap-4 items-center">
+                                {logoUrl ? (
+                                    <img src={logoUrl} alt="Logo" className="w-16 h-16 object-contain bg-white rounded-lg p-1" />
+                                ) : (
+                                    <div className="w-16 h-16 bg-zinc-800 rounded-lg flex items-center justify-center border border-zinc-700 border-dashed">
+                                        <Building2 size={24} className="text-zinc-600" />
                                     </div>
                                 )}
+                                <div>
+                                    <label className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg cursor-pointer text-sm font-bold transition-all inline-block mb-1">
+                                        Subir Logo
+                                        <input
+                                            type="file"
+                                            className="hidden"
+                                            accept="image/*"
+                                            onChange={async (e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) {
+                                                    const url = await uploadAgencyLogo(file);
+                                                    if (url) {
+                                                        setLogoUrl(url);
+                                                    }
+                                                }
+                                            }}
+                                        />
+                                    </label>
+                                    <p className="text-xs text-zinc-500">Recomendado: PNG Transparente</p>
+                                </div>
                             </div>
                         </div>
                     </div>

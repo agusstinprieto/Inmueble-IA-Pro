@@ -967,6 +967,7 @@ function App() {
       return (
         <PublicPropertyDetail
           property={selectedPublicProperty}
+          agent={agents.find(a => a.id === selectedPublicProperty.agentId)}
           lang={lang}
           brandColor={brandColor}
           agencyName={businessName}
@@ -987,6 +988,7 @@ function App() {
         }}
         isAuthenticated={isAuthenticated}
         isGlobal={isGlobalView}
+        agents={agents}
       />
     );
   }

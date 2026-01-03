@@ -20,10 +20,12 @@ import {
     X,
     Edit2,
     Trash2,
-    Check
+    Check,
+    Camera
 } from 'lucide-react';
 import { Agent, Property, Sale, Client } from '../types';
 import { translations } from '../translations';
+import { uploadAgentPhoto } from '../services/supabase';
 
 interface AgentsViewProps {
     agents: Agent[];
@@ -357,6 +359,38 @@ const AgentsView: React.FC<AgentsViewProps> = ({
                                     className="w-full bg-black border border-zinc-800 rounded-xl py-2.5 px-4 text-sm text-white focus:outline-none focus:border-amber-500 transition-colors"
                                     placeholder="Ej: Juan Pérez"
                                 />
+                            </div>
+
+                            <div className="flex items-center gap-4">
+                                <div className="w-16 h-16 rounded-full bg-zinc-800 flex items-center justify-center overflow-hidden border border-zinc-700 relative group">
+                                    {formData.photo ? (
+                                        <img src={formData.photo} alt="Preview" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <UserCheck className="text-zinc-500" />
+                                    )}
+                                    <label className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+                                        <Camera size={16} className="text-white" />
+                                        <input
+                                            type="file"
+                                            className="hidden"
+                                            accept="image/*"
+                                            onChange={async (e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) {
+                                                    const tempId = editingAgent?.id || 'temp-' + Date.now();
+                                                    const url = await uploadAgentPhoto(file, tempId);
+                                                    if (url) {
+                                                        setFormData(prev => ({ ...prev, photo: url }));
+                                                    }
+                                                }
+                                            }}
+                                        />
+                                    </label>
+                                </div>
+                                <div className="text-xs text-zinc-500">
+                                    <p className="font-bold text-zinc-400 uppercase">Foto de Perfil</p>
+                                    <p>Clic para subir nueva foto</p>
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
