@@ -701,8 +701,17 @@ export async function chatWithAssistant(
   history: AssistantMessage[],
   lang: 'es' | 'en',
   userName?: string,
-  agencyName?: string
+  agencyName?: string,
+  agencyId?: string,
+  userId?: string
 ): Promise<string> {
+  // Check usage limit
+  if (agencyId) {
+    const limitCheck = await checkUsageLimit(agencyId, 'voiceQueries');
+    if (!limitCheck.allowed) {
+      throw new Error(getLimitReachedMessage('voiceQueries', limitCheck.current, limitCheck.limit, lang));
+    }
+  }
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error('VITE_GEMINI_API_KEY is not configured');
@@ -755,5 +764,12 @@ ${userName ? `You are talking to ${userName}.` : ''}`;
   } catch (error) {
     console.error('Assistant chat error:', error);
     throw error;
+  } finally {
+    // Increment usage after response (even if error, as API was called)
+    if (agencyId && userId) {
+      await incrementUsage(agencyId, userId, 'voiceQueries').catch(err =>
+        console.error('Failed to increment voice usage:', err)
+      );
+    }
   }
 }
