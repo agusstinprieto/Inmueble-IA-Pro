@@ -188,10 +188,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
 
             {/* Main Stats */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <button
-                    onClick={() => onNavigate('properties')}
-                    className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm dark:shadow-none hover:border-amber-500/50 transition-all cursor-pointer text-left w-full"
-                >
+                <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm dark:shadow-none">
                     <div className="flex items-center justify-between mb-3">
                         <div
                             className="w-10 h-10 rounded-lg flex items-center justify-center"
@@ -206,12 +203,9 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                     <p className="text-zinc-400 text-sm">{t.available_properties}</p>
                     <p className="text-3xl font-bold text-white mt-1">{metrics.availableProperties}</p>
                     <p className="text-zinc-500 text-xs mt-1">de {metrics.totalProperties} totales</p>
-                </button>
+                </div>
 
-                <button
-                    onClick={() => onNavigate('clients')}
-                    className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm dark:shadow-none hover:border-blue-500/50 transition-all cursor-pointer text-left w-full"
-                >
+                <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm dark:shadow-none">
                     <div className="flex items-center justify-between mb-3">
                         <div
                             className="w-10 h-10 rounded-lg flex items-center justify-center"
@@ -226,7 +220,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({
                     <p className="text-zinc-400 text-sm">{t.active_clients}</p>
                     <p className="text-3xl font-bold text-white mt-1">{metrics.activeClients}</p>
                     <p className="text-zinc-500 text-xs mt-1">de {metrics.totalClients} totales</p>
-                </button>
+                </div>
 
                 <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm dark:shadow-none">
                     <div className="flex items-center justify-between mb-3">
