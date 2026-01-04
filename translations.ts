@@ -345,8 +345,8 @@ export const translations = {
     mortgage_calc: "Calculator",
     analytics: "Analytics",
     settings: "Settings",
-    library: "LIBRARY",
-    notaries: "NOTARIES",
+    library: "Library",
+    notaries: "Notaries",
 
     // ============ DASHBOARD ============
     operational_dashboard: "Operational Dashboard",
