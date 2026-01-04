@@ -192,17 +192,17 @@
                 <div class="bg-[#141416] p-6 rounded-2xl border border-zinc-800 overflow-x-auto">
                     <pre class="mermaid">
 graph TD
-    User((User)) -->|Interacts| App[Inmueble IA Pro]
+    User((User)) -->|Interacts| App["Inmueble IA Pro"]
     
-    subgraph "Frontend Layer"
-        App -->|Routing| ReactRouter
-        App -->|UI State| ContextAPI
+    subgraph Frontend["Frontend Layer"]
+        App -->|Routing| ReactRouter["React Router"]
+        App -->|"UI State"| ContextAPI["Context API"]
     end
     
-    subgraph "Backend Services"
-        App -->|Auth and Data| Supabase[Supabase PostgreSQL]
-        App -->|Storage| S3[Supabase Storage]
-        App -->|AI Processing| Gemini[Google Gemini 2.0]
+    subgraph Backend["Backend Services"]
+        App -->|"Auth and Data"| Supabase["Supabase PostgreSQL"]
+        App -->|Storage| S3["Supabase Storage"]
+        App -->|"AI Processing"| Gemini["Google Gemini 2.0"]
     end
 
     Supabase -->|Realtime| App
@@ -226,22 +226,23 @@ sequenceDiagram
     participant AI as Gemini Vision
     participant DB as Database
 
-    Agent->>App: 1. Upload Photos (Drag Drop)
+    Agent->>App: 1. Upload Photos (Drag & Drop)
     App->>Storage: 2. Upload optimized images
-    Storage-->>App: Return URLs
+    Storage-->>App: Return public URLs
     
     par Parallel Analysis
         App->>AI: 3. Analyze images (Vision API)
         AI-->>App: Detect: Rooms, Finishes, Lighting
-    and Valuation
+    and Market Valuation
         App->>AI: 4. Estimate market price
+        AI-->>App: Return estimated valuation
     end
 
     App->>App: 5. Auto-complete form
-    Agent->>App: 6. Confirm data
-    App->>DB: 7. Save record (RLS)
-    DB-->>App: Confirmation
-    App->>Agent: Property Published!
+    Agent->>App: 6. Review and confirm data
+    App->>DB: 7. Save record (Row Level Security)
+    DB-->>App: Successful confirmation
+    App->>Agent: ✓ Property Published!
                     </pre>
                 </div>
             </div>
@@ -254,19 +255,20 @@ sequenceDiagram
                 <div class="bg-[#141416] p-6 rounded-2xl border border-zinc-800 overflow-x-auto">
                     <pre class="mermaid">
 flowchart LR
-    Start((Start)) --> Auth{Has Account?}
-    Auth -- No --> Register[New Registration]
-    Auth -- Yes --> Login[Login]
+    Start((Start)) --> Auth{"Has Account?"}
+    Auth -->|No| Register["New Registration"]
+    Auth -->|Yes| Login["Login"]
     
     Register --> Role{Role}
+    Login --> Dashboard
     
-    Role -- Freelance --> CreateProfile[Create Independent Profile]
-    Role -- Agency --> CreateAgency[Create New Agency]
+    Role -->|Freelance| CreateProfile["Create Independent Profile"]
+    Role -->|Agency| CreateAgency["Create New Agency"]
     
-    CreateAgency --> Config[Configure Branding<br/>Color/Logo/Location]
-    Config --> Invite[Invite Agents]
+    CreateAgency --> Config["Configure Branding<br/>Color/Logo/Location"]
+    Config --> Invite["Invite Agents"]
     
-    Invite --> Dashboard[Main Dashboard]
+    Invite --> Dashboard["Main Dashboard"]
     CreateProfile --> Dashboard
                     </pre>
                 </div>
@@ -283,18 +285,22 @@ stateDiagram-v2
     [*] --> Prospect
     Prospect --> Visit : Schedule Appointment
     Visit --> Offer : Client Interested
+    Visit --> Prospect : Not Interested
     Offer --> Negotiation : Counteroffer
+    Offer --> Closing : Accepted Directly
     Negotiation --> Closing : Accepted
+    Negotiation --> Prospect : Rejected
     
     Closing --> GenerateContract : Legal Data
-    GenerateContract --> DigitalSign : PDF
+    GenerateContract --> DigitalSign : PDF Generated
     
-    DigitalSign --> SaleFinalized
+    DigitalSign --> SaleFinalized : Signed
     SaleFinalized --> Commission : Calculate %
+    SaleFinalized --> PDFReport : Generate Closing Sheet
     Commission --> [*]
+    PDFReport --> [*]
     
-    state "PDF Report" as PDF
-    SaleFinalized --> PDF : Generate Closing Sheet
+    state "PDF Report" as PDFReport
                     </pre>
                 </div>
             </div>
@@ -309,43 +315,39 @@ stateDiagram-v2
                 <div class="bg-[#141416] p-6 rounded-2xl border border-zinc-800 overflow-x-auto">
                     <pre class="mermaid">
 graph TD
-    subgraph "Frontend Layer"
-        Uploader[File Input Component]
-        Preview[Image Preview]
-        Display[Image Component (img tag)]
+    subgraph Frontend["Frontend Layer"]
+        Uploader["File Input Component"]
+        Preview["Image Preview"]
+        Display["Image Component"]
     end
 
-    subgraph "Supabase Cloud"
-        bucket[Bucket: property-images]
-        folderA[Folder: agency-logos]
-        folderB[Folder: agents]
-        folderC[Folder: property-id]
+    subgraph Cloud["Supabase Cloud"]
+        bucket["Bucket: property-images"]
+        folderA["Folder: agency-logos"]
+        folderB["Folder: agents"]
+        folderC["Folder: property-id"]
     end
 
-    subgraph "Database"
-        TableAgency[Table: agency_settings]
-        TableAgent[Table: agents]
-        TableProp[Table: property_images]
+    subgraph Database["Database"]
+        TableAgency["Table: agency_settings"]
+        TableAgent["Table: agents"]
+        TableProp["Table: property_images"]
     end
 
-    %% Upload Flow
-    Uploader -->|1. Upload File| bucket
+    Uploader -->|"1. Upload File"| bucket
     bucket --> folderA
     bucket --> folderB
     bucket --> folderC
     
-    %% URL Generation
-    bucket -->|2. Return Public URL| Uploader
+    bucket -->|"2. Return Public URL"| Uploader
     
-    %% Save to DB
-    Uploader -->|3. Save URL| TableAgency
-    Uploader -->|3. Save URL| TableAgent
-    Uploader -->|3. Save URL| TableProp
+    Uploader -->|"3. Save URL"| TableAgency
+    Uploader -->|"3. Save URL"| TableAgent
+    Uploader -->|"3. Save URL"| TableProp
     
-    %% Display Flow
-    TableAgency -->|4. Fetch URL| Display
-    TableAgent -->|4. Fetch URL| Display
-    TableProp -->|4. Fetch URL| Display
+    TableAgency -->|"4. Fetch URL"| Display
+    TableAgent -->|"4. Fetch URL"| Display
+    TableProp -->|"4. Fetch URL"| Display
     
     style bucket fill:#d97706,stroke:#fff,stroke-width:2px
     style Uploader fill:#202020,stroke:#d97706

@@ -181,7 +181,7 @@ export async function getUsageStats(agencyId: string): Promise<UsageStats> {
             const limit: number = limits[feature];
             const percentage = limit === -1 ? 0 : Math.round((current / limit) * 100);
 
-            features[feature] = { current, limit, percentage };
+            (features as any)[feature] = { current, limit, percentage };
         }
 
         return {
