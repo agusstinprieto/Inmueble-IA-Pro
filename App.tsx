@@ -516,8 +516,6 @@ function App() {
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
         onViewPublic={() => setIsPublicView(true)}
-        theme={theme}
-        onToggleTheme={toggleTheme}
       />
 
       <main className="flex-1 flex flex-col relative">

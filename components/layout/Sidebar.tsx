@@ -21,9 +21,7 @@ import {
   Menu,
   X,
   Sparkles,
-  Globe,
-  Sun,
-  Moon
+  Globe
 } from 'lucide-react';
 import { translations } from '../../translations';
 import { UserRole } from '../../types';
@@ -39,8 +37,6 @@ interface SidebarProps {
   onToggle: () => void;
   onLogout: () => void;
   onViewPublic: () => void;
-  theme: 'light' | 'dark';
-  onToggleTheme: () => void;
   onToggleLanguage: () => void;
 }
 
@@ -63,8 +59,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   onToggle,
   onLogout,
   onViewPublic,
-  theme,
-  onToggleTheme,
   onToggleLanguage
 }) => {
   const t = translations[lang];
@@ -259,18 +253,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               <span>{lang === 'es' ? 'English' : 'Español'}</span>
             </button>
 
-            <button
-              onClick={onToggleTheme}
-              className="
-                  w-full flex items-center gap-3 px-3 py-2.5 rounded-lg
-                  text-left text-sm font-medium
-                  text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800
-                  transition-all duration-150
-                "
-            >
-              {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
-              <span>{theme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>
-            </button>
+
 
             <button
               onClick={() => onNavigate('settings')}
