@@ -188,72 +188,84 @@ const DashboardView: React.FC<DashboardViewProps> = ({
 
             {/* Main Stats */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm dark:shadow-none">
-                    <div className="flex items-center justify-between mb-3">
+                <div
+                    onClick={() => onNavigate('inventory')}
+                    className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm dark:shadow-none cursor-pointer hover:border-amber-500/50 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all group"
+                >
+                    <div className="flex items-center justify-between mb-3 text-white">
                         <div
-                            className="w-10 h-10 rounded-lg flex items-center justify-center"
+                            className="w-10 h-10 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110"
                             style={{ backgroundColor: brandColor + '20' }}
                         >
                             <Building2 size={20} style={{ color: brandColor }} />
                         </div>
-                        <span className="flex items-center text-green-400 text-sm">
+                        <span className="flex items-center text-green-400 text-sm font-bold">
                             <ArrowUpRight size={16} /> +5
                         </span>
                     </div>
-                    <p className="text-zinc-400 text-sm">{t.available_properties}</p>
-                    <p className="text-3xl font-bold text-white mt-1">{metrics.availableProperties}</p>
-                    <p className="text-zinc-500 text-xs mt-1">de {metrics.totalProperties} totales</p>
+                    <p className="text-zinc-400 text-sm font-medium">{t.available_properties}</p>
+                    <p className="text-3xl font-bold text-zinc-900 dark:text-white mt-1">{metrics.availableProperties}</p>
+                    <p className="text-zinc-500 text-xs mt-1 font-medium">de {metrics.totalProperties} totales</p>
                 </div>
 
-                <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm dark:shadow-none">
-                    <div className="flex items-center justify-between mb-3">
+                <div
+                    onClick={() => onNavigate('clients')}
+                    className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm dark:shadow-none cursor-pointer hover:border-blue-500/50 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all group"
+                >
+                    <div className="flex items-center justify-between mb-3 text-white">
                         <div
-                            className="w-10 h-10 rounded-lg flex items-center justify-center"
+                            className="w-10 h-10 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110"
                             style={{ backgroundColor: '#3b82f620' }}
                         >
                             <Users size={20} className="text-blue-500" />
                         </div>
-                        <span className="flex items-center text-green-400 text-sm">
+                        <span className="flex items-center text-green-400 text-sm font-bold">
                             <ArrowUpRight size={16} /> +12
                         </span>
                     </div>
-                    <p className="text-zinc-400 text-sm">{t.active_clients}</p>
-                    <p className="text-3xl font-bold text-white mt-1">{metrics.activeClients}</p>
-                    <p className="text-zinc-500 text-xs mt-1">de {metrics.totalClients} totales</p>
+                    <p className="text-zinc-400 text-sm font-medium">{t.active_clients}</p>
+                    <p className="text-3xl font-bold text-zinc-900 dark:text-white mt-1">{metrics.activeClients}</p>
+                    <p className="text-zinc-500 text-xs mt-1 font-medium">de {metrics.totalClients} totales</p>
                 </div>
 
-                <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm dark:shadow-none">
-                    <div className="flex items-center justify-between mb-3">
+                <div
+                    onClick={() => onNavigate('sales')}
+                    className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm dark:shadow-none cursor-pointer hover:border-green-500/50 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all group"
+                >
+                    <div className="flex items-center justify-between mb-3 text-white">
                         <div
-                            className="w-10 h-10 rounded-lg flex items-center justify-center"
+                            className="w-10 h-10 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110"
                             style={{ backgroundColor: '#22c55e20' }}
                         >
                             <DollarSign size={20} className="text-green-500" />
                         </div>
-                        <span className="flex items-center text-green-400 text-sm">
+                        <span className="flex items-center text-green-400 text-sm font-bold">
                             <ArrowUpRight size={16} /> +23%
                         </span>
                     </div>
-                    <p className="text-zinc-400 text-sm">{t.monthly_sales}</p>
-                    <p className="text-3xl font-bold text-white mt-1">{metrics.monthlySales}</p>
-                    <p className="text-zinc-500 text-xs mt-1">{formatCurrency(metrics.monthlyRevenue)}</p>
+                    <p className="text-zinc-400 text-sm font-medium">{t.monthly_sales}</p>
+                    <p className="text-3xl font-bold text-zinc-900 dark:text-white mt-1">{metrics.monthlySales}</p>
+                    <p className="text-zinc-500 text-xs mt-1 font-medium">{formatCurrency(metrics.monthlyRevenue)}</p>
                 </div>
 
-                <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm dark:shadow-none">
-                    <div className="flex items-center justify-between mb-3">
+                <div
+                    onClick={() => onNavigate('analytics')}
+                    className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm dark:shadow-none cursor-pointer hover:border-amber-500/50 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all group"
+                >
+                    <div className="flex items-center justify-between mb-3 text-white">
                         <div
-                            className="w-10 h-10 rounded-lg flex items-center justify-center"
+                            className="w-10 h-10 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110"
                             style={{ backgroundColor: '#f59e0b20' }}
                         >
                             <Eye size={20} className="text-amber-500" />
                         </div>
-                        <span className="flex items-center text-green-400 text-sm">
+                        <span className="flex items-center text-green-400 text-sm font-bold">
                             <ArrowUpRight size={16} /> +45
                         </span>
                     </div>
-                    <p className="text-zinc-400 text-sm">Visitas Totales</p>
-                    <p className="text-3xl font-bold text-white mt-1">{metrics.totalViews}</p>
-                    <p className="text-zinc-500 text-xs mt-1">este mes</p>
+                    <p className="text-zinc-400 text-sm font-medium">Visitas Totales</p>
+                    <p className="text-3xl font-bold text-zinc-900 dark:text-white mt-1">0</p>
+                    <p className="text-zinc-500 text-xs mt-1 font-medium">este mes</p>
                 </div>
             </div>
 
