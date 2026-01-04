@@ -201,7 +201,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   <span style={isActive ? { color: brandColor } : {}}>
                     {item.icon}
                   </span>
-                  <span className="flex-1 uppercase font-bold tracking-wide">{item.label}</span>
+                  <span className="flex-1 font-bold tracking-wide">{item.label}</span>
                   {item.badge && (
                     <span
                       className="px-1.5 py-0.5 text-[10px] font-black rounded"
