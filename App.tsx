@@ -179,8 +179,7 @@ function App() {
   if (isAuthLoading) {
     return (
       <div
-        className="min-h-screen flex items-center justify-center p-4 text-center"
-        style={{ backgroundColor: '#0a0a0a' }}
+        className="min-h-screen flex items-center justify-center p-4 text-center bg-gray-50 dark:bg-[#0a0a0a] transition-colors duration-300"
       >
         <div className="max-w-xs w-full">
           <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4" style={{ color: brandColor }} />
@@ -504,18 +503,21 @@ function App() {
 
   // Main App
   return (
-    <div className="flex min-h-screen bg-black text-white">
+    <div className="flex min-h-screen bg-gray-50 dark:bg-black text-zinc-900 dark:text-white transition-colors duration-300">
       <Sidebar
         activeView={activeView}
         onNavigate={handleNavigate}
         businessName={businessName}
         brandColor={brandColor}
         lang={lang}
-        onToggleLang={() => setLang(l => l === 'es' ? 'en' : 'es')}
+        onToggleLanguage={() => setLang(l => l === 'es' ? 'en' : 'es')}
         userRole={userRole}
         onLogout={handleLogout}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+        onViewPublic={() => setIsPublicView(true)}
+        theme={theme}
+        onToggleTheme={toggleTheme}
       />
 
       <main className="flex-1 flex flex-col relative">
