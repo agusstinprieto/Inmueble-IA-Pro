@@ -86,6 +86,26 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
         };
     };
 
+    const handleShareWhatsApp = (e: React.MouseEvent, property: Property) => {
+        e.stopPropagation();
+        const price = property.operation === 'RENTA' ? property.rentPrice : property.salePrice;
+        const priceFormatted = price ? `$${price.toLocaleString()} ${property.currency}` : 'Precio a consultar';
+        const specs = `${property.specs.bedrooms} Hab • ${property.specs.bathrooms} Baños • ${property.specs.m2Built}m²`;
+        const locationStr = `${property.address.colony}, ${property.address.city}`;
+
+        const text = `Hola! Te comparto esta propiedad que te puede interesar:
+*${property.title}*
+💰 ${priceFormatted} (${property.operation})
+📍 ${locationStr}
+🏠 ${specs}
+
+Ver más detalles aquí:`;
+
+        const url = window.location.origin + '?p=' + property.id;
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text + '\n' + url)}`;
+        window.open(whatsappUrl, '_blank');
+    };
+
     const isAdmin = userRole === 'super_admin' || userRole === 'agency_owner' || userRole === 'branch_manager';
 
     const [viewMode, setViewMode] = useState<'grid' | 'list' | 'map'>('grid');
@@ -414,17 +434,11 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                             <Heart size={18} fill={property.favorites > 0 ? "currentColor" : "none"} />
                         </button>
                         <button
-                            onClick={e => {
-                                e.stopPropagation();
-                                const text = `Mira esta propiedad: ${property.title} - ${property.operation}`;
-                                const url = window.location.origin + '?p=' + property.id;
-                                const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`;
-                                window.open(whatsappUrl, '_blank');
-                            }}
-                            className="p-2 bg-black/50 rounded-full text-white hover:bg-black/70"
+                            onClick={(e) => handleShareWhatsApp(e, property)}
+                            className="p-2 bg-green-600 rounded-full text-white hover:bg-green-700"
                             title="Compartir por WhatsApp"
                         >
-                            <Share2 size={18} />
+                            <MessageCircle size={18} />
                         </button>
                         <button
                             onClick={e => {
@@ -616,6 +630,13 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({
                         title="Calcular Hipoteca"
                     >
                         <Calculator size={18} />
+                    </button>
+                    <button
+                        onClick={(e) => handleShareWhatsApp(e, property)}
+                        className="p-2 bg-zinc-800 rounded-lg hover:bg-green-600 hover:text-white text-zinc-400 transition-colors"
+                        title="Compartir por WhatsApp"
+                    >
+                        <MessageCircle size={18} />
                     </button>
                 </div>
             </div>
