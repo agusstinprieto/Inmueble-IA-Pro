@@ -41,6 +41,7 @@ interface SidebarProps {
   onViewPublic: () => void;
   theme: 'light' | 'dark';
   onToggleTheme: () => void;
+  onToggleLanguage: () => void;
 }
 
 interface NavItem {
@@ -63,7 +64,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   onLogout,
   onViewPublic,
   theme,
-  onToggleTheme
+  onToggleTheme,
+  onToggleLanguage
 }) => {
   const t = translations[lang];
 
@@ -243,6 +245,19 @@ const Sidebar: React.FC<SidebarProps> = ({
           {/* Settings & Logout */}
           <div className="px-3 space-y-1">
 
+
+            <button
+              onClick={onToggleLanguage}
+              className="
+                  w-full flex items-center gap-3 px-3 py-2.5 rounded-lg
+                  text-left text-sm font-medium
+                  text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800
+                  transition-all duration-150
+                "
+            >
+              <Globe size={20} />
+              <span>{lang === 'es' ? 'English' : 'Español'}</span>
+            </button>
 
             <button
               onClick={onToggleTheme}
