@@ -1,0 +1,55 @@
+{
+    "name": "Inmueble IA Pro",
+    "short_name": "Inmueble IA",
+    "description": "Plataforma inmobiliaria potenciada con Inteligencia Artificial",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0a0a0a",
+    "theme_color": "#f59e0b",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": [
+        "business",
+        "productivity"
+    ],
+    "screenshots": [],
+    "shortcuts": [
+        {
+            "name": "Analizar Propiedad",
+            "short_name": "Analizar",
+            "description": "Analizar una nueva propiedad con IA",
+            "url": "/?view=analyze",
+            "icons": [
+                {
+                    "src": "/icon-192.png",
+                    "sizes": "192x192"
+                }
+            ]
+        },
+        {
+            "name": "Mis Propiedades",
+            "short_name": "Propiedades",
+            "description": "Ver inventario de propiedades",
+            "url": "/?view=properties",
+            "icons": [
+                {
+                    "src": "/icon-192.png",
+                    "sizes": "192x192"
+                }
+            ]
+        }
+    ]
+}
