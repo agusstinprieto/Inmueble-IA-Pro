@@ -156,13 +156,13 @@ const AssistantView: React.FC<AssistantViewProps> = ({ lang, userName, agencyNam
             setAvailableVoices(filtered);
 
             if (filtered.length > 0 && !selectedVoice) {
-                // Try to find a good default if none selected
-                const defaultVoice = filtered.find(v =>
-                    v.name.includes('Sabina') ||
-                    v.name.includes('Google español') ||
-                    v.name.includes('Natural')
+                // Prioritize Google or Premium voices as requested
+                const preferredVoice = filtered.find(v =>
+                    v.name.includes('Google') ||
+                    v.name.includes('Premium') ||
+                    v.name.includes('Sabina')
                 );
-                setSelectedVoice(defaultVoice || filtered[0]);
+                setSelectedVoice(preferredVoice || filtered[0]);
             }
         };
 

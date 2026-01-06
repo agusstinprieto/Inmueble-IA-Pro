@@ -147,5 +147,5 @@ Cualquier duda o para agendar una implementación, estoy a tu disposición.
 Atte.
 **Agustín Prieto**
 📞 +52 871 143 9941
-🌐 https://agusstinprieto.wixsite.com/ia-agus
+🌐 https://www.ia-agus.com/
 🏢 **IA.AGUS**
