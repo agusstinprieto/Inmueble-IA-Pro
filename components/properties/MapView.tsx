@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import {
-    Map,
+    Map as MapIcon,
     MapPin,
     Search,
     Layers,
@@ -25,8 +25,8 @@ interface MapViewProps {
     onPropertySelect?: (property: Property) => void;
 }
 
-// Declaración para TypeScript ya que Leaflet se carga vía CDN
-declare const L: any;
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 const MapView: React.FC<MapViewProps> = ({
     properties,
@@ -171,7 +171,7 @@ const MapView: React.FC<MapViewProps> = ({
                         className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
                         style={{ backgroundColor: brandColor + '20' }}
                     >
-                        <Map size={24} style={{ color: brandColor }} />
+                        <MapIcon size={24} style={{ color: brandColor }} />
                     </div>
                     <div>
                         <h1 className="text-3xl font-black text-white italic uppercase tracking-tighter mb-2">
